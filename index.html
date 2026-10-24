@@ -894,10 +894,11 @@
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">แหวนรอง Part 25 (แผ่นละ 2 mm)</label>
+                    <label class="text-slate-300">แหวนรอง Part 25 (0–5 แผ่น ถอดออกได้)</label>
                     <span id="valWasherMm" class="font-mono font-bold text-yellow-400">2 แผ่น = 4.0 mm</span>
                   </div>
-                  <input id="paramWasherMm" type="range" min="2.0" max="10.0" step="2.0" value="4.0" oninput="updateEngineeringParams()" class="w-full" />
+                  <input id="paramWasherMm" type="range" min="0.0" max="10.0" step="2.0" value="4.0" oninput="updateEngineeringParams()" class="w-full" />
+                  <div class="flex justify-between text-[10px] text-slate-400 mt-0.5"><span>0 แผ่น (ไม่ใส่ = แบนสุด)</span><span>2 แผ่น (4 mm)</span><span>5 แผ่น (10 mm)</span></div>
                 </div>
               </div>
 
@@ -1630,10 +1631,11 @@
       const requiredBananaForceN = ripenessFactor * state.bananaCount;
       const compressionEfficiency = Math.min(1, peakNetPressForceN / Math.max(1, requiredBananaForceN));
 
-      const targetEdgeThickMm = state.washerMm + (1 - compressionEfficiency) * 3.5;
+      const minStopMm = state.washerMm > 0 ? state.washerMm : 0.8;
+      const targetEdgeThickMm = minStopMm + (1 - compressionEfficiency) * 3.5;
       const currentEdgeBananaMm = state.initialBananaMm - pRatio * (state.initialBananaMm - targetEdgeThickMm);
       const currentCenterBananaMm = currentEdgeBananaMm + (pRatio > 0.3 ? currentPlateDeflectionMm : 0);
-      const thicknessErrorPercent = (maxPlateDeflectionMm / Math.max(1, state.washerMm)) * 100;
+      const thicknessErrorPercent = (maxPlateDeflectionMm / Math.max(0.8, state.washerMm)) * 100;
 
       const pressedAreaCm2 = state.bananaCount * 78;
       const pressureKpa = (peakNetPressForceN / (pressedAreaCm2 * 1e-4)) / 1000;
@@ -1697,9 +1699,9 @@
       const phys = computePhysics();
       const pRatio = state.pedalPercent / 100;
 
-      // 1. Visual Vertical Travel (px) - Calibrated so Part 6 sleeve lands flush on Part 25 washers at 100% press
-      const washerPxHeight2d = Math.max(4, (state.washerMm / 12) * 20);
-      const maxVisualTravelPx = 38 - washerPxHeight2d;
+      // 1. Visual Vertical Travel (px) - Calibrated so Part 6 sleeve lands flush on Part 25 washers (or Part 5 base if 0 washers) at 100% press
+      const washerPxHeight2d = state.washerMm === 0 ? 0 : Math.max(4, (state.washerMm / 12) * 20);
+      const maxVisualTravelPx = state.washerMm === 0 ? 43 : 38 - washerPxHeight2d;
       const sagPx = (phys.sagMm / Math.max(1, phys.maxNominalStrokeMm)) * maxVisualTravelPx;
       const travelPx = sagPx + pRatio * (maxVisualTravelPx - sagPx);
 
@@ -1773,16 +1775,16 @@
       setAttr('returnSpringPath', 'stroke-width', Math.max(1.8, Math.min(4.5, state.springWireDMm * 0.9)).toFixed(1));
       setAttr('returnSpringPath', 'stroke', phys.canReturnFully ? '#E2E8F0' : '#F43F5E');
 
-      // 4. Washer Stack Height Visually (Part 25: 2.0 mm per washer)
+      // 4. Washer Stack Height Visually (Part 25: 0 to 5 washers, 0 = removed for ultra-flat press)
       const washerCount = Math.round(state.washerMm / 2.0);
-      const washerPxHeight = Math.max(4, (state.washerMm / 12) * 20);
+      const washerPxHeight = washerCount === 0 ? 0 : Math.max(4, (state.washerMm / 12) * 20);
       const washerY = 168 - washerPxHeight;
       setAttr('sideWasherStack', 'y', washerY.toFixed(1));
       setAttr('sideWasherStack', 'height', washerPxHeight.toFixed(1));
-      setAttr('isoWasherRect', 'height', Math.max(5, washerPxHeight * 0.6).toFixed(1));
+      setAttr('isoWasherRect', 'height', washerCount === 0 ? '0' : Math.max(5, washerPxHeight * 0.6).toFixed(1));
 
       // Zoomed Inset Washers & Sleeve (Detail C / AE)
-      const zoomWasherH = Math.max(6, (state.washerMm / 12) * 28);
+      const zoomWasherH = washerCount === 0 ? 0 : Math.max(6, (state.washerMm / 12) * 28);
       const zoomWasherY = 68 - zoomWasherH;
       setAttr('zoomWasherStack', 'y', zoomWasherY.toFixed(1));
       setAttr('zoomWasherStack', 'height', zoomWasherH.toFixed(1));
@@ -1790,18 +1792,19 @@
       const zoomSleeveMaxTravel = zoomWasherY - 38;
       const zoomSleeveY = 23 + (phys.effectiveStrokeMm / Math.max(1, phys.maxNominalStrokeMm)) * zoomSleeveMaxTravel;
       setAttr('zoomTopSleeve', 'y', zoomSleeveY.toFixed(1));
-      setText('zoomWasherText', `Part 25: ${washerCount} แผ่น (${state.washerMm.toFixed(1)} mm)`);
+      setText('zoomWasherText', washerCount === 0 ? 'Part 25: ไม่ใส่แหวน (กดแบนสุด!)' : `Part 25: ${washerCount} แผ่น (${state.washerMm.toFixed(1)} mm)`);
       setText('zoomDeflectText', `แอ่นตัวกลางแผ่น: ${phys.maxPlateDeflectionMm.toFixed(2)} mm`);
 
       // 5. Compress Bananas in Side View (Only compresses after upper plate contacts top of banana; stays flat during Step 3 release)
       const effBanTravelPx = state.currentStep === 3
         ? sagPx + Math.max(pRatio, state.maxPressedRatio || 0) * (maxVisualTravelPx - sagPx)
         : travelPx;
-      const plateGapPx = Math.max(5, 174 - (acrylicBottomY + effBanTravelPx));
+      const minBanGapPx = state.washerMm === 0 ? 2.2 : 5;
+      const plateGapPx = Math.max(minBanGapPx, 174 - (acrylicBottomY + effBanTravelPx));
       const bananaH = Math.min(26, plateGapPx);
       const bananaY = 174 - bananaH;
-      const compressionRatio = Math.max(0, (26 - bananaH) / 20);
-      const bananaW = 44 + compressionRatio * 20;
+      const compressionRatio = Math.max(0, (26 - bananaH) / 22);
+      const bananaW = 44 + compressionRatio * (state.washerMm === 0 ? 30 : 20);
 
       setAttr('sideBananaLeft', 'y', bananaY.toFixed(1));
       setAttr('sideBananaLeft', 'height', bananaH.toFixed(1));
@@ -1892,7 +1895,7 @@
           stopBadge.className = 'text-xs font-mono text-rose-400 font-bold';
           setAttr('washerZoomCircle', 'stroke', '#F43F5E');
         } else if (phys.isStopContact) {
-          stopBadge.textContent = `Stop: LOCKED (${state.washerMm.toFixed(1)} mm)`;
+          stopBadge.textContent = state.washerMm > 0 ? `Stop: LOCKED (${state.washerMm.toFixed(1)} mm)` : 'Stop: NO WASHER (กดแบนสุด!)';
           stopBadge.className = 'text-xs font-mono text-emerald-400 font-bold';
           setAttr('washerZoomCircle', 'stroke', '#10B981');
         } else {
@@ -1960,9 +1963,10 @@
         errNoteEl.className = phys.maxPlateDeflectionMm <= 0.25 ? 'text-[11px] text-emerald-400 mt-0.5' : 'text-[11px] text-amber-400 font-bold mt-0.5';
       }
 
-      const centerPressedMm = state.washerMm + phys.maxPlateDeflectionMm;
-      setText('metricFinalThickness', `${state.washerMm.toFixed(1)} / ${centerPressedMm.toFixed(2)} mm`);
-      setText('metricPedalStrokeNote', `Part 25: ${washerCount} แผ่น • กดเท้า ${Math.round(phys.pedalStrokeMm)} mm (${phys.pedalAngleDeg.toFixed(1)}°)`);
+      const edgePressedMm = state.washerMm > 0 ? state.washerMm : 0.8;
+      const centerPressedMm = edgePressedMm + phys.maxPlateDeflectionMm;
+      setText('metricFinalThickness', state.washerMm > 0 ? `${state.washerMm.toFixed(1)} / ${centerPressedMm.toFixed(2)} mm` : `~0.8 / ${centerPressedMm.toFixed(2)} mm`);
+      setText('metricPedalStrokeNote', washerCount === 0 ? `ไม่ใส่แหวน (แบนสุด) • กดเท้า ${Math.round(phys.pedalStrokeMm)} mm (${phys.pedalAngleDeg.toFixed(1)}°)` : `Part 25: ${washerCount} แผ่น • กดเท้า ${Math.round(phys.pedalStrokeMm)} mm (${phys.pedalAngleDeg.toFixed(1)}°)`);
 
       // 11. Sub-Tab Breakdown Readouts
       setText('breakdownTotalWeightN', `รวม ${phys.totalMovingMassKg.toFixed(2)} kg (W_dead = ${phys.deadWeightN.toFixed(1)} N)`);
@@ -2380,7 +2384,7 @@
       setText('valPlateLength', `${(state.plateLengthMm / 10).toFixed(1)} cm (${state.plateLengthMm} mm)`);
       setText('valAcrylicThick', `${state.acrylicThickMm.toFixed(1)} mm (${(state.acrylicThickMm / 10).toFixed(1)} cm)`);
       const washerRings = Math.round(state.washerMm / 2.0);
-      setText('valWasherMm', `${washerRings} แผ่น = ${state.washerMm.toFixed(1)} mm`);
+      setText('valWasherMm', washerRings === 0 ? '0 แผ่น (ไม่ใส่ = กดแบนสุด!)' : `${washerRings} แผ่น = ${state.washerMm.toFixed(1)} mm`);
 
       setText('valSpringWireD', `${state.springWireDMm.toFixed(1)} mm`);
       setText('valSpringCoilD', `${state.springCoilDMm.toFixed(1)} mm`);
@@ -3029,7 +3033,7 @@
       // At full press (strokeFrac = 1.0), bottom of Part 6 (at carriageY + 2.0) lands FLUSH on top of Part 25 washers (76.0 + washerStackHCm),
       // and bottom of Part 7 (at carriageY) is at 74.0 + minGapCm (compressing the banana to exact washer thickness)!
       const openGapCm = 11.2;
-      const minGapCm = Math.max(0.35, washerStackHCm);
+      const minGapCm = washerCount === 0 ? 0.14 : Math.max(0.35, washerStackHCm);
       const strokeFrac = Math.min(1.0, Math.max(0.0, phys.effectiveStrokeMm / Math.max(1, phys.maxNominalStrokeMm)));
       const currentGapCm = openGapCm - strokeFrac * (openGapCm - minGapCm);
       const carriageY = 74.0 + currentGapCm;
@@ -3127,8 +3131,8 @@
         const maxPressedFrac = Math.min(1.0, Math.max(strokeFrac, state.maxPressedRatio || 0));
         effectiveGapForBananaCm = openGapCm - maxPressedFrac * (openGapCm - minGapCm);
       }
-      const baseBanHCm = Math.min(initialBanHCm, Math.max(0.32, effectiveGapForBananaCm));
-      const spreadXZ = 1.0 + ((initialBanHCm - baseBanHCm) / initialBanHCm) * 1.15;
+      const baseBanHCm = Math.min(initialBanHCm, Math.max(0.14, effectiveGapForBananaCm));
+      const spreadXZ = 1.0 + ((initialBanHCm - baseBanHCm) / initialBanHCm) * (washerCount === 0 ? 1.55 : 1.15);
 
       // Include elastic plate deflection on center banana if plate bends
       const centerDeflCm = baseBanHCm < initialBanHCm ? Math.min(0.8, phys.maxPlateDeflectionMm * 0.25) : 0;
