@@ -182,7 +182,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">หลักการทำงาน 3 ขั้นตอน (คำนวณมวลจริง $W_{dead}$ + แรงดึงสปริง $F_{spring}$ + การแอ่นตัว $\delta_{plate}$)</span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">หลักการทำงาน 3 ขั้นตอน (คำนวณมวลจริง W<sub>dead</sub> + แรงดึงสปริง $F_{spring}$ + การแอ่นตัว δ<sub>plate</sub>)</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-xs text-slate-400">กด <kbd class="px-1.5 py-0.5 text-[11px] font-mono bg-slate-800 text-yellow-400 rounded border border-slate-700">Spacebar</kbd> ค้างเพื่อเหยียบแป้นจริง</span>
@@ -197,7 +197,7 @@
                   <span class="text-lg">🍌⬇️</span>
                 </div>
                 <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">1. วาง (Place)</div>
-                <p class="text-[11px] text-slate-300 leading-tight mt-0.5">สปริงรั้งชุดแผ่นเหล็ก+อะคริลิกไว้ด้านบน ($F_{sp,0} \ge W_{dead}$) วางกล้วยเตรียมกด</p>
+                <p class="text-[11px] text-slate-300 leading-tight mt-0.5">สปริงรั้งชุดแผ่นเหล็ก+อะคริลิกไว้ด้านบน (F<sub>sp,0</sub> ≥ W<sub>dead</sub>) วางกล้วยเตรียมกด</p>
               </button>
 
               <!-- Step 2: เหยียบ -->
@@ -207,7 +207,7 @@
                   <span class="text-lg">🦶⬇️</span>
                 </div>
                 <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">2. เหยียบ (Press)</div>
-                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">แรงคานเหยียบ + น้ำหนักแผ่นเหล็ก $W_{dead}$ กดกล้วยชนแหวนรอง ($\delta_{plate}$ แอ่นตามความหนาเหล็ก)</p>
+                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">แรงคานเหยียบ + น้ำหนักแผ่นเหล็ก W<sub>dead</sub> กดกล้วยชนแหวนรอง (δ<sub>plate</sub> แอ่นตามความหนาเหล็ก)</p>
               </button>
 
               <!-- Step 3: คลาย -->
@@ -217,7 +217,7 @@
                   <span class="text-lg">🔄⬆️</span>
                 </div>
                 <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">3. คลาย (Release)</div>
-                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">ปล่อยเท้า สปริงต้องเอาชนะน้ำหนักชุดแผ่นกด $W_{dead}$ + แรงเสียดทาน $F_f$ เพื่อยกกลับ</p>
+                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">ปล่อยเท้า สปริงต้องเอาชนะน้ำหนักชุดแผ่นกด W<sub>dead</sub> + แรงเสียดทาน F<sub>f</sub> เพื่อยกกลับ</p>
               </button>
             </div>
           </div>
@@ -704,7 +704,7 @@
                   <div>
                     <span id="partInspectorTitle" class="font-bold text-yellow-400">คลิกจุดชิ้นส่วนเพื่อดูหลักกลศาสตร์: 5. แผ่นเหล็กกดทับ SS400 + แผ่นอะคริลิก Food Grade</span>
                     <p id="partInspectorDesc" class="text-slate-300 mt-0.5 leading-relaxed">
-                      มวลของแผ่นเหล็กและแผ่นอะคริลิกสร้างน้ำหนักกดทับเริ่มต้น ($W_{dead}$) ช่วยทุ่นแรงขณะเหยียบ แต่สปริงดึงกลับต้องมีแรงดึงเริ่มต้น $F_{sp,0} > W_{dead} + F_f$ จึงจะยกชุดแผ่นกดกลับขึ้นสุดได้
+                      มวลของแผ่นเหล็กและแผ่นอะคริลิกสร้างน้ำหนักกดทับเริ่มต้น (W<sub>dead</sub>) ช่วยทุ่นแรงขณะเหยียบ แต่สปริงดึงกลับต้องมีแรงดึงเริ่มต้น F<sub>sp,0</sub> &gt; W<sub>dead</sub> + F<sub>f</sub> จึงจะยกชุดแผ่นกดกลับขึ้นสุดได้
                     </p>
                   </div>
                 </div>
@@ -764,7 +764,7 @@
             <!-- Card 3: Steel Plate Elastic Deflection & Stress -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
               <div class="text-[11px] text-slate-400 flex items-center justify-between">
-                <span>การแอ่นตัวเหล็กแผ่น ($\delta_{plate}$)</span>
+                <span>การแอ่นตัวเหล็กแผ่น (δ<sub>plate</sub>)</span>
                 <span id="metricPlateFosBadge" class="text-emerald-400 font-mono">FOS &gt; 10</span>
               </div>
               <div id="metricPlateDeflection" class="text-lg font-mono font-bold text-sky-400 mt-1">0.042 mm</div>
@@ -831,7 +831,7 @@
               <!-- Steel Plate Thickness t_steel -->
               <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
                 <div class="flex justify-between mb-1">
-                  <label class="text-slate-200 font-semibold">ความหนาเนื้อเหล็ก Part 12 ($t_{steel}$ - SS400)</label>
+                  <label class="text-slate-200 font-semibold">ความหนาเนื้อเหล็ก Part 12 (t<sub>steel</sub> - SS400)</label>
                   <span id="valSteelThick" class="font-mono font-bold text-yellow-400">4.5 mm (0.45 cm)</span>
                 </div>
                 <input id="paramSteelThick" type="range" min="1.5" max="30.0" step="0.5" value="4.5" oninput="updateEngineeringParams()" class="w-full" />
@@ -846,7 +846,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">ความกว้างแผ่น Part 12,7 ($W$)</label>
+                    <label class="text-slate-300">ความกว้างแผ่น Part 12,7 (W)</label>
                     <span id="valPlateWidth" class="font-mono font-bold text-sky-400">52.0 cm (520 mm)</span>
                   </div>
                   <input id="paramPlateWidth" type="range" min="300" max="600" step="10" value="520" oninput="updateEngineeringParams()" class="w-full" />
@@ -854,7 +854,7 @@
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">ความลึกแผ่น Part 12,7 ($L$)</label>
+                    <label class="text-slate-300">ความลึกแผ่น Part 12,7 (L)</label>
                     <span id="valPlateLength" class="font-mono font-bold text-sky-400">35.0 cm (350 mm)</span>
                   </div>
                   <input id="paramPlateLength" type="range" min="250" max="450" step="10" value="350" oninput="updateEngineeringParams()" class="w-full" />
@@ -865,7 +865,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">อะคริลิก Part 7 ($t_{acrylic}$)</label>
+                    <label class="text-slate-300">อะคริลิก Part 7 (t<sub>acrylic</sub>)</label>
                     <span id="valAcrylicThick" class="font-mono font-bold text-sky-400">10.0 mm (1.0 cm)</span>
                   </div>
                   <input id="paramAcrylicThick" type="range" min="3.0" max="20.0" step="1.0" value="10.0" oninput="updateEngineeringParams()" class="w-full" />
@@ -901,7 +901,7 @@
                   </div>
                 </div>
                 <div class="pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                  <span class="text-slate-400">ความเค้นดัดในเหล็กแผ่น ($\sigma_{bending}$ สแปน 52 cm):</span>
+                  <span class="text-slate-400">ความเค้นดัดในเหล็กแผ่น (σ<sub>bending</sub> สแปน 52 cm):</span>
                   <span id="breakdownPlateStress" class="font-mono font-bold text-emerald-400">18.4 MPa (Yield 250 MPa)</span>
                 </div>
               </div>
@@ -915,7 +915,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">ขนาดลวดสปริง ($d_{wire}$)</label>
+                    <label class="text-slate-300">ขนาดลวดสปริง (d<sub>wire</sub>)</label>
                     <span id="valSpringWireD" class="font-mono font-bold text-yellow-400">3.5 mm</span>
                   </div>
                   <input id="paramSpringWireD" type="range" min="2.0" max="6.0" step="0.2" value="3.5" oninput="updateEngineeringParams()" class="w-full" />
@@ -923,7 +923,7 @@
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">เส้นผ่านศูนย์กลางขด ($D_{coil}$)</label>
+                    <label class="text-slate-300">เส้นผ่านศูนย์กลางขด (D<sub>coil</sub>)</label>
                     <span id="valSpringCoilD" class="font-mono font-bold text-sky-400">24.0 mm</span>
                   </div>
                   <input id="paramSpringCoilD" type="range" min="16.0" max="45.0" step="1.0" value="24.0" oninput="updateEngineeringParams()" class="w-full" />
@@ -933,7 +933,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">จำนวนขดใช้งาน ($N_a$)</label>
+                    <label class="text-slate-300">จำนวนขดใช้งาน (N<sub>a</sub>)</label>
                     <span id="valSpringCoils" class="font-mono font-bold text-sky-400">14 ขด</span>
                   </div>
                   <input id="paramSpringCoils" type="range" min="8" max="32" step="1" value="14" oninput="updateEngineeringParams()" class="w-full" />
@@ -941,7 +941,7 @@
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">ขันน็อต Part 26 เร่งสปริง ($\Delta x_{preload}$)</label>
+                    <label class="text-slate-300">ขันน็อต Part 26 เร่งสปริง (Δx<sub>preload</sub>)</label>
                     <span id="valSpringPreload" class="font-mono font-bold text-emerald-400">38 mm</span>
                   </div>
                   <input id="paramSpringPreload" type="range" min="5" max="85" step="1" value="38" oninput="updateEngineeringParams()" class="w-full" />
@@ -951,19 +951,19 @@
               <!-- Spring Shigley Summary Box -->
               <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/90 space-y-1.5 text-[11px]">
                 <div class="flex justify-between">
-                  <span class="text-slate-400">ค่าคงที่สปริงรวม Part 16 + Part 27 ($k_{total}$):</span>
+                  <span class="text-slate-400">ค่าคงที่สปริงรวม Part 16 + Part 27 (k<sub>total</sub>):</span>
                   <span id="springCalcK" class="font-mono font-bold text-yellow-400">6.18 N/mm (6,180 N/m)</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-slate-400">แรงดึงยกเริ่มต้น ($F_{sp,0}$) vs น้ำหนักต้าน ($W_{dead}+F_f$):</span>
+                  <span class="text-slate-400">แรงดึงยกเริ่มต้น (F<sub>sp,0</sub>) vs น้ำหนักต้าน (W<sub>dead</sub> + F<sub>f</sub>):</span>
                   <span id="springLiftCompare" class="font-mono font-bold text-emerald-400">185.0 N vs 134.0 N (ยกขึ้น 100%)</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-slate-400">แรงดึงสปริงสูงสุดตอนเหยียบสุด ($F_{sp,max}$):</span>
+                  <span class="text-slate-400">แรงดึงสปริงสูงสุดตอนเหยียบสุด (F<sub>sp,max</sub>):</span>
                   <span id="springMaxForceText" class="font-mono font-bold text-white">312.5 N</span>
                 </div>
                 <div class="flex justify-between border-t border-slate-800 pt-1.5">
-                  <span class="text-slate-400">ความเค้นเฉือนสปริง ($\tau_{max}$) & Safety Factor:</span>
+                  <span class="text-slate-400">ความเค้นเฉือนสปริง (τ<sub>max</sub>) & Safety Factor:</span>
                   <span id="springStressText" class="font-mono font-bold text-emerald-400">318 MPa (FOS = 1.42)</span>
                 </div>
               </div>
@@ -975,7 +975,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">จุดหมุน #20 ถึงจุดดึง #18 ($L_1$)</label>
+                    <label class="text-slate-300">จุดหมุน #20 ถึงจุดดึง #18 (L<sub>1</sub>)</label>
                     <span id="valLeverL1" class="font-mono font-bold text-sky-400">15.0 cm (150 mm)</span>
                   </div>
                   <input id="paramLeverL1" type="range" min="80" max="220" step="5" value="150" oninput="updateEngineeringParams()" class="w-full" />
@@ -983,7 +983,7 @@
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">ความยาวแป้น Part 19 ($L_2$)</label>
+                    <label class="text-slate-300">ความยาวแป้น Part 19 (L<sub>2</sub>)</label>
                     <span id="valLeverL2" class="font-mono font-bold text-yellow-400">37.88 cm (379 mm)</span>
                   </div>
                   <input id="paramLeverL2" type="range" min="250" max="450" step="1" value="379" oninput="updateEngineeringParams()" class="w-full" />
@@ -993,7 +993,7 @@
               <!-- Spring/Linkage Pull Alignment X_spring vs Plate CG (Part 6 offset = 21.00 cm) -->
               <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                 <div class="flex justify-between mb-1">
-                  <label class="text-slate-200 font-semibold">พิกัดติดตั้งขาดึง Part 17 & สปริง Part 16 ($X_{spring}$ จากเสา Part 4)</label>
+                  <label class="text-slate-200 font-semibold">พิกัดติดตั้งขาดึง Part 17 & สปริง Part 16 (X<sub>spring</sub> จากเสา Part 4)</label>
                   <span id="valSpringMountX" class="font-mono font-bold text-emerald-400">21.0 cm (210 mm ตรง CG)</span>
                 </div>
                 <input id="paramSpringMountX" type="range" min="110" max="290" step="5" value="210" oninput="updateEngineeringParams()" class="w-full" />
@@ -1008,7 +1008,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                   <div class="flex justify-between mb-1">
-                    <label class="text-slate-300">แรงเหยียบเท้า ($F_{foot}$)</label>
+                    <label class="text-slate-300">แรงเหยียบเท้า (F<sub>foot</sub>)</label>
                     <span id="valFootForce" class="font-mono font-bold text-sky-400">140 N (~14 kgf)</span>
                   </div>
                   <input id="paramFootForce" type="range" min="60" max="300" step="10" value="140" oninput="updateEngineeringParams()" class="w-full" />
@@ -1031,11 +1031,11 @@
               <!-- Alignment & Friction Summary -->
               <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/90 text-[11px] space-y-1">
                 <div class="flex justify-between">
-                  <span class="text-slate-400">โมเมนต์ดัดแกนจากการเยื้องศูนย์ ($M_{tilt}$):</span>
+                  <span class="text-slate-400">โมเมนต์ดัดแกนจากการเยื้องศูนย์ (M<sub>tilt</sub>):</span>
                   <span id="mountTiltMomentText" class="font-mono font-bold text-emerald-400">0.0 N·m (สมดุล ไม่ฝืด)</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-slate-400">แรงเสียดทานรวมในบูชเพลา ($F_{friction}$):</span>
+                  <span class="text-slate-400">แรงเสียดทานรวมในบูชเพลา (F<sub>friction</sub>):</span>
                   <span id="mountFrictionText" class="font-mono font-bold text-white">8.0 N</span>
                 </div>
               </div>
@@ -1062,21 +1062,21 @@
                   <div class="text-xs font-bold text-sky-400 group-hover:text-sky-300 flex items-center gap-1.5">
                     <span>⚖️</span> <span>1. วิเคราะห์มวล & แรงยกสปริง</span>
                   </div>
-                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบว่าสปริงยกแผ่นเหล็กหนาขึ้นสุดหรือไม่ ($\delta_{sag}$)</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบว่าสปริงยกแผ่นเหล็กหนาขึ้นสุดหรือไม่ (δ<sub>sag</sub>)</p>
                 </button>
 
                 <button onclick="runAiAnalysis('elasticity')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-yellow-500/40 text-left transition group">
                   <div class="text-xs font-bold text-yellow-400 group-hover:text-yellow-300 flex items-center gap-1.5">
                     <span>📐</span> <span>2. ความยืดหยุ่น & การแอ่นตัว</span>
                   </div>
-                  <p class="text-[10px] text-slate-400 mt-0.5">วิเคราะห์การโก่งตัวของเหล็กแผ่น $\delta_{plate}$ และความเค้นดัด</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5">วิเคราะห์การโก่งตัวของเหล็กแผ่น δ<sub>plate</sub> และความเค้นดัด</p>
                 </button>
 
                 <button onclick="runAiAnalysis('mounting')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 text-left transition group">
                   <div class="text-xs font-bold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1.5">
                     <span>📏</span> <span>3. วิเคราะห์พิกัดการติดตั้ง</span>
                   </div>
-                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบระยะ $X_{spring}, X_{CG}, L_1, L_2$ และมุมเหยียบ</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบระยะ X<sub>spring</sub>, X<sub>CG</sub>, L<sub>1</sub>, L<sub>2</sub> และมุมเหยียบ</p>
                 </button>
 
                 <button onclick="runAiAnalysis('smart_ai')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-purple-500/40 text-left transition group">
@@ -1198,12 +1198,12 @@
                   <td class="p-3 font-bold text-white">Part 12, 7: ชุดแผ่นเหล็กกดทับ & อะคริลิกบน</td>
                   <td class="p-3 font-mono text-sky-400" id="blueprintPlateCG">จุดศูนย์ถ่วง X_CG = 21.00 cm<br/>สแปนกว้าง 52.00 cm</td>
                   <td class="p-3 text-slate-300" id="blueprintPlateDim">Part 12: 52×35×3 cm (แนะนำพับกล่องหนา 4.5 mm) + อะคริลิก Part 7: 52×35×1 cm</td>
-                  <td class="p-3 text-slate-300">ความกว้าง 52 cm พอดีกับความกว้างขาเชื่อมต่อ Part 17 (วงใน 50 cm / วงนอก 52 cm) ช่วยกระจายแรงกดสม่ำเสมอ</td>
+                  <td class="p-3 text-slate-300">ความกว้างแผ่นกด 52 cm สวมพอดีในร่องขาเชื่อมต่อ Part 17 (ร่องใน 52 cm / กว้างนอก 57 cm หนาข้างละ 2.5 cm) ช่วยกระจายแรงกดสม่ำเสมอ</td>
                 </tr>
                 <tr>
                   <td class="p-3 font-bold text-white">Part 8, 9, 10, 14, 15, 16, 26, 27: ชุดสปริงคู่ & ล็อคแกน</td>
                   <td class="p-3 font-mono text-emerald-400" id="blueprintSpringAxis">X_spring = 21.00 cm<br/>รูแกนล็อค (27.03, 25.00 cm)</td>
-                  <td class="p-3 text-slate-300">แผ่นบน 50×31.5×3 cm, ท่อยื่น Ø5×20 cm, แกนเกลียว Ø2.5×30 cm, สปริงบนยาว 10 cm (ลวด Ø0.2 cm)</td>
+                  <td class="p-3 text-slate-300">แผ่นบน 50×31.5×3 cm, ท่อยื่น Ø5×20 cm, แกนล็อก Ø2.5×30 cm, สปริงล่าง Part 16 ยาว 6.5 cm + สปริงบน Part 27 ยาว 10 cm (ลวด Ø0.2 cm)</td>
                   <td class="p-3 text-emerald-300">ใช้สปริงดึงกลับ Part 16 ร่วมกับสปริงบนแกนประคอง Part 27 ป้องกันการหมุนบิดของแผ่นกดและดึงแผ่นกลับขึ้นสุด</td>
                 </tr>
                 <tr>
@@ -1215,7 +1215,7 @@
                 <tr>
                   <td class="p-3 font-bold text-white">Part 17, 18, 19, 20, 23: ขาดึง & แป้นเหยียบ</td>
                   <td class="p-3 font-mono text-sky-400" id="blueprintPedalCoords">ขาดึงสูง 57.00 cm, ก้านต่อ 20.00 cm<br/>แป้นเหยียบยาว 37.88 cm</td>
-                  <td class="p-3 text-slate-300">ขาดึงตัว U 50×57×5 cm (หนา 0.5 cm), ก้านต่อ 20 cm (สลัก Part 23), แป้นเหยียบ 37.88×20×2 cm + เพลา Ø3×40 cm</td>
+                  <td class="p-3 text-slate-300">ขาดึงตัว U 50×57×5 cm (ร่องใน 52 cm, หนา 2.5 cm), ก้านต่อ 20 cm (รู Ø0.5 cm, สลัก Part 23 ยาว 2.98 cm), แป้นเหยียบ 37.88×20×2 cm + เพลา Ø3×40 cm</td>
                   <td class="p-3 text-slate-300">คานแป้นเหยียบหมุนในบูช Part 20 (Ø4×10 cm รู Ø3 cm) ทดแรงเหยียบเท้าผ่านก้านต่อ Part 18 ดึงกรอบ Part 17 ลงพร้อมกันทั้งสองข้าง</td>
                 </tr>
               </tbody>
@@ -1232,33 +1232,33 @@
               <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                 <div class="font-bold text-white">1. สมดุลแรงยกสปริงและระยะตกค้าง (Spring Lift Equilibrium)</div>
                 <p class="text-slate-400 leading-relaxed">
-                  น้ำหนักชุดกดทับ $W_{dead} = (m_{steel} + m_{acrylic} + m_{linkage})g$ ทิศทางชี้ลงเสมอ สปริงต้องตั้งระยะพรีโหลด $\Delta x_{preload}$ ให้เกิดแรงดึงเริ่มต้น:
+                  น้ำหนักชุดกดทับ W<sub>dead</sub> = (m<sub>steel</sub> + m<sub>acrylic</sub> + m<sub>linkage</sub>)g ทิศทางชี้ลงเสมอ สปริงต้องตั้งระยะพรีโหลด Δx<sub>preload</sub> ให้เกิดแรงดึงเริ่มต้น:
                 </p>
                 <div class="font-mono text-emerald-400 bg-slate-950 p-2 rounded border border-slate-800 text-[11px]">
                   F_sp,0 = k · Δx_preload ≥ W_dead + F_friction
                 </div>
                 <p class="text-slate-400 text-[11px]">
-                  หาก $F_{sp,0} &lt; W_{dead} + F_f$ แผ่นกดจะห้อยตกค้างลงมาเป็นระยะ $\delta_{sag} = \frac{W_{dead} + F_f - F_{sp,0}}{k}$
+                  หาก F<sub>sp,0</sub> &lt; W<sub>dead</sub> + F<sub>f</sub> แผ่นกดจะห้อยตกค้างลงมาเป็นระยะ δ<sub>sag</sub> = (W<sub>dead</sub> + F<sub>f</sub> − F<sub>sp,0</sub>) / k
                 </p>
               </div>
 
               <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                 <div class="font-bold text-white">2. ความยืดหยุ่นและการแอ่นตัวของเหล็กแผ่น (Plate Flexure)</div>
                 <p class="text-slate-400 leading-relaxed">
-                  เมื่อขาเชื่อมต่อดึงขอบแผ่นเหล็กทั้งสองข้างลงด้วยแรงกดสุทธิ $F_{net}$ เนื้อกล้วยตรงกลางจะดันต้านขึ้น ทำให้แผ่นเหล็กเกิดการแอ่นตัวตรงกลาง:
+                  เมื่อขาเชื่อมต่อดึงขอบแผ่นเหล็กทั้งสองข้างลงด้วยแรงกดสุทธิ F<sub>net</sub> เนื้อกล้วยตรงกลางจะดันต้านขึ้น ทำให้แผ่นเหล็กเกิดการแอ่นตัวตรงกลาง:
                 </p>
                 <div class="font-mono text-sky-400 bg-slate-950 p-2 rounded border border-slate-800 text-[11px]">
                   δ_plate = (F_net · W_plate³) / [48 · (E_steel·I_steel + E_acrylic·I_acrylic)]
                 </div>
                 <p class="text-slate-400 text-[11px]">
-                  เนื่องจาก $I_{steel} = \frac{L_{plate} \cdot t_{steel}^3}{12}$ แปรผันตามกำลังสามของความหนาเหล็ก ($t_{steel}^3$) การเพิ่มความหนาเหล็กจาก 1.5 mm เป็น 4.5 mm จึงลดการแอ่นตัวลงถึง <strong>27 เท่า!</strong>
+                  เนื่องจาก I<sub>steel</sub> = (L<sub>plate</sub> · t<sub>steel</sub>³) / 12 แปรผันตามกำลังสามของความหนาเหล็ก (t<sub>steel</sub>³) การเพิ่มความหนาเหล็กจาก 1.5 mm เป็น 4.5 mm จึงลดการแอ่นตัวลงถึง <strong>27 เท่า!</strong>
                 </p>
               </div>
 
               <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                 <div class="font-bold text-white">3. โมเมนต์งัดแกนจากการติดตั้งเยื้องศูนย์ (Eccentric Binding)</div>
                 <p class="text-slate-400 leading-relaxed">
-                  หากติดตั้งขาเชื่อมต่อและสปริงที่ระยะ $X_{spring}$ ไม่ตรงกับจุดศูนย์ถ่วงแผ่นกด $X_{CG}$ จะเกิดโมเมนต์ดัดแกน $M_{tilt} = F_{pull} \cdot |X_{spring} - X_{CG}|$ กดเบียดบูชเสาหลักจนฝืดและสึกหรอเร็ว
+                  หากติดตั้งขาเชื่อมต่อและสปริงที่ระยะ X<sub>spring</sub> ไม่ตรงกับจุดศูนย์ถ่วงแผ่นกด X<sub>CG</sub> จะเกิดโมเมนต์ดัดแกน M<sub>tilt</sub> = F<sub>pull</sub> · |X<sub>spring</sub> − X<sub>CG</sub>| กดเบียดบูชเสาหลักจนฝืดและสึกหรอเร็ว
                 </p>
               </div>
             </div>
@@ -1291,7 +1291,7 @@
               </div>
               <h3 class="text-base font-bold text-white mb-2">1. วางกล้วยบนแผ่นอะคริลิกฐาน</h3>
               <p class="text-xs text-slate-300 leading-relaxed">
-                สปริงสเตนเลสด้านบนออกแรงดึงเริ่มต้น $F_{sp,0} = k \cdot \Delta x_{preload}$ รั้งชุดแผ่นเหล็กและแผ่นอะคริลิกกดทับไว้ที่ตำแหน่งสูงสุด ($Y_{gap} = 28\text{ mm}$) ผู้ใช้งานวางกล้วยได้สะดวกโดยไม่ต้องใช้มือประคองแผ่นกด
+                สปริงสเตนเลสด้านบนออกแรงดึงเริ่มต้น F<sub>sp,0</sub> = k · Δx<sub>preload</sub> รั้งชุดแผ่นเหล็กและแผ่นอะคริลิกกดทับไว้ที่ตำแหน่งสูงสุด (Y<sub>gap</sub> = 28 mm) ผู้ใช้งานวางกล้วยได้สะดวกโดยไม่ต้องใช้มือประคองแผ่นกด
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-emerald-400">
@@ -1308,7 +1308,7 @@
               </div>
               <h3 class="text-base font-bold text-white mb-2">2. เหยียบแป้นทดแรงกดทับชนแหวนรอง</h3>
               <p class="text-xs text-slate-300 leading-relaxed">
-                ออกแรงเหยียบแป้นเท้า $F_{foot}$ คานอันดับ 2 ทดแรงเพิ่มขึ้นตามอัตราส่วน $L_2/L_1$ ร่วมกับน้ำหนักชุดแผ่นเหล็ก $W_{dead}$ ดึงแผ่นกดลงมาอัดกล้วยจนบูชชนแหวนรองกำหนดความหนา ($t_{washer}$)
+                ออกแรงเหยียบแป้นเท้า F<sub>foot</sub> คานอันดับ 2 ทดแรงเพิ่มขึ้นตามอัตราส่วน L<sub>2</sub>/L<sub>1</sub> ร่วมกับน้ำหนักชุดแผ่นเหล็ก W<sub>dead</sub> ดึงแผ่นกดลงมาอัดกล้วยจนบูชชนแหวนรองกำหนดความหนา (t<sub>washer</sub>)
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-sky-400">
@@ -1325,7 +1325,7 @@
               </div>
               <h3 class="text-base font-bold text-white mb-2">3. คลายแป้นเหยียบ สปริงดึงกลับอัตโนมัติ</h3>
               <p class="text-xs text-slate-300 leading-relaxed">
-                เมื่อถอนเท้าออกจากแป้น พลังงานศักย์ยืดหยุ่นที่สะสมในสปริง ($F_{sp,max}$) จะดึงชุดแผ่นเหล็กกดทับและแป้นเหยียบกลับขึ้นสู่ตำแหน่งเริ่มต้นอย่างรวดเร็ว ลดรอบเวลาทำงานเหลือเพียง 3 วินาที/รอบ
+                เมื่อถอนเท้าออกจากแป้น พลังงานศักย์ยืดหยุ่นที่สะสมในสปริง (F<sub>sp,max</sub>) จะดึงชุดแผ่นเหล็กกดทับและแป้นเหยียบกลับขึ้นสู่ตำแหน่งเริ่มต้นอย่างรวดเร็ว ลดรอบเวลาทำงานเหลือเพียง 3 วินาที/รอบ
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-yellow-400">
@@ -1441,16 +1441,16 @@
       { no: 6, part: "Linear_Slider_Block", desc: "บล็อกบูชสไลด์เชื่อมติดชุดแผ่นกด (ระยะเยื้อง 21.00 cm)", dimCm: "6.00 × 6.00 × 2.00 (รู Ø5.00)", mat: "Steel Plate", qty: 1, page: 5 },
       { no: 7, part: "Work pressure plate", desc: "แผ่นอะคริลิกใสกดทับกล้วยด้านบน (สัมผัสอาหาร)", dimCm: "52.00 × 35.00 × 1.00", mat: "PMMA (Acrylic)", qty: 1, page: 6 },
       { no: 8, part: "Frame lock plate", desc: "แผ่นเหล็กยึดสปริงด้านบน (เจาะรู Ø2.50 cm ที่พิกัด 27.03, 25.00 cm)", dimCm: "50.00 × 31.50 × 3.00", mat: "Fabricated Steel Structure", qty: 1, page: 6 },
-      { no: 9, part: "Spring lock shaft", desc: "ปลอกรัดเสาหลักปรับระดับความตึงชุดยึดสปริงด้านบน", dimCm: "Ø6.00 (รู Ø5.00) × 7.00", mat: "Fabricated Steel Structure", qty: 1, page: 7 },
+      { no: 9, part: "Spring lock shaft", desc: "ปลอกรัดเสาหลักปรับระดับความตึงชุดยึดสปริงด้านบน (หูบีบ 4.05, รู Ø1.00)", dimCm: "Ø6.00 (รู Ø5.00) × สูง 7.00 × ยาว 13.00", mat: "Fabricated Steel Structure", qty: 1, page: 7 },
       { no: 10, part: "Structural_Pipe", desc: "ท่อแขนยื่นยึดแผ่น Frame lock plate (Part 8)", dimCm: "Ø5.00 × 20.00", mat: "Steel Round Tube", qty: 1, page: 7 },
       { no: 11, part: "Column_End_Cap", desc: "ฝาปิดหัวเสาหลัก (ถอดออกเมื่อต้องการสวมแหวนรองเพิ่ม)", dimCm: "Ø6.00 / Ø5.00 × 3.00", mat: "Steel Round", qty: 1, page: 8 },
       { no: 12, part: "Acrylic_Protective_Cover", desc: "โครงแผ่นเหล็กกดทับหลัก (Press Carriage Slide Frame)", dimCm: "52.00 × 35.00 × 3.00 (หรือแผ่น 4.5 mm)", mat: "Steel Plate", qty: 1, page: 8 },
       { no: 13, part: "Spring_Anchor", desc: "หูยึดเกี่ยวปลายสปริงดึงกลับและก้านต่อ (Detail V, R, P, T, U)", dimCm: "2.00 × 1.20 × 2.50 (หนา 0.50)", mat: "Formed Steel Bracket", qty: 4, page: 9 },
       { no: 14, part: "Thumb Screw", desc: "สกรูขันล็อกปลอกปรับระดับชุดสปริง (Part 9)", dimCm: "ยาว 4.93 × Ø0.95", mat: "Steel Round", qty: 1, page: 9 },
       { no: 15, part: "Locking tube with spring", desc: "แกนเพลาประคองกันหมุนพร้อมเกลียวปรับระดับด้านบน 6.50 cm", dimCm: "Ø2.50 × 30.00", mat: "Steel Round Tube", qty: 1, page: 10 },
-      { no: 16, part: "Tension_Spring_Standard", desc: "สปริงดึงกลับหลักติดตั้งระหว่างแผ่น Part 8 และแผ่นกด Part 12 (Detail B)", dimCm: "ปรับขนาดตามน้ำหนักแผ่นกด", mat: "Spring Steel", qty: 1, page: 10 },
-      { no: 17, part: "Linkage_Arm", desc: "ขาเหล็กรูปตัว U เชื่อมต่อแผ่นกดลงมายังชุดแป้นเหยียบ", dimCm: "50.00 (นอก 52) × 57.00 × 5.00 (หนา 0.50)", mat: "Steel Plate", qty: 1, page: 11 },
-      { no: 18, part: "Structural_Gusset", desc: "ก้านดึงข้อต่อระหว่างคานขาเชื่อมต่อ Part 17 กับแป้นเหยียบ Part 19", dimCm: "ยาว 20.00 (ช่วงกลาง 15.00) × 2.00 × 1.00", mat: "Steel Plate", qty: 1, page: 11 },
+      { no: 16, part: "Tension_Spring_Standard", desc: "สปริงดึงกลับหลักติดตั้งระหว่างแผ่น Part 8 และแผ่นกด Part 12 (Detail B, Y)", dimCm: "ยาว 6.50 cm (ปรับขนาดได้)", mat: "Spring Steel", qty: 1, page: 10 },
+      { no: 17, part: "Linkage_Arm", desc: "โครงขาเหล็กรูปตัว U เชื่อมต่อแผ่นกดลงมายังชุดแป้นเหยียบ (Section AA-AA)", dimCm: "50.00 × 57.00 (ร่องใน 52.00) × 5.00 (หนา 2.50)", mat: "Steel Plate", qty: 1, page: 11 },
+      { no: 18, part: "Structural_Gusset", desc: "ก้านดึงข้อต่อระหว่างคานขาเชื่อมต่อ Part 17 กับแป้นเหยียบ Part 19 (รูสลัก Ø0.50)", dimCm: "ยาว 20.00 (กลาง 15.00, หู 2.50) × 2.00 × 1.00", mat: "Steel Plate", qty: 1, page: 11 },
       { no: 19, part: "Support Beam", desc: "แผ่นแป้นเหยียบพร้อมเพลาหมุนหลัก (Foot Pedal Assembly)", dimCm: "แผ่น 37.88×20.00×2.00 + เพลา Ø3.00×40.00", mat: "Steel Plate & Steel Round", qty: 1, page: 12 },
       { no: 20, part: "round shaft with a hole.", desc: "บูชท่อประคองเพลาจุดหมุนแป้นเหยียบซ้าย-ขวา", dimCm: "Ø4.00 × 10.00 (รูใน Ø3.00)", mat: "Steel Round", qty: 2, page: 12 },
       { no: 21, part: "Leg_Crossbeam_Bottom", desc: "คานเหล็กกล่องเชื่อมยึดขาคู่หลังด้านล่าง (สูงจากพื้น 12.50 cm)", dimCm: "40.00 × 5.00 × 5.00", mat: "Steel Square Tube", qty: 1, page: 13 },
@@ -1458,7 +1458,7 @@
       { no: 23, part: "Fillister", desc: "สลักพินร้อยจุดหมุนก้านดึงข้อต่อแป้นเหยียบบน-ล่าง (Detail A, AD)", dimCm: "ยาว 2.98 cm", mat: "Steel Pin", qty: 2, page: 14 },
       { no: 24, part: "Equipment stand", desc: "ถาดวางอุปกรณ์ด้านหน้าพร้อมเสาตั้ง 2 ต้น (ห่างกัน 52.00 cm)", dimCm: "60.00 × 15.00 × 2.00 (เสา Ø2.00×9.00)", mat: "Steel Plate", qty: 1, page: 14 },
       { no: 25, part: "Spacer_Washer", desc: "แหวนรองสเตนเลสควบคุมความหนากล้วยทับ (ถอดใส่ปรับระดับได้ Detail C, AE)", dimCm: "OD Ø6.00 × ID Ø5.00 × หนา 0.20 (2 mm)", mat: "Steel Plate / SUS304", qty: "1-5", page: 15 },
-      { no: 26, part: "Heavy hex flat", desc: "น็อตหกเหลี่ยมปรับตั้งระยะพรีโหลดสปริงบนแกนเกลียว Part 15", dimCm: "OD Ø5.00 × ID Ø2.50", mat: "Steel", qty: 1, page: 15 },
+      { no: 26, part: "Heavy hex flat", desc: "น็อตหกเหลี่ยมปรับตั้งระยะพรีโหลดสปริงบนแกนเกลียว Part 15", dimCm: "รูใน Ø2.50 (ปรับขนาดได้ตามจริง)", mat: "Steel", qty: 1, page: 15 },
       { no: 27, part: "Tension_Spring_Heavy", desc: "สปริงสวมบนแกนล็อก Part 15 ช่วยรับน้ำหนักและกันสะท้าน", dimCm: "ยาว 10.00 cm × ลวด Ø0.20 cm (2.0 mm)", mat: "Spring Steel", qty: 1, page: 16 },
       { no: 28, part: "Equipment stand handle", desc: "เหล็กกล่องค้ำยันถาดวางอุปกรณ์ด้านหน้า ตัดเฉียง 45° (ติดตั้งมุม 135°)", dimCm: "15.00 (11.00) × 2.00 × 2.00", mat: "Steel Square Tube", qty: 2, page: 16 }
     ];
@@ -1557,7 +1557,6 @@
       // D. Guide Bushing Friction & Eccentric Tilting Moment
       const muBushing = 0.12;
       const bushingLengthMm = 20.0; // Part 6 height = 2.00 cm (20 mm)
-      constleverRatio = state.leverL2Mm / Math.max(1, state.leverL1Mm);
       const leverRatio = state.leverL2Mm / Math.max(1, state.leverL1Mm);
       const pedalPullForceMaxN = state.footForceN * leverRatio;
 
@@ -2335,7 +2334,7 @@
           <div class="space-y-2 text-xs leading-relaxed">
             <div class="font-bold text-yellow-400">📐 วิเคราะห์ความยืดหยุ่นและการแอ่นตัวของแผ่นกดทับ Part 12 & Part 7 (BPM-DWG-001)</div>
             <p>• <strong>สแปนแผ่นกดตามแบบ:</strong> กว้าง ${(state.plateWidthMm / 10).toFixed(1)} cm × ลึก ${(state.plateLengthMm / 10).toFixed(1)} cm (เหล็กแผ่นหนา ${state.steelThickMm.toFixed(1)} mm + อะคริลิก Part 7 หนา ${state.acrylicThickMm.toFixed(1)} mm)</p>
-            <p>• <strong>ระยะแอ่นตัวสูงสุดกึ่งกลางแผ่น ($\delta_{max}$):</strong> <span class="text-sky-300 font-mono font-bold">${phys.maxPlateDeflectionMm.toFixed(3)} mm</span> ที่แรงกดสุทธิ ${phys.peakNetPressForceN.toFixed(0)} N (ความเค้นดัด $\sigma_b = ${phys.plateBendingStressMPa.toFixed(1)}\text{ MPa} \ll \text{Yield } 250\text{ MPa}$)</p>
+            <p>• <strong>ระยะแอ่นตัวสูงสุดกึ่งกลางแผ่น (δ<sub>max</sub>):</strong> <span class="text-sky-300 font-mono font-bold">${phys.maxPlateDeflectionMm.toFixed(3)} mm</span> ที่แรงกดสุทธิ ${phys.peakNetPressForceN.toFixed(0)} N (ความเค้นดัด σ<sub>b</sub> = ${phys.plateBendingStressMPa.toFixed(1)} MPa ≪ Yield 250 MPa)</p>
             <p>• <strong>ผลต่อความหนากล้วยทับ:</strong> แหวนรอง Part 25 จำนวน ${washerRings} แผ่น (${state.washerMm.toFixed(1)} mm) คุมความหนาที่ขอบได้ ${phys.currentEdgeBananaMm.toFixed(2)} mm และกึ่งกลางแผ่น ${phys.currentCenterBananaMm.toFixed(2)} mm</p>
           </div>
         `;
@@ -2343,8 +2342,8 @@
         return `
           <div class="space-y-2 text-xs leading-relaxed">
             <div class="font-bold text-sky-400">📏 วิเคราะห์พิกัดการติดตั้งตามแบบ BPM-DWG-001 (Mounting & Alignment)</div>
-            <p>• <strong>ตำแหน่งจุดศูนย์ถ่วงชุดแผ่นกด ($X_{CG}$):</strong> ห่างจากแกนเสาหลัก Part 4 เท่ากับ <span class="font-mono font-bold text-white">${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)</span> ซึ่งตรงกับพิกัดบล็อกสไลด์ Part 6 (21.00 cm ในหน้า 5 ของแบบ)</p>
-            <p>• <strong>ระยะเยื้องศูนย์ปัจจุบัน ($e$):</strong> <span class="font-mono font-bold ${phys.eccentricityMm > 10 ? 'text-rose-400' : 'text-emerald-400'}">${phys.eccentricityMm.toFixed(0)} mm</span> เกิดโมเมนต์งัดบูช $M_{tilt} = ${(phys.activeTiltMomentNmm / 1000).toFixed(2)}\text{ N}\cdot\text{m}$ และแรงเสียดทานในบูช ${phys.activeFrictionN.toFixed(1)} N</p>
+            <p>• <strong>ตำแหน่งจุดศูนย์ถ่วงชุดแผ่นกด (X<sub>CG</sub>):</strong> ห่างจากแกนเสาหลัก Part 4 เท่ากับ <span class="font-mono font-bold text-white">${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)</span> ซึ่งตรงกับพิกัดบล็อกสไลด์ Part 6 (21.00 cm ในหน้า 5 ของแบบ)</p>
+            <p>• <strong>ระยะเยื้องศูนย์ปัจจุบัน (e):</strong> <span class="font-mono font-bold ${phys.eccentricityMm > 10 ? 'text-rose-400' : 'text-emerald-400'}">${phys.eccentricityMm.toFixed(0)} mm</span> เกิดโมเมนต์งัดบูช $M_{tilt} = ${(phys.activeTiltMomentNmm / 1000).toFixed(2)}\text{ N}\cdot\text{m}$ และแรงเสียดทานในบูช ${phys.activeFrictionN.toFixed(1)} N</p>
             <p>• <strong>คานเหยียบ Part 19 (ยาว ${(state.leverL2Mm / 10).toFixed(2)} cm):</strong> จุดดึงก้านต่อ Part 18 ห่างจุดหมุน Part 20 เท่ากับ $L_1 = ${(state.leverL1Mm / 10).toFixed(1)}\text{ cm}$ ให้การทดแรงเชิงกล (MA) = <strong>1 : ${phys.leverRatio.toFixed(2)}</strong></p>
           </div>
         `;
@@ -2362,7 +2361,7 @@
       return `
         <div class="space-y-2 text-xs leading-relaxed">
           <div class="font-bold text-emerald-400">⚙️ สรุปสมดุลกลศาสตร์ตามแบบสั่งผลิต BPM-DWG-001 (Shigley & Hibbeler)</div>
-          <p>• <strong>มวลชุดเคลื่อนที่รวม (Parts 6,7,12,17,18):</strong> <span class="font-mono font-bold text-white">${phys.totalMovingMassKg.toFixed(2)} kg</span> (เหล็กแผ่น Part 12 = ${phys.massSteelKg.toFixed(2)} kg, อะคริลิก Part 7 = ${phys.massAcrylicKg.toFixed(2)} kg, ขาดึง Part 17+บูช = ${phys.massLinkageKg.toFixed(2)} kg) คิดเป็นน้ำหนักกดลง $W_{dead} = ${phys.deadWeightN.toFixed(1)}\text{ N}$</p>
+          <p>• <strong>มวลชุดเคลื่อนที่รวม (Parts 6,7,12,17,18):</strong> <span class="font-mono font-bold text-white">${phys.totalMovingMassKg.toFixed(2)} kg</span> (เหล็กแผ่น Part 12 = ${phys.massSteelKg.toFixed(2)} kg, อะคริลิก Part 7 = ${phys.massAcrylicKg.toFixed(2)} kg, ขาดึง Part 17+บูช = ${phys.massLinkageKg.toFixed(2)} kg) คิดเป็นน้ำหนักกดลง W<sub>dead</sub> = ${phys.deadWeightN.toFixed(1)} N</p>
           <p>• <strong>การตรวจสอบสปริงดึงกลับคู่ (Part 16 + Part 27):</strong> ค่าคงที่สปริงรวม $k = ${phys.springK_Nmm.toFixed(2)}\text{ N/mm}$ แรงดึงพรีโหลดเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N เทียบกับแรงต้านยกกลับ ${phys.requiredReturnForceN.toFixed(0)} N ➔ <strong>${phys.canReturnFully ? '✅ ยกแผ่นกดกลับขึ้นสุด 100%' : `🚨 ยกไม่ขึ้น! แผ่นห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`}</strong></p>
           <p>• <strong>แรงกดสุทธิบนกล้วย:</strong> เมื่อเหยียบด้วยแรงเท้า ${state.footForceN} N ผ่านคานทดแรง 1:${phys.leverRatio.toFixed(2)} จะสร้างแรงกดสุทธิที่เนื้อกล้วย <strong>${phys.peakNetPressForceN.toFixed(0)} N (${phys.pressureKpa.toFixed(1)} kPa)</strong></p>
         </div>
