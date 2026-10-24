@@ -2343,8 +2343,8 @@
           <div class="space-y-2 text-xs leading-relaxed">
             <div class="font-bold text-sky-400">📏 วิเคราะห์พิกัดการติดตั้งตามแบบ BPM-DWG-001 (Mounting & Alignment)</div>
             <p>• <strong>ตำแหน่งจุดศูนย์ถ่วงชุดแผ่นกด (X<sub>CG</sub>):</strong> ห่างจากแกนเสาหลัก Part 4 เท่ากับ <span class="font-mono font-bold text-white">${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)</span> ซึ่งตรงกับพิกัดบล็อกสไลด์ Part 6 (21.00 cm ในหน้า 5 ของแบบ)</p>
-            <p>• <strong>ระยะเยื้องศูนย์ปัจจุบัน (e):</strong> <span class="font-mono font-bold ${phys.eccentricityMm > 10 ? 'text-rose-400' : 'text-emerald-400'}">${phys.eccentricityMm.toFixed(0)} mm</span> เกิดโมเมนต์งัดบูช $M_{tilt} = ${(phys.activeTiltMomentNmm / 1000).toFixed(2)}\text{ N}\cdot\text{m}$ และแรงเสียดทานในบูช ${phys.activeFrictionN.toFixed(1)} N</p>
-            <p>• <strong>คานเหยียบ Part 19 (ยาว ${(state.leverL2Mm / 10).toFixed(2)} cm):</strong> จุดดึงก้านต่อ Part 18 ห่างจุดหมุน Part 20 เท่ากับ $L_1 = ${(state.leverL1Mm / 10).toFixed(1)}\text{ cm}$ ให้การทดแรงเชิงกล (MA) = <strong>1 : ${phys.leverRatio.toFixed(2)}</strong></p>
+            <p>• <strong>ระยะเยื้องศูนย์ปัจจุบัน (e):</strong> <span class="font-mono font-bold ${phys.eccentricityMm > 10 ? 'text-rose-400' : 'text-emerald-400'}">${phys.eccentricityMm.toFixed(0)} mm</span> เกิดโมเมนต์งัดบูช M<sub>tilt</sub> = ${(phys.activeTiltMomentNmm / 1000).toFixed(2)} N·m และแรงเสียดทานในบูช ${phys.activeFrictionN.toFixed(1)} N</p>
+            <p>• <strong>คานเหยียบ Part 19 (ยาว ${(state.leverL2Mm / 10).toFixed(2)} cm):</strong> จุดดึงก้านต่อ Part 18 ห่างจุดหมุน Part 20 เท่ากับ L<sub>1</sub> = ${(state.leverL1Mm / 10).toFixed(1)} cm ให้การทดแรงเชิงกล (MA) = <strong>1 : ${phys.leverRatio.toFixed(2)}</strong></p>
           </div>
         `;
       } else if (topic === 'ai_iot') {
@@ -2353,7 +2353,7 @@
             <div class="font-bold text-purple-400">🤖 แนวทางอัปเกรด Smart KluayPress AI & IoT สำหรับแฟรนไชส์ B2B</div>
             <p>• <strong>1. Load Cell + Hall Sensor:</strong> ติดตั้ง Strain Gauge ที่ก้านดึง Part 18 (20 cm) และแม่เหล็กนับรอบที่เพลาหมุนแป้นเหยียบ Part 19 (Ø3×40 cm) แจ้งเตือนไฟ LED เมื่อแรงกดถึงระดับที่ตั้งไว้</p>
             <p>• <strong>2. AI Vision Quality Control:</strong> ใช้กล้องมุมบนตรวจวัดพื้นที่การแผ่ตัวของกล้วยบนแผ่นอะคริลิกใส Part 7 (52×35 cm) เพื่อคัดเกรดมาตรฐานเดียวกันทุกสาขา</p>
-            <p>• <strong>3. Predictive Maintenance:</strong> นับรอบการยืดตัวของสปริงคู่ Part 16 & Part 27 (ปัจจุบันรับความเค้นเฉือน $\tau = ${phys.springShearStressMPa.toFixed(0)}\text{ MPa}$, FOS = ${phys.springFOS.toFixed(2)}) เพื่อแจ้งเตือนการเปลี่ยนสปริงและอัดจาระบีบูช Part 6</p>
+            <p>• <strong>3. Predictive Maintenance:</strong> นับรอบการยืดตัวของสปริงคู่ Part 16 & Part 27 (ปัจจุบันรับความเค้นเฉือน τ = ${phys.springShearStressMPa.toFixed(0)} MPa, FOS = ${phys.springFOS.toFixed(2)}) เพื่อแจ้งเตือนการเปลี่ยนสปริงและอัดจาระบีบูช Part 6</p>
           </div>
         `;
       }
@@ -2362,7 +2362,7 @@
         <div class="space-y-2 text-xs leading-relaxed">
           <div class="font-bold text-emerald-400">⚙️ สรุปสมดุลกลศาสตร์ตามแบบสั่งผลิต BPM-DWG-001 (Shigley & Hibbeler)</div>
           <p>• <strong>มวลชุดเคลื่อนที่รวม (Parts 6,7,12,17,18):</strong> <span class="font-mono font-bold text-white">${phys.totalMovingMassKg.toFixed(2)} kg</span> (เหล็กแผ่น Part 12 = ${phys.massSteelKg.toFixed(2)} kg, อะคริลิก Part 7 = ${phys.massAcrylicKg.toFixed(2)} kg, ขาดึง Part 17+บูช = ${phys.massLinkageKg.toFixed(2)} kg) คิดเป็นน้ำหนักกดลง W<sub>dead</sub> = ${phys.deadWeightN.toFixed(1)} N</p>
-          <p>• <strong>การตรวจสอบสปริงดึงกลับคู่ (Part 16 + Part 27):</strong> ค่าคงที่สปริงรวม $k = ${phys.springK_Nmm.toFixed(2)}\text{ N/mm}$ แรงดึงพรีโหลดเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N เทียบกับแรงต้านยกกลับ ${phys.requiredReturnForceN.toFixed(0)} N ➔ <strong>${phys.canReturnFully ? '✅ ยกแผ่นกดกลับขึ้นสุด 100%' : `🚨 ยกไม่ขึ้น! แผ่นห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`}</strong></p>
+          <p>• <strong>การตรวจสอบสปริงดึงกลับคู่ (Part 16 + Part 27):</strong> ค่าคงที่สปริงรวม k = ${phys.springK_Nmm.toFixed(2)} N/mm แรงดึงพรีโหลดเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N เทียบกับแรงต้านยกกลับ ${phys.requiredReturnForceN.toFixed(0)} N ➔ <strong>${phys.canReturnFully ? '✅ ยกแผ่นกดกลับขึ้นสุด 100%' : `🚨 ยกไม่ขึ้น! แผ่นห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`}</strong></p>
           <p>• <strong>แรงกดสุทธิบนกล้วย:</strong> เมื่อเหยียบด้วยแรงเท้า ${state.footForceN} N ผ่านคานทดแรง 1:${phys.leverRatio.toFixed(2)} จะสร้างแรงกดสุทธิที่เนื้อกล้วย <strong>${phys.peakNetPressForceN.toFixed(0)} N (${phys.pressureKpa.toFixed(1)} kPa)</strong></p>
         </div>
       `;
