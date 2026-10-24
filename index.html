@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KluayPress AI Simulator & Engineering Analyzer | TSU Engineering</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"IBM Plex Sans Thai"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              yellow: '#FACC15',
+              amber: '#F59E0B',
+              blue: '#0284C7',
+              dark: '#0B1120',
+              panel: '#111827',
+              border: '#1E293B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B1120;
+      color: #F1F5F9;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      overflow-x: hidden;
+    }
+    .cad-grid {
+      background-color: #0F172A;
+      background-image: 
+        linear-gradient(to right, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+        linear-gradient(to right, rgba(56, 189, 248, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.14) 1px, transparent 1px);
+      background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    }
+    .cad-light-grid {
+      background-color: #FBF7F0;
+      background-image: 
+        linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    input[type=range] {
+      accent-color: #FACC15;
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { transform: translateY(0px); opacity: 0.95; }
+      50% { transform: translateY(4px); opacity: 0.55; }
+    }
+    @keyframes pulse-arrow-up {
+      0%, 100% { transform: translateY(0px); opacity: 0.95; }
+      50% { transform: translateY(-4px); opacity: 0.55; }
+    }
+    .anim-arrow-down {
+      animation: pulse-arrow 1s infinite ease-in-out;
+    }
+    .anim-arrow-up {
+      animation: pulse-arrow-up 1s infinite ease-in-out;
+    }
+    .callout-dot {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .callout-dot:hover {
+      filter: drop-shadow(0 0 8px #FACC15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-yellow-400 selection:text-slate-900">
+
+  <!-- Top Navigation / Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-500/20 text-slate-950 font-bold text-xl">
+          🍌
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg md:text-xl font-bold tracking-tight text-white">KluayPress <span class="text-yellow-400 font-mono text-xs px-2 py-0.5 bg-yellow-400/10 border border-yellow-400/30 rounded-md">Mechanics & Elasticity Engine v3.5</span></h1>
+            <span class="hidden sm:inline-block text-xs bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2.5 py-0.5 rounded-full font-medium">Shigley & Hibbeler Standard • TSU</span>
+          </div>
+          <p class="text-xs text-slate-400">จำลองน้ำหนักวัสดุจริง แรงยกสปริง การแอ่นตัวของเหล็กแผ่น และพิกัดการติดตั้งตามหลักกลศาสตร์เครื่องจักรกล</p>
+        </div>
+      </div>
+
+      <!-- Top Action Controls -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <button id="btnToggleFBD" onclick="toggleFBDOverlay()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5">
+          <span>📐</span> <span id="fbdBtnText">ซ่อนเวกเตอร์แรง & พิกัด (FBD)</span>
+        </button>
+        <button id="btnToggleCallouts" onclick="toggleCallouts()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 transition flex items-center gap-1.5">
+          <span>🔍</span> <span id="calloutBtnText">ซ่อนป้ายชิ้นส่วน (Labels)</span>
+        </button>
+        <button id="btnToggleThemeCanvas" onclick="toggleCanvasTheme()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+          <span id="themeIcon">☀️</span> <span id="themeText">พื้นหลังสว่าง</span>
+        </button>
+        <div class="h-5 w-[1px] bg-slate-800 hidden sm:block"></div>
+        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <button onclick="switchMainTab('simulator')" id="tabBtn-simulator" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 text-slate-950 transition">
+            ⚙️ จำลองกลศาสตร์ & ความยืดหยุ่น
+          </button>
+          <button onclick="switchMainTab('mounting')" id="tabBtn-mounting" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            📏 พิกัดการติดตั้ง (Mounting Blueprint)
+          </button>
+          <button onclick="switchMainTab('sequence')" id="tabBtn-sequence" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            🔄 แผนภาพ 3 ขั้นตอน
+          </button>
+          <button onclick="switchMainTab('business')" id="tabBtn-business" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            📊 ตารางเปรียบเทียบ & BOM
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 py-4">
+
+    <!-- ==================== TAB 1: INTERACTIVE SIMULATOR & REAL PHYSICS ANALYZER ==================== -->
+    <section id="tab-simulator" class="space-y-4">
+
+      <!-- Quick Engineering Scenario Presets Bar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-300">
+          <span class="text-base">🧪</span>
+          <span>ชุดทดสอบสภาวะทางกลศาสตร์ (Engineering Test Scenarios):</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="applyScenarioPreset('optimal')" id="presetBtn-optimal" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition">
+            ✅ 1. สเปกมาตรฐาน KluayPress (เหล็ก 4.5 mm • สปริงสมดุล)
+          </button>
+          <button onclick="applyScenarioPreset('thinPlate')" id="presetBtn-thinPlate" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-amber-300 border border-slate-700 hover:border-amber-400/50 transition">
+            ⚠️ 2. เหล็กแผ่นบางเกินไป (1.5 mm • แผ่นแอ่นตัว กล้วยหนาไม่เท่ากัน)
+          </button>
+          <button onclick="applyScenarioPreset('heavyPlateWeakSpring')" id="presetBtn-heavyPlateWeakSpring" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-rose-300 border border-slate-700 hover:border-rose-400/50 transition">
+            🚨 3. เหล็กหนาหนัก (12 mm) + สปริงหย่อน (ยกไม่ขึ้น / แผ่นกดตกค้าง)
+          </button>
+          <button onclick="applyScenarioPreset('eccentricMount')" id="presetBtn-eccentricMount" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-purple-300 border border-slate-700 hover:border-purple-400/50 transition">
+            🔧 4. ติดตั้งจุดดึงเยื้องศูนย์ (X_spring ≠ X_CG • เกิดแรงงัดแกนฝืด)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- Left & Center Column: Interactive Kinematic & Elasticity Visualizer (7 cols on lg) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+
+          <!-- 3-Stage Process Bar (วาง -> เหยียบ -> คลาย) -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">หลักการทำงาน 3 ขั้นตอน (คำนวณมวลจริง $W_{dead}$ + แรงดึงสปริง $F_{spring}$ + การแอ่นตัว $\delta_{plate}$)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400">กด <kbd class="px-1.5 py-0.5 text-[11px] font-mono bg-slate-800 text-yellow-400 rounded border border-slate-700">Spacebar</kbd> ค้างเพื่อเหยียบแป้นจริง</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <!-- Step 1: วาง -->
+              <button onclick="setStepState(1)" id="stepBtn-1" class="group relative flex flex-col items-start p-3 rounded-xl border-2 border-yellow-400 bg-yellow-400/10 text-left transition-all">
+                <div class="flex items-center justify-between w-full mb-1">
+                  <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-400 text-slate-950">STEP 1</span>
+                  <span class="text-lg">🍌⬇️</span>
+                </div>
+                <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">1. วาง (Place)</div>
+                <p class="text-[11px] text-slate-300 leading-tight mt-0.5">สปริงรั้งชุดแผ่นเหล็ก+อะคริลิกไว้ด้านบน ($F_{sp,0} \ge W_{dead}$) วางกล้วยเตรียมกด</p>
+              </button>
+
+              <!-- Step 2: เหยียบ -->
+              <button onclick="setStepState(2)" id="stepBtn-2" class="group relative flex flex-col items-start p-3 rounded-xl border-2 border-slate-800 bg-slate-950/70 hover:border-slate-700 text-left transition-all">
+                <div class="flex items-center justify-between w-full mb-1">
+                  <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">STEP 2</span>
+                  <span class="text-lg">🦶⬇️</span>
+                </div>
+                <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">2. เหยียบ (Press)</div>
+                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">แรงคานเหยียบ + น้ำหนักแผ่นเหล็ก $W_{dead}$ กดกล้วยชนแหวนรอง ($\delta_{plate}$ แอ่นตามความหนาเหล็ก)</p>
+              </button>
+
+              <!-- Step 3: คลาย -->
+              <button onclick="setStepState(3)" id="stepBtn-3" class="group relative flex flex-col items-start p-3 rounded-xl border-2 border-slate-800 bg-slate-950/70 hover:border-slate-700 text-left transition-all">
+                <div class="flex items-center justify-between w-full mb-1">
+                  <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">STEP 3</span>
+                  <span class="text-lg">🔄⬆️</span>
+                </div>
+                <div class="font-bold text-sm sm:text-base text-white group-hover:text-yellow-300">3. คลาย (Release)</div>
+                <p class="text-[11px] text-slate-400 leading-tight mt-0.5">ปล่อยเท้า สปริงต้องเอาชนะน้ำหนักชุดแผ่นกด $W_{dead}$ + แรงเสียดทาน $F_f$ เพื่อยกกลับ</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Dual-View CAD & FBD Canvas Card -->
+          <div id="canvasContainer" class="cad-grid border border-slate-800 rounded-2xl p-4 relative flex flex-col justify-between min-h-[560px] shadow-2xl transition-colors duration-300">
+            
+            <!-- Top Overlay Status & Lift Check Banner -->
+            <div class="flex flex-wrap items-center justify-between gap-2 z-10 mb-1">
+              <div class="flex items-center gap-2 bg-slate-900/95 backdrop-blur px-3 py-1.5 rounded-xl border border-slate-700/80 shadow">
+                <span id="stateBadgeDot" class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                <span id="stateBadgeTitle" class="text-xs font-bold text-white">สถานะ: 1. วางกล้วย (Place Mode)</span>
+                <span class="text-slate-600">|</span>
+                <span id="stopContactBadge" class="text-xs font-mono text-slate-400">Stop: OPEN</span>
+              </div>
+
+              <div class="flex items-center gap-2 bg-slate-900/95 backdrop-blur px-3 py-1.5 rounded-xl border border-slate-700/80 shadow text-xs font-mono">
+                <span class="text-slate-400">มวลชุดกด:</span>
+                <span id="readoutMovingMass" class="text-amber-400 font-bold">5.12 kg (50.2 N)</span>
+                <span class="text-slate-600">|</span>
+                <span class="text-slate-400">แผ่นเหล็กแอ่น:</span>
+                <span id="readoutDeflection" class="text-sky-400 font-bold">0.042 mm</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Engineering Warning Alert Banner (Appears if Spring Sag > 0 or Thin Plate Deflection > 0.25mm or High Tilt Moment) -->
+            <div id="engineeringAlertBanner" class="hidden z-10 my-1 px-3.5 py-2 rounded-xl border bg-rose-950/90 border-rose-500/60 text-rose-200 text-xs flex items-center justify-between gap-2 shadow-lg">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🚨</span>
+                <span id="engineeringAlertText" class="font-medium">แจ้งเตือนทางวิศวกรรม</span>
+              </div>
+              <button onclick="applyScenarioPreset('optimal')" class="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-[11px] whitespace-nowrap transition">
+                ปรับค่าสมดุลอัตโนมัติ
+              </button>
+            </div>
+
+            <!-- Main Interactive SVG Viewport (Isometric + Side View with FBD & Deflection) -->
+            <div class="relative flex-1 flex items-center justify-center my-1">
+              <svg id="kluaySvg" viewBox="0 0 880 485" class="w-full h-auto max-h-[470px] select-none overflow-visible">
+                <defs>
+                  <linearGradient id="steelFrameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#94A3B8" />
+                    <stop offset="50%" stop-color="#64748B" />
+                    <stop offset="100%" stop-color="#475569" />
+                  </linearGradient>
+                  <linearGradient id="steelPlateGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#E2E8F0" />
+                    <stop offset="50%" stop-color="#94A3B8" />
+                    <stop offset="100%" stop-color="#475569" />
+                  </linearGradient>
+                  <linearGradient id="shaftGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#64748B" />
+                    <stop offset="40%" stop-color="#F1F5F9" />
+                    <stop offset="100%" stop-color="#475569" />
+                  </linearGradient>
+                  <linearGradient id="acrylicUpperGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.6" />
+                    <stop offset="50%" stop-color="#E0F2FE" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#0284C7" stop-opacity="0.6" />
+                  </linearGradient>
+                  <linearGradient id="acrylicLowerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1E293B" />
+                    <stop offset="50%" stop-color="#334155" />
+                    <stop offset="100%" stop-color="#0F172A" />
+                  </linearGradient>
+                  <linearGradient id="bananaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#FEF08A" />
+                    <stop offset="60%" stop-color="#FACC15" />
+                    <stop offset="100%" stop-color="#CA8A04" />
+                  </linearGradient>
+                  <linearGradient id="pedalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#A8A29E" />
+                    <stop offset="100%" stop-color="#78716C" />
+                  </linearGradient>
+                  <!-- Arrowhead markers for FBD vectors -->
+                  <marker id="arrowOrange" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#F97316"/>
+                  </marker>
+                  <marker id="arrowGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#10B981"/>
+                  </marker>
+                  <marker id="arrowCyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+                  </marker>
+                  <marker id="arrowRose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#F43F5E"/>
+                  </marker>
+                </defs>
+
+                <!-- ================= LEFT SIDE: ISOMETRIC 3D CAD VIEW ================= -->
+                <g id="isoViewGroup" transform="translate(15, 18)">
+                  <text x="160" y="16" text-anchor="middle" class="fill-sky-400 font-mono text-xs font-bold tracking-wider">ISOMETRIC 3D CAD (มวลและมิติจริง)</text>
+
+                  <!-- Isometric Base Frame Legs -->
+                  <polygon points="95,180 112,172 112,375 95,383" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="265,165 282,157 282,360 265,368" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="95,340 265,320 265,335 95,355" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="65,395 195,435 195,450 65,410" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="195,390 282,335 282,350 195,405" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="65,205 82,197 82,415 65,423" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="180,245 198,237 198,450 180,458" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.5"/>
+
+                  <!-- Front Prep Shelf -->
+                  <polygon points="15,175 180,235 210,218 45,158" fill="#94A3B8" stroke="#1E293B" stroke-width="1.5"/>
+                  <polygon points="15,175 180,235 180,244 15,184" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                  <rect x="34" y="132" width="8" height="32" rx="3" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.2"/>
+                  <rect x="172" y="182" width="8" height="32" rx="3" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.2"/>
+
+                  <!-- Lower Fixed Acrylic Base Plate -->
+                  <polygon points="78,150 202,198 278,152 154,104" fill="url(#acrylicLowerGrad)" stroke="#0F172A" stroke-width="1.8"/>
+                  <polygon points="78,150 202,198 202,208 78,160" fill="#1E293B" stroke="#0F172A" stroke-width="1.5"/>
+                  <polygon points="202,198 278,152 278,162 202,208" fill="#0F172A" stroke="#0F172A" stroke-width="1.5"/>
+
+                  <!-- Isometric Bananas on Plate -->
+                  <g id="isoBananasGroup">
+                    <ellipse id="isoBanana1" cx="152" cy="148" rx="22" ry="12" fill="url(#bananaGrad)" stroke="#A16207" stroke-width="1.2"/>
+                    <ellipse id="isoBanana2" cx="195" cy="164" rx="22" ry="12" fill="url(#bananaGrad)" stroke="#A16207" stroke-width="1.2"/>
+                  </g>
+
+                  <!-- Main Rear Vertical Round Steel Column -->
+                  <rect x="208" y="32" width="22" height="128" rx="4" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                  <ellipse cx="219" cy="32" rx="11" ry="4" fill="#CBD5E1" stroke="#1E293B" stroke-width="1.5"/>
+
+                  <!-- Thickness Adjustment Washers on Iso Shaft -->
+                  <g id="isoWashersGroup">
+                    <rect id="isoWasherRect" x="206" y="140" width="26" height="10" rx="2" fill="#F59E0B" stroke="#78350F" stroke-width="1.2"/>
+                  </g>
+
+                  <!-- Isometric Foot Pedal -->
+                  <g id="isoPedalGroup">
+                    <line x1="165" y1="322" x2="255" y2="365" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+                    <polygon id="isoPedalPoly" points="95,348 165,378 228,348 158,320" fill="url(#pedalGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                  </g>
+
+                  <!-- Isometric Moving Assembly -->
+                  <g id="isoMovingGroup" transform="translate(0, 0)">
+                    <polygon points="224,142 236,135 236,292 224,299" fill="#94A3B8" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon points="185,275 236,292 236,302 185,285" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                    <line x1="158" y1="220" x2="158" y2="348" stroke="#CBD5E1" stroke-width="5" stroke-linecap="round"/>
+                    <!-- Acrylic Bottom Layer -->
+                    <polygon points="74,106 202,156 280,108 152,58" fill="url(#acrylicUpperGrad)" stroke="#0284C7" stroke-width="1.5"/>
+                    <!-- Steel Top Plate (thickness scales visually) -->
+                    <polygon id="isoSteelTopFace" points="74,98 202,148 280,100 152,50" fill="url(#steelPlateGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon id="isoSteelLeftEdge" points="74,98 202,148 202,156 74,106" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon id="isoSteelRightEdge" points="202,148 280,100 280,108 202,156" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                  </g>
+
+                  <!-- Upper Stationary Spring Bracket Plate -->
+                  <g id="isoTopBracketGroup">
+                    <rect x="148" y="45" width="10" height="65" rx="3" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.2"/>
+                    <polygon points="74,64 198,112 268,68 144,20" fill="url(#steelPlateGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon points="74,64 198,112 198,120 74,72" fill="#64748B" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon points="198,112 268,68 268,76 198,120" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                    <polygon points="175,62 218,38 226,48 183,72" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                    <rect x="148" y="25" width="10" height="35" rx="2" fill="#64748B" stroke="#1E293B" stroke-width="1.2"/>
+                    <polygon points="144,38 162,38 159,45 147,45" fill="#CBD5E1" stroke="#1E293B" stroke-width="1.2"/>
+                  </g>
+
+                  <!-- Live Mass & Plate Spec Box under Iso View -->
+                  <g transform="translate(15, 422)">
+                    <rect x="0" y="0" width="275" height="42" rx="8" fill="#0F172A" fill-opacity="0.92" stroke="#334155" stroke-width="1.2"/>
+                    <text id="isoSpecLine1" x="12" y="17" class="fill-yellow-400 font-mono text-[10px] font-bold">เหล็กแผ่น: 300×250×4.5 mm (2.65 kg)</text>
+                    <text id="isoSpecLine2" x="12" y="33" class="fill-slate-300 font-mono text-[10px]">อะคริลิก: 10 mm (0.89 kg) + ขาดึง (1.58 kg)</text>
+                  </g>
+                </g>
+
+                <!-- Center Divider Line -->
+                <line x1="340" y1="20" x2="340" y2="465" stroke="#334155" stroke-width="1.5" stroke-dasharray="6,6"/>
+
+                <!-- ================= RIGHT SIDE: ENGINEERING SIDE VIEW + FBD & COORDINATES ================= -->
+                <g id="sideViewGroup" transform="translate(365, 18)">
+                  <text x="245" y="16" text-anchor="middle" class="fill-yellow-400 font-mono text-xs font-bold tracking-wider">SIDE VIEW KINEMATICS, ELASTICITY & FBD (ภาพฉายกลศาสตร์)</text>
+
+                  <!-- 1. Main Stationary Frame Structure -->
+                  <!-- Front Prep Shelf Bracket -->
+                  <polygon points="70,192 140,192 140,199 70,199" fill="#94A3B8" stroke="#1E293B" stroke-width="1.5"/>
+                  <line x1="95" y1="199" x2="140" y2="242" stroke="#64748B" stroke-width="5" stroke-linecap="round"/>
+                  <rect x="85" y="154" width="8" height="38" rx="2" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.5"/>
+
+                  <!-- Left & Right Vertical Frame Legs -->
+                  <rect x="140" y="185" width="18" height="255" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.8"/>
+                  <rect x="292" y="185" width="18" height="255" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.8"/>
+
+                  <!-- Top Frame Horizontal Table Support & Lower Crossbar -->
+                  <rect x="140" y="182" width="170" height="10" fill="#64748B" stroke="#1E293B" stroke-width="1.8"/>
+                  <rect x="158" y="355" width="134" height="16" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.8"/>
+
+                  <!-- Lower Fixed Food-Grade Acrylic Plate -->
+                  <rect id="sideLowerAcrylicRect" x="142" y="174" width="148" height="8" rx="1" fill="url(#acrylicLowerGrad)" stroke="#0F172A" stroke-width="1.5"/>
+
+                  <!-- Main Right Vertical Round Steel Shaft (X = 0 Reference Axis at x=301) -->
+                  <rect x="290" y="42" width="22" height="140" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.8"/>
+                  <!-- Shaft Cap (ฝาปิดแกน) -->
+                  <rect x="288" y="34" width="26" height="10" rx="2" fill="#94A3B8" stroke="#1E293B" stroke-width="1.8"/>
+
+                  <!-- Top Spring Bracket Adjuster Clamp (ตัวปรับเลื่อนตัวยึดสปริง) -->
+                  <rect x="285" y="48" width="38" height="24" rx="2" fill="#64748B" stroke="#1E293B" stroke-width="1.8"/>
+                  <rect x="316" y="52" width="8" height="16" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                  <rect x="210" y="50" width="78" height="18" rx="3" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.8"/>
+                  <rect x="136" y="68" width="144" height="9" rx="1" fill="url(#steelPlateGrad)" stroke="#1E293B" stroke-width="1.8"/>
+
+                  <!-- Top Preload Adjuster Screw on Spring Mount (น็อตเร่งความตึงสปริง Δx_preload) -->
+                  <g id="springPreloadScrewGroup" transform="translate(214, 42)">
+                    <rect x="-4" y="0" width="8" height="32" rx="1.5" fill="#CBD5E1" stroke="#1E293B" stroke-width="1.2"/>
+                    <rect id="preloadNutRect" x="-8" y="18" width="16" height="6" rx="1.5" fill="#FACC15" stroke="#1E293B" stroke-width="1.2"/>
+                  </g>
+
+                  <!-- Anti-Rotation Guide Shaft on Left (กระบอกเลื่อนล็อคแกนไม่ให้เกิดการหมุน) -->
+                  <rect id="antiRotationRod" x="150" y="20" width="10" height="105" rx="2" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.5"/>
+                  <rect x="146" y="34" width="18" height="7" rx="1" fill="#CBD5E1" stroke="#1E293B" stroke-width="1.5"/>
+
+                  <!-- MECHANICAL STOP / THICKNESS WASHERS (แหวนรองปรับแต่งความหนา) -->
+                  <g id="sideWashersGroup">
+                    <rect x="287" y="168" width="28" height="14" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                    <rect id="sideWasherStack" x="286" y="156" width="30" height="12" rx="1" fill="#F59E0B" stroke="#78350F" stroke-width="1.5"/>
+                    <circle id="washerZoomCircle" cx="301" cy="160" r="18" fill="none" stroke="#FACC15" stroke-width="1.5" stroke-dasharray="3,3"/>
+                  </g>
+
+                  <!-- BANANAS ON LOWER ACRYLIC PLATE + STATE ARROWS -->
+                  <g id="sideBananasGroup">
+                    <rect id="sideBananaLeft" x="156" y="146" width="44" height="28" rx="12" fill="url(#bananaGrad)" stroke="#CA8A04" stroke-width="1.8"/>
+                    <rect id="sideBananaRight" x="234" y="146" width="44" height="28" rx="12" fill="url(#bananaGrad)" stroke="#CA8A04" stroke-width="1.8"/>
+
+                    <!-- STEP 1: Red Downward Arrows -->
+                    <g id="step1Arrows" class="anim-arrow-down">
+                      <path d="M168,150 L168,168 M164,163 L168,169 L172,163" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M188,150 L188,168 M184,163 L188,169 L192,163" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M246,150 L246,168 M242,163 L246,169 L250,163" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M266,150 L266,168 M262,163 L266,169 L270,163" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </g>
+
+                    <!-- STEP 3: Red Upward Release/Return Arrows -->
+                    <g id="step3Arrows" class="anim-arrow-up" style="display: none;">
+                      <path d="M168,164 L168,132 M163,138 L168,130 L173,138" stroke="#EF4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M186,164 L186,132 M181,138 L186,130 L191,138" stroke="#EF4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M246,164 L246,132 M241,138 L246,130 L251,138" stroke="#EF4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M264,164 L264,132 M259,138 L264,130 L269,138" stroke="#EF4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </g>
+                  </g>
+
+                  <!-- DYNAMIC STAINLESS RETURN SPRING (ยืดหดและขยับตาม X_spring) -->
+                  <path id="returnSpringPath" d="M214,77 L214,115" stroke="#E2E8F0" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+                  <!-- 2. MOVING UPPER PRESSING ASSEMBLY (พร้อมแสดงการแอ่นตัวยืดหยุ่นของเหล็กแผ่นและระยะตกค้าง δ_sag) -->
+                  <g id="sideMovingGroup" transform="translate(0, 0)">
+                    <!-- Sliding Sleeve on Right Main Shaft -->
+                    <rect id="sideMainSleeve" x="286" y="106" width="30" height="24" rx="2" fill="#94A3B8" stroke="#1E293B" stroke-width="1.8"/>
+
+                    <!-- Dynamic Elastic Steel Plate Path (Changes thickness with t_steel and arches upward by δ_plate when pressed) -->
+                    <path id="sideSteelPlatePath" d="M136,112 Q213,112 290,112 L290,120 Q213,120 136,120 Z" fill="url(#steelPlateGrad)" stroke="#1E293B" stroke-width="1.8"/>
+
+                    <!-- Dynamic Elastic Acrylic Pressing Plate Path (Changes thickness with t_acrylic) -->
+                    <path id="sideAcrylicPlatePath" d="M136,120 Q213,120 290,120 L290,128 Q213,128 136,128 Z" fill="url(#acrylicUpperGrad)" stroke="#0284C7" stroke-width="1.8"/>
+
+                    <!-- Vertical Side Linkage Bar (ขยับตำแหน่งตามพิกัด X_spring / L_1) -->
+                    <rect id="sideLinkageBarRect" x="205" y="106" width="18" height="190" rx="2" fill="url(#steelFrameGrad)" stroke="#1E293B" stroke-width="1.8"/>
+                    <!-- Lower Linkage Rod (ข้อต่อแป้นเหยียบกับขาเชื่อมต่อ) -->
+                    <rect id="sideLinkageRodRect" x="211" y="296" width="6" height="68" fill="#CBD5E1" stroke="#1E293B" stroke-width="1.5"/>
+                    <circle id="sideLinkageTopPin" cx="214" cy="296" r="4" fill="#FACC15" stroke="#1E293B" stroke-width="1.2"/>
+                  </g>
+
+                  <!-- 3. FOOT PEDAL LEVER (คานเหยียบปรับจุดดึง L1 และความยาวแป้น L2 ตามพิกัดจริง) -->
+                  <g id="sidePedalGroup">
+                    <!-- Fixed Pivot Hinge on Right Leg (จุดหมุนแป้นเหยียบ) -->
+                    <circle cx="286" cy="396" r="8" fill="#475569" stroke="#1E293B" stroke-width="2"/>
+                    <circle cx="286" cy="396" r="3.5" fill="#CBD5E1"/>
+                    <!-- Dynamic Pedal Lever Arm -->
+                    <line id="sidePedalBar" x1="286" y1="396" x2="126" y2="342" stroke="url(#steelFrameGrad)" stroke-width="8" stroke-linecap="round"/>
+                    <line id="sidePedalBarOutline" x1="286" y1="396" x2="126" y2="342" stroke="#1E293B" stroke-width="1.5" stroke-linecap="round"/>
+                    <!-- Foot Pad at Tip -->
+                    <circle id="sidePedalTip" cx="126" cy="342" r="6" fill="#FACC15" stroke="#1E293B" stroke-width="1.8"/>
+                    <!-- Pin Joint where Linkage Rod meets Pedal -->
+                    <circle id="sidePedalJoint" cx="214" cy="372" r="5" fill="#38BDF8" stroke="#0F172A" stroke-width="1.5"/>
+                  </g>
+
+                  <!-- 4. FREE BODY DIAGRAM (FBD) VECTORS & MOUNTING DIMENSION OVERLAYS -->
+                  <g id="fbdOverlayGroup">
+                    <!-- Center of Gravity (CG) & Dead Weight Vector W_dead -->
+                    <g id="fbdDeadWeightGroup" transform="translate(213, 120)">
+                      <circle cx="0" cy="0" r="4.5" fill="#F97316" stroke="#0F172A" stroke-width="1.5"/>
+                      <line x1="0" y1="4" x2="0" y2="38" stroke="#F97316" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+                      <rect x="-44" y="40" width="88" height="16" rx="3" fill="#0F172A" fill-opacity="0.9" stroke="#F97316" stroke-width="1"/>
+                      <text id="fbdWeightLabel" x="0" y="51" text-anchor="middle" class="fill-orange-400 font-mono text-[9px] font-bold">W_dead = 50.2 N</text>
+                    </g>
+
+                    <!-- Upward Spring Force Vector F_sp -->
+                    <g id="fbdSpringVectorGroup" transform="translate(214, 75)">
+                      <line x1="22" y1="32" x2="22" y2="-4" stroke="#10B981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+                      <rect x="28" y="4" width="82" height="16" rx="3" fill="#0F172A" fill-opacity="0.9" stroke="#10B981" stroke-width="1"/>
+                      <text id="fbdSpringLabel" x="69" y="15" text-anchor="middle" class="fill-emerald-400 font-mono text-[9px] font-bold">F_sp = 64.5 N</text>
+                    </g>
+
+                    <!-- Foot Force Vector F_foot at Pedal Tip -->
+                    <g id="fbdFootForceGroup" transform="translate(126, 310)">
+                      <line x1="0" y1="0" x2="0" y2="26" stroke="#38BDF8" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+                      <rect x="-40" y="-16" width="80" height="15" rx="3" fill="#0F172A" fill-opacity="0.9" stroke="#38BDF8" stroke-width="1"/>
+                      <text id="fbdFootLabel" x="0" y="-6" text-anchor="middle" class="fill-sky-400 font-mono text-[9px] font-bold">F_foot = 140 N</text>
+                    </g>
+
+                    <!-- Mounting Dimension Lines: Lever L1 & L2 -->
+                    <g transform="translate(0, 422)">
+                      <!-- L1 Dimension (Pivot to Linkage Pin) -->
+                      <line id="dimLineL1" x1="214" y1="0" x2="286" y2="0" stroke="#38BDF8" stroke-width="1.5"/>
+                      <line id="dimTickL1Left" x1="214" y1="-5" x2="214" y2="5" stroke="#38BDF8" stroke-width="1.5"/>
+                      <line x1="286" y1="-5" x2="286" y2="5" stroke="#38BDF8" stroke-width="1.5"/>
+                      <text id="dimTextL1" x="250" y="-4" text-anchor="middle" class="fill-sky-400 font-mono text-[9px] font-bold">L1 = 95 mm</text>
+
+                      <!-- L2 Dimension (Pivot to Pedal Tip) -->
+                      <line id="dimLineL2" x1="126" y1="16" x2="286" y2="16" stroke="#FACC15" stroke-width="1.5"/>
+                      <line id="dimTickL2Left" x1="126" y1="11" x2="126" y2="21" stroke="#FACC15" stroke-width="1.5"/>
+                      <line x1="286" y1="11" x2="286" y2="21" stroke="#FACC15" stroke-width="1.5"/>
+                      <text id="dimTextL2" x="206" y="28" text-anchor="middle" class="fill-yellow-400 font-mono text-[9px] font-bold">L2 = 285 mm (ทดแรง 1:3.00)</text>
+                    </g>
+                  </g>
+
+                  <!-- MAGNIFIED INSET: MECHANICAL STOP, SAG & PLATE DEFLECTION -->
+                  <g id="washerInsetGroup" transform="translate(362, 100)">
+                    <rect x="0" y="0" width="128" height="122" rx="12" fill="#0F172A" fill-opacity="0.94" stroke="#334155" stroke-width="1.5"/>
+                    <text x="64" y="16" text-anchor="middle" class="fill-yellow-400 font-mono text-[10px] font-bold">STOP & ELASTICITY</text>
+                    <!-- Mini zoomed shaft & washers -->
+                    <rect x="44" y="24" width="40" height="58" fill="url(#shaftGrad)" stroke="#1E293B" stroke-width="1.2"/>
+                    <rect id="zoomTopSleeve" x="37" y="23" width="54" height="15" rx="2" fill="#94A3B8" stroke="#1E293B" stroke-width="1.5"/>
+                    <rect id="zoomWasherStack" x="38" y="52" width="52" height="16" rx="2" fill="#F59E0B" stroke="#78350F" stroke-width="1.5"/>
+                    <rect x="37" y="68" width="54" height="14" fill="#475569" stroke="#1E293B" stroke-width="1.5"/>
+                    <text id="zoomWasherText" x="64" y="95" text-anchor="middle" class="fill-emerald-400 font-mono text-[10px] font-bold">แหวนรอง: 5.0 mm</text>
+                    <text id="zoomDeflectText" x="64" y="111" text-anchor="middle" class="fill-sky-400 font-mono text-[9px]">แอ่นตัวกลางแผ่น: 0.04 mm</text>
+                  </g>
+
+                  <!-- INTERACTIVE CALLOUT LABELS (1-9) -->
+                  <g id="calloutGroup">
+                    <g class="callout-dot" onclick="inspectPart('shaftCap')">
+                      <line x1="301" y1="34" x2="345" y2="20" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="301" cy="34" r="4" fill="#38BDF8"/>
+                      <rect x="345" y="8" width="76" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="383" y="21" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">1. ฝาปิดแกน</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('springBracket')">
+                      <line x1="322" y1="58" x2="352" y2="58" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="322" cy="58" r="4" fill="#38BDF8"/>
+                      <rect x="352" y="47" width="124" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="414" y="60" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">2. ตัวปรับเลื่อนตัวยึดสปริง</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('returnSpring')">
+                      <line x1="214" y1="92" x2="95" y2="85" stroke="#FACC15" stroke-width="1.2"/>
+                      <circle cx="214" cy="92" r="4" fill="#FACC15"/>
+                      <rect x="2" y="74" width="93" height="19" rx="4" fill="#0F172A" stroke="#FACC15" stroke-width="1"/>
+                      <text x="48" y="87" text-anchor="middle" class="fill-yellow-300 text-[10px] font-medium">3. สปริงสเตนเลส</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('antiRotation')">
+                      <line x1="150" y1="45" x2="95" y2="45" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="150" cy="45" r="4" fill="#38BDF8"/>
+                      <rect x="-8" y="34" width="103" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="43" y="47" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">4. กระบอกล็อคแกน</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('upperPlate')">
+                      <line x1="138" y1="118" x2="92" y2="115" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="138" cy="118" r="4" fill="#38BDF8"/>
+                      <rect x="-12" y="104" width="104" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="40" y="117" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">5. เหล็กแผ่น+อะคริลิก</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('lowerPlate')">
+                      <line x1="142" y1="178" x2="92" y2="225" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="142" cy="178" r="4" fill="#38BDF8"/>
+                      <rect x="-12" y="215" width="104" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="40" y="228" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">6. แผ่นอะคริลิควางกล้วย</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('washers')">
+                      <line x1="316" y1="162" x2="362" y2="162" stroke="#FACC15" stroke-width="1.5"/>
+                      <circle cx="316" cy="162" r="4.5" fill="#FACC15"/>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('linkageBar')">
+                      <line x1="223" y1="255" x2="352" y2="255" stroke="#38BDF8" stroke-width="1.2"/>
+                      <circle cx="223" cy="255" r="4" fill="#38BDF8"/>
+                      <rect x="352" y="244" width="110" height="19" rx="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1"/>
+                      <text x="407" y="257" text-anchor="middle" class="fill-sky-300 text-[10px] font-medium">8. ขาเชื่อมต่อแป้นเหยียบ</text>
+                    </g>
+
+                    <g class="callout-dot" onclick="inspectPart('footPedal')">
+                      <line x1="175" y1="360" x2="95" y2="360" stroke="#FACC15" stroke-width="1.2"/>
+                      <circle cx="175" cy="360" r="4" fill="#FACC15"/>
+                      <rect x="5" y="349" width="90" height="19" rx="4" fill="#0F172A" stroke="#FACC15" stroke-width="1"/>
+                      <text x="50" y="362" text-anchor="middle" class="fill-yellow-300 text-[10px] font-medium">9. แป้นเหยียบ</text>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Part Inspector Tooltip Bar + Interactive Pedal Controls -->
+            <div class="z-10 flex flex-col gap-3 bg-slate-900/95 backdrop-blur p-3.5 rounded-xl border border-slate-800">
+              
+              <!-- Selected Part Explanation + Exaggerated Deflection Toggle -->
+              <div id="partInspectorBox" class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 px-3.5 py-2 rounded-lg border border-slate-800/90 text-xs">
+                <div class="flex items-start gap-2.5 flex-1 min-w-[260px]">
+                  <span class="text-base mt-0.5">🔩</span>
+                  <div>
+                    <span id="partInspectorTitle" class="font-bold text-yellow-400">คลิกจุดชิ้นส่วนเพื่อดูหลักกลศาสตร์: 5. แผ่นเหล็กกดทับ SS400 + แผ่นอะคริลิก Food Grade</span>
+                    <p id="partInspectorDesc" class="text-slate-300 mt-0.5 leading-relaxed">
+                      มวลของแผ่นเหล็กและแผ่นอะคริลิกสร้างน้ำหนักกดทับเริ่มต้น ($W_{dead}$) ช่วยทุ่นแรงขณะเหยียบ แต่สปริงดึงกลับต้องมีแรงดึงเริ่มต้น $F_{sp,0} > W_{dead} + F_f$ จึงจะยกชุดแผ่นกดกลับขึ้นสุดได้
+                    </p>
+                  </div>
+                </div>
+                <label class="flex items-center gap-1.5 text-[11px] text-sky-300 bg-sky-500/10 border border-sky-500/30 px-2.5 py-1.5 rounded-lg cursor-pointer select-none">
+                  <input type="checkbox" id="chkExaggerateFlex" checked onchange="renderSimulation()" class="accent-sky-400" />
+                  <span>ขยายภาพการแอ่นตัวเหล็กแผ่น (25x Visual Scale)</span>
+                </label>
+              </div>
+
+              <!-- Interactive Pedal Slider & Hold-to-Press Button -->
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2.5">
+                  <button id="btnHoldPress" 
+                    onmousedown="startHoldPedal()" onmouseup="releaseHoldPedal()" onmouseleave="releaseHoldPedal()"
+                    ontouchstart="startHoldPedal(event)" ontouchend="releaseHoldPedal(event)"
+                    class="px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 shadow-lg shadow-yellow-500/20 active:scale-95 transition flex items-center gap-2 select-none cursor-pointer">
+                    <span>🦶</span> <span>กดค้างเพื่อเหยียบแป้น (Hold / Space)</span>
+                  </button>
+
+                  <button id="btnAutoCycle" onclick="toggleAutoCycle()" class="px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                    <span id="autoCycleIcon">▶️</span> <span id="autoCycleText">จำลองอัตโนมัติ (Auto Loop)</span>
+                  </button>
+                </div>
+
+                <!-- Manual Pedal Travel Slider -->
+                <div class="flex-1 min-w-[220px] flex items-center gap-3 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800">
+                  <span class="text-xs font-medium text-slate-400 whitespace-nowrap">ระยะเหยียบแป้น:</span>
+                  <input id="pedalSlider" type="range" min="0" max="100" value="0" oninput="onManualSliderInput(this.value)" class="w-full cursor-pointer" />
+                  <span id="pedalPercentText" class="text-xs font-mono font-bold text-yellow-400 w-10 text-right">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Engineering Telemetry Cards (4 Rigorous Physics Metrics) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <!-- Card 1: Moving Mass & Spring Lift Verification -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>น้ำหนักชุดกด vs แรงยกสปริง</span>
+                <span class="text-amber-400 font-mono">W_dead</span>
+              </div>
+              <div id="metricMassVsSpring" class="text-lg font-mono font-bold text-white mt-1">50.2 N / 64.5 N</div>
+              <div id="metricSagStatus" class="text-[11px] text-emerald-400 mt-0.5">✓ สปริงยกขึ้นสุด (ไม่ตกค้าง)</div>
+            </div>
+
+            <!-- Card 2: Net Pressing Force on Banana -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>แรงกดสุทธิที่กล้วย (Net Force)</span>
+                <span class="text-sky-400 font-mono">F_net</span>
+              </div>
+              <div id="metricNetForce" class="text-lg font-mono font-bold text-white mt-1">352 N</div>
+              <div id="metricPressureNote" class="text-[11px] text-emerald-400 mt-0.5">รวมน้ำหนักแผ่นเหล็กช่วยกด</div>
+            </div>
+
+            <!-- Card 3: Steel Plate Elastic Deflection & Stress -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>การแอ่นตัวเหล็กแผ่น ($\delta_{plate}$)</span>
+                <span id="metricPlateFosBadge" class="text-emerald-400 font-mono">FOS &gt; 10</span>
+              </div>
+              <div id="metricPlateDeflection" class="text-lg font-mono font-bold text-sky-400 mt-1">0.042 mm</div>
+              <div id="metricPlateErrorNote" class="text-[11px] text-slate-300 mt-0.5">คลาดเคลื่อนกลางแผ่น: +0.8%</div>
+            </div>
+
+            <!-- Card 4: Actual Banana Thickness & Pedal Stroke -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
+              <div class="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>ความหนากล้วยจริง (ขอบ / กลาง)</span>
+                <span class="text-emerald-400 font-mono">t_actual</span>
+              </div>
+              <div id="metricFinalThickness" class="text-lg font-mono font-bold text-emerald-400 mt-1">5.00 / 5.04 mm</div>
+              <div id="metricPedalStrokeNote" class="text-[11px] text-amber-400 mt-0.5">ระยะกดเท้า: 69 mm (13.9°)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Detailed Engineering Parameter Sub-Tabs & AI Analyzer (5 cols on lg) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+
+          <!-- Engineering Control Sub-Tabs Card -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🛠️</span> <span>ปรับแต่งสเปกวัสดุ สปริง และพิกัดกลศาสตร์</span>
+              </h2>
+              <button onclick="resetDefaultParams()" class="text-xs text-slate-400 hover:text-yellow-400 transition">รีเซ็ตค่ามาตรฐาน</button>
+            </div>
+
+            <!-- 3 Sub-Tab Buttons for Parameters -->
+            <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 mb-3.5 text-xs">
+              <button onclick="switchParamSubTab('material')" id="subTabBtn-material" class="py-1.5 px-2 rounded-lg font-bold bg-yellow-400 text-slate-950 transition">
+                1. เหล็กแผ่น & มวล
+              </button>
+              <button onclick="switchParamSubTab('spring')" id="subTabBtn-spring" class="py-1.5 px-2 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                2. สปริงยกกลับ
+              </button>
+              <button onclick="switchParamSubTab('geometry')" id="subTabBtn-geometry" class="py-1.5 px-2 rounded-lg font-semibold text-slate-400 hover:text-white transition">
+                3. พิกัดติดตั้ง & คาน
+              </button>
+            </div>
+
+            <!-- SUB-TAB 1: STEEL PLATE DIMENSIONS, MASS & ELASTICITY -->
+            <div id="subTab-material" class="space-y-3 text-xs">
+              <!-- Steel Plate Thickness t_steel -->
+              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                <div class="flex justify-between mb-1">
+                  <label class="text-slate-200 font-semibold">ความหนาเหล็กแผ่นกดทับ ($t_{steel}$ - SS400)</label>
+                  <span id="valSteelThick" class="font-mono font-bold text-yellow-400">4.5 mm (มาตรฐาน 3/16")</span>
+                </div>
+                <input id="paramSteelThick" type="range" min="1.5" max="15.0" step="0.5" value="4.5" oninput="updateEngineeringParams()" class="w-full" />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-0.5">
+                  <span>1.5 mm (บาง/แอ่นง่าย)</span>
+                  <span>4.5 - 6.0 mm (แข็งแรง/ไม่โก่ง)</span>
+                  <span>15.0 mm (หนักมาก)</span>
+                </div>
+              </div>
+
+              <!-- Plate Width W_plate & Length L_plate -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">ความกว้างแผ่น ($W_{plate}$)</label>
+                    <span id="valPlateWidth" class="font-mono font-bold text-sky-400">300 mm</span>
+                  </div>
+                  <input id="paramPlateWidth" type="range" min="200" max="420" step="10" value="300" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">ความลึกแผ่น ($L_{plate}$)</label>
+                    <span id="valPlateLength" class="font-mono font-bold text-sky-400">250 mm</span>
+                  </div>
+                  <input id="paramPlateLength" type="range" min="180" max="360" step="10" value="250" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+              </div>
+
+              <!-- Acrylic Thickness & Washer Thickness -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">ความหนาอะคริลิก ($t_{acrylic}$)</label>
+                    <span id="valAcrylicThick" class="font-mono font-bold text-sky-400">10.0 mm</span>
+                  </div>
+                  <input id="paramAcrylicThick" type="range" min="3.0" max="20.0" step="1.0" value="10.0" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">แหวนรองคุมความหนา ($t_{washer}$)</label>
+                    <span id="valWasherMm" class="font-mono font-bold text-yellow-400">5.0 mm</span>
+                  </div>
+                  <input id="paramWasherMm" type="range" min="2.0" max="12.0" step="0.5" value="5.0" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+              </div>
+
+              <!-- Real-time Mass & Elasticity Breakdown Box -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/90 space-y-1.5">
+                <div class="text-[11px] font-bold text-amber-400 flex items-center justify-between">
+                  <span>⚖️ แจกแจงน้ำหนักวัสดุเคลื่อนที่จริง (Moving Mass Breakdown)</span>
+                  <span id="breakdownTotalWeightN" class="font-mono">W_dead = 50.2 N</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-[11px] pt-1 border-t border-slate-800/80">
+                  <div>
+                    <span class="text-slate-400 block">1. เหล็กแผ่นบน:</span>
+                    <span id="breakdownSteelMass" class="font-mono font-bold text-white">2.65 kg</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">2. อะคริลิกใส:</span>
+                    <span id="breakdownAcrylicMass" class="font-mono font-bold text-sky-300">0.89 kg</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block">3. ขาดึง+บูชเพลา:</span>
+                    <span id="breakdownLinkageMass" class="font-mono font-bold text-slate-300">1.58 kg</span>
+                  </div>
+                </div>
+                <div class="pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                  <span class="text-slate-400">ความเค้นดัดในเหล็กแผ่น ($\sigma_{bending}$):</span>
+                  <span id="breakdownPlateStress" class="font-mono font-bold text-emerald-400">13.1 MPa (Yield 250 MPa)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SUB-TAB 2: SPRING LIFT DESIGN & SHIGLEY VERIFICATION -->
+            <div id="subTab-spring" class="hidden space-y-3 text-xs">
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">ขนาดลวดสปริง ($d_{wire}$)</label>
+                    <span id="valSpringWireD" class="font-mono font-bold text-yellow-400">3.2 mm</span>
+                  </div>
+                  <input id="paramSpringWireD" type="range" min="1.8" max="5.5" step="0.2" value="3.2" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">เส้นผ่านศูนย์กลางขด ($D_{coil}$)</label>
+                    <span id="valSpringCoilD" class="font-mono font-bold text-sky-400">24.0 mm</span>
+                  </div>
+                  <input id="paramSpringCoilD" type="range" min="16.0" max="45.0" step="1.0" value="24.0" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">จำนวนขดใช้งาน ($N_a$)</label>
+                    <span id="valSpringCoils" class="font-mono font-bold text-sky-400">16 ขด</span>
+                  </div>
+                  <input id="paramSpringCoils" type="range" min="8" max="32" step="1" value="16" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">ขันน็อตดึงสปริง ($\Delta x_{preload}$)</label>
+                    <span id="valSpringPreload" class="font-mono font-bold text-emerald-400">35 mm</span>
+                  </div>
+                  <input id="paramSpringPreload" type="range" min="5" max="85" step="1" value="35" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+              </div>
+
+              <!-- Spring Shigley Summary Box -->
+              <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/90 space-y-1.5 text-[11px]">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">ค่าคงที่สปริงคำนวณจริง ($k = \frac{d^4 G}{8 D^3 N_a}$):</span>
+                  <span id="springCalcK" class="font-mono font-bold text-yellow-400">3.72 N/mm (3,720 N/m)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">แรงดึงยกเริ่มต้น ($F_{sp,0}$) vs น้ำหนักต้าน ($W_{dead}+F_f$):</span>
+                  <span id="springLiftCompare" class="font-mono font-bold text-emerald-400">130.2 N vs 58.2 N (ยกขึ้น 100%)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">แรงดึงสปริงสูงสุดตอนเหยียบสุด ($F_{sp,max}$):</span>
+                  <span id="springMaxForceText" class="font-mono font-bold text-white">215.8 N</span>
+                </div>
+                <div class="flex justify-between border-t border-slate-800 pt-1.5">
+                  <span class="text-slate-400">ความเค้นเฉือนสปริง ($\tau_{max}$) & Safety Factor:</span>
+                  <span id="springStressText" class="font-mono font-bold text-emerald-400">312 MPa (FOS = 1.44)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SUB-TAB 3: MOUNTING COORDINATES, LEVER L1/L2 & FOOT FORCE -->
+            <div id="subTab-geometry" class="hidden space-y-3 text-xs">
+              <!-- Lever Arms L1 & L2 -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">จุดหมุนถึงจุดดึง ($L_1$)</label>
+                    <span id="valLeverL1" class="font-mono font-bold text-sky-400">95 mm</span>
+                  </div>
+                  <input id="paramLeverL1" type="range" min="65" max="150" step="5" value="95" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">จุดหมุนถึงปลายแป้น ($L_2$)</label>
+                    <span id="valLeverL2" class="font-mono font-bold text-yellow-400">285 mm</span>
+                  </div>
+                  <input id="paramLeverL2" type="range" min="190" max="420" step="5" value="285" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+              </div>
+
+              <!-- Spring/Linkage Pull Alignment X_spring vs Plate CG -->
+              <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between mb-1">
+                  <label class="text-slate-200 font-semibold">พิกัดติดตั้งจุดดึงสปริงและขาดึงจากเสาหลัก ($X_{spring}$)</label>
+                  <span id="valSpringMountX" class="font-mono font-bold text-emerald-400">160 mm (ตรงจุด CG)</span>
+                </div>
+                <input id="paramSpringMountX" type="range" min="95" max="225" step="5" value="160" oninput="updateEngineeringParams()" class="w-full" />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-0.5">
+                  <span>95 mm (ชิดเสาใน/งัดแกน)</span>
+                  <span id="cgTargetHint" class="text-emerald-400">จุดศูนย์ถ่วงแผ่นกด X_CG = 160 mm</span>
+                  <span>225 mm (ชิดปลายนอก)</span>
+                </div>
+              </div>
+
+              <!-- Applied Foot Force & Ripeness -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">แรงเหยียบเท้า ($F_{foot}$)</label>
+                    <span id="valFootForce" class="font-mono font-bold text-sky-400">140 N (~14 kgf)</span>
+                  </div>
+                  <input id="paramFootForce" type="range" min="60" max="300" step="10" value="140" oninput="updateEngineeringParams()" class="w-full" />
+                </div>
+
+                <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between mb-1">
+                    <label class="text-slate-300">จำนวนกล้วย / ความสุก</label>
+                    <span id="valBananaCount" class="font-mono font-bold text-yellow-400">2 ลูก/ครั้ง</span>
+                  </div>
+                  <input id="paramBananaCount" type="range" min="1" max="3" step="1" value="2" oninput="updateEngineeringParams()" class="w-full" />
+                  <div class="flex gap-1 mt-1.5">
+                    <button onclick="setRipeness('firm')" id="ripeBtn-firm" class="flex-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">ห่าม</button>
+                    <button onclick="setRipeness('optimal')" id="ripeBtn-optimal" class="flex-1 py-0.5 rounded bg-yellow-400/20 border border-yellow-400 text-[10px] text-yellow-300 font-bold">สุกพอดี</button>
+                    <button onclick="setRipeness('soft')" id="ripeBtn-soft" class="flex-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">งอม</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alignment & Friction Summary -->
+              <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/90 text-[11px] space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">โมเมนต์ดัดแกนจากการเยื้องศูนย์ ($M_{tilt}$):</span>
+                  <span id="mountTiltMomentText" class="font-mono font-bold text-emerald-400">0.0 N·m (สมดุล ไม่ฝืด)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">แรงเสียดทานรวมในบูชเพลา ($F_{friction}$):</span>
+                  <span id="mountFrictionText" class="font-mono font-bold text-white">8.0 N</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Engineering Analyzer Panel (Gemini API + Live Physics Diagnostics) -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sm">🤖</span>
+                  <div>
+                    <h2 class="text-sm font-bold text-white">AI Engineering Analyzer (วิเคราะห์ความยืดหยุ่น & กลศาสตร์)</h2>
+                    <p class="text-[11px] text-slate-400">อ่านค่ามวลเหล็กแผ่น แรงยกสปริง และการแอ่นตัวแบบ Real-time</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Gemini 3 Flash</span>
+              </div>
+
+              <!-- Preset Engineering Analysis Buttons -->
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <button onclick="runAiAnalysis('mechanics')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-sky-500/40 text-left transition group">
+                  <div class="text-xs font-bold text-sky-400 group-hover:text-sky-300 flex items-center gap-1.5">
+                    <span>⚖️</span> <span>1. วิเคราะห์มวล & แรงยกสปริง</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบว่าสปริงยกแผ่นเหล็กหนาขึ้นสุดหรือไม่ ($\delta_{sag}$)</p>
+                </button>
+
+                <button onclick="runAiAnalysis('elasticity')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-yellow-500/40 text-left transition group">
+                  <div class="text-xs font-bold text-yellow-400 group-hover:text-yellow-300 flex items-center gap-1.5">
+                    <span>📐</span> <span>2. ความยืดหยุ่น & การแอ่นตัว</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-0.5">วิเคราะห์การโก่งตัวของเหล็กแผ่น $\delta_{plate}$ และความเค้นดัด</p>
+                </button>
+
+                <button onclick="runAiAnalysis('mounting')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 text-left transition group">
+                  <div class="text-xs font-bold text-emerald-400 group-hover:text-emerald-300 flex items-center gap-1.5">
+                    <span>📏</span> <span>3. วิเคราะห์พิกัดการติดตั้ง</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-0.5">ตรวจสอบระยะ $X_{spring}, X_{CG}, L_1, L_2$ และมุมเหยียบ</p>
+                </button>
+
+                <button onclick="runAiAnalysis('smart_ai')" class="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800/90 border border-slate-800 hover:border-purple-500/40 text-left transition group">
+                  <div class="text-xs font-bold text-purple-400 group-hover:text-purple-300 flex items-center gap-1.5">
+                    <span>📡</span> <span>4. ออกแบบเซนเซอร์ & AI QC</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-0.5">กำหนดจุดติด Load Cell, Strain Gauge และกล้อง AI</p>
+                </button>
+              </div>
+
+              <!-- Custom Prompt Input -->
+              <div class="flex gap-2 mb-3">
+                <input id="customAiInput" type="text" placeholder="ถามวิศวกร AI เช่น ถ้าใช้เหล็กแผ่นหนา 3 mm กว้าง 350 mm จะแอ่นตัวกี่ mm?" 
+                  onkeydown="if(event.key==='Enter') runAiAnalysis('custom')"
+                  class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-yellow-400" />
+                <button onclick="runAiAnalysis('custom')" id="btnAskAi" class="px-3.5 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold text-xs transition whitespace-nowrap">
+                  วิเคราะห์ด้วย AI
+                </button>
+              </div>
+            </div>
+
+            <!-- AI Output Box -->
+            <div id="aiResponseBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs leading-relaxed text-slate-200 max-h-[265px] overflow-y-auto space-y-2">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: MOUNTING COORDINATES & MECHANICAL BLUEPRINT ==================== -->
+    <section id="tab-mounting" class="hidden space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="text-xs font-mono uppercase tracking-wider text-sky-400 bg-sky-400/10 px-2.5 py-1 rounded-md border border-sky-400/20">Mechanical Installation & Coordinate Datum</span>
+            <h2 class="text-xl md:text-2xl font-bold text-white mt-2">พิกัดตำแหน่งการติดตั้งชิ้นส่วนเครื่อง KluayPress ตามหลักกลศาสตร์</h2>
+            <p class="text-xs text-slate-400 mt-1">อ้างอิงจุดกำเนิด $(X=0, Y=0)$ ที่ฐานเสาหลักด้านหลัง เพื่อป้องกันโมเมนต์ดัดแกน ($M_{tilt} = 0$) และให้คานทดแรงทำงานเต็มประสิทธิภาพ</p>
+          </div>
+          <button onclick="switchMainTab('simulator'); switchParamSubTab('geometry');" class="px-4 py-2 rounded-xl bg-yellow-400 text-slate-950 font-bold text-xs hover:bg-yellow-300 transition">
+            ⚙️ ปรับแก้พิกัดและทดสอบในหน้าจำลอง
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Coordinate Table (7 cols) -->
+          <div class="lg:col-span-7 overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 bg-slate-950/70">
+                  <th class="p-3 font-semibold">ลำดับ / ชิ้นส่วนเครื่องจักร</th>
+                  <th class="p-3 font-semibold">พิกัดติดตั้ง $(X, Y)$ อ้างอิงจริง</th>
+                  <th class="p-3 font-semibold">ขนาดและวัสดุมาตรฐาน</th>
+                  <th class="p-3 font-semibold">เหตุผลทางกลศาสตร์ (Mechanical Principle)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/80">
+                <tr>
+                  <td class="p-3 font-bold text-white">1. แกนเสาหลักตั้งฉาก (Main Column)</td>
+                  <td class="p-3 font-mono text-yellow-400">X = 0 mm<br/>Y = 520 ถึง 750 mm</td>
+                  <td class="p-3 text-slate-300">เหล็กเพลากลมตัน Ø 2 นิ้ว (50.8 mm) ยาว 230 mm เหนือโต๊ะ</td>
+                  <td class="p-3 text-slate-300">รับแรงดัดและประคองบูชแผ่นกดในแนวดิ่ง ความแข็งเกร็งสูง ($EI$ สูง) ไม่โก่งตัว</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">2. โต๊ะวางกล้วย (Base Table & Lower Acrylic)</td>
+                  <td class="p-3 font-mono text-yellow-400">X = 35 ถึง 285 mm<br/>Y = 520 mm (จากพื้น)</td>
+                  <td class="p-3 text-slate-300">โครงเหล็กกล่อง 1.5"×1.5" ปูทับด้วยอะคริลิก Food Grade หนา 10 mm</td>
+                  <td class="p-3 text-slate-300">ความสูง 520 mm สอดคล้องกับระยะวางมือขณะนั่งหรือยืนปฏิบัติงาน (NIOSH Ergonomics)</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">3. แผ่นเหล็กกดทับ + อะคริลิกบน (Upper Pressing Plate)</td>
+                  <td class="p-3 font-mono text-sky-400" id="blueprintPlateCG">จุดศูนย์ถ่วง X_CG = 160 mm<br/>Y = 525 ถึง 553 mm</td>
+                  <td class="p-3 text-slate-300" id="blueprintPlateDim">เหล็กแผ่น SS400 300×250×4.5 mm ประกบอะคริลิก 10 mm</td>
+                  <td class="p-3 text-slate-300">แผ่นเหล็กบนทำหน้าที่รับแรงดัด (Bending) แทนอะคริลิก คุมการแอ่นตัวกลางแผ่น $\delta_{plate} &lt; 0.05\text{ mm}$</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">4. จุดยึดสปริงและขาเชื่อมต่อ (Spring & Pull Rod Axis)</td>
+                  <td class="p-3 font-mono text-emerald-400" id="blueprintSpringAxis">X_spring = 160 mm<br/>(ตรงกับ X_CG พอดี)</td>
+                  <td class="p-3 text-slate-300">สปริงสเตนเลส 304 (Ø ลวด 3.2 mm) + เหล็กแบนขาเชื่อมต่อคู่ซ้าย-ขวา</td>
+                  <td class="p-3 text-emerald-300"><strong>สำคัญมาก:</strong> ต้องติดตั้งที่ระยะ $X_{spring} = X_{CG}$ เพื่อให้แรงดึงผ่านจุดศูนย์ถ่วง ป้องกันโมเมนต์งัดแกน ($M_{tilt}=0$)</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">5. กระบอกเลื่อนล็อคแกน (Anti-Rotation Guide Rod)</td>
+                  <td class="p-3 font-mono text-yellow-400">X_guide = 235 mm<br/>Y = 560 ถึง 720 mm</td>
+                  <td class="p-3 text-slate-300">เพลาเหล็กกลม Ø 12.7 mm (4 หุน) ร้อยผ่านบูชแผ่นยึดสปริงด้านบน</td>
+                  <td class="p-3 text-slate-300">วางห่างจากเสาหลัก 235 mm เพื่อสร้างแขนโมเมนต์ต้านการหมุนรอบแกน Z ($\sum M_z = 0$)</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">6. แหวนรองปรับความหนา (Mechanical Stop Washers)</td>
+                  <td class="p-3 font-mono text-yellow-400">X = 0 mm (สวมบนเสาหลัก)<br/>Y = 520 + t_washer</td>
+                  <td class="p-3 text-slate-300">แหวนสเตนเลสความหนา 1.0, 2.0 และ 5.0 mm ถอดสลับได้</td>
+                  <td class="p-3 text-slate-300">รับแรงกระแทกโดยตรงในแนวแกนเสาหลัก (Direct Axial Compression) ความแม่นยำความหนา ±0-5%</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-white">7. จุดหมุนและคานแป้นเหยียบ (Pedal Pivot & Lever Arms)</td>
+                  <td class="p-3 font-mono text-sky-400" id="blueprintPedalCoords">จุดหมุน (0, 120 mm)<br/>L1 = 95 mm, L2 = 285 mm</td>
+                  <td class="p-3 text-slate-300">คานท่อเหล็กกลม/เหลี่ยม ยาว 300 mm พร้อมสลักจุดหมุน Ø 12 mm</td>
+                  <td class="p-3 text-slate-300">คานอันดับ 2 (Second-Class Lever) ให้การทดแรง $MA = L_2/L_1 = 3.0$ เท่า มุมเหยียบ $\theta \approx 14^\circ$ ไม่เมื่อยข้อเท้า</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Engineering Equations & Rules Summary Card (5 cols) -->
+          <div class="lg:col-span-5 flex flex-col gap-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs">
+              <h3 class="text-sm font-bold text-yellow-400 flex items-center gap-2">
+                <span>📐</span> <span>สมการกลศาสตร์ที่ใช้คำนวณจริงในระบบนี้</span>
+              </h3>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white">1. สมดุลแรงยกสปริงและระยะตกค้าง (Spring Lift Equilibrium)</div>
+                <p class="text-slate-400 leading-relaxed">
+                  น้ำหนักชุดกดทับ $W_{dead} = (m_{steel} + m_{acrylic} + m_{linkage})g$ ทิศทางชี้ลงเสมอ สปริงต้องตั้งระยะพรีโหลด $\Delta x_{preload}$ ให้เกิดแรงดึงเริ่มต้น:
+                </p>
+                <div class="font-mono text-emerald-400 bg-slate-950 p-2 rounded border border-slate-800 text-[11px]">
+                  F_sp,0 = k · Δx_preload ≥ W_dead + F_friction
+                </div>
+                <p class="text-slate-400 text-[11px]">
+                  หาก $F_{sp,0} &lt; W_{dead} + F_f$ แผ่นกดจะห้อยตกค้างลงมาเป็นระยะ $\delta_{sag} = \frac{W_{dead} + F_f - F_{sp,0}}{k}$
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white">2. ความยืดหยุ่นและการแอ่นตัวของเหล็กแผ่น (Plate Flexure)</div>
+                <p class="text-slate-400 leading-relaxed">
+                  เมื่อขาเชื่อมต่อดึงขอบแผ่นเหล็กทั้งสองข้างลงด้วยแรงกดสุทธิ $F_{net}$ เนื้อกล้วยตรงกลางจะดันต้านขึ้น ทำให้แผ่นเหล็กเกิดการแอ่นตัวตรงกลาง:
+                </p>
+                <div class="font-mono text-sky-400 bg-slate-950 p-2 rounded border border-slate-800 text-[11px]">
+                  δ_plate = (F_net · W_plate³) / [48 · (E_steel·I_steel + E_acrylic·I_acrylic)]
+                </div>
+                <p class="text-slate-400 text-[11px]">
+                  เนื่องจาก $I_{steel} = \frac{L_{plate} \cdot t_{steel}^3}{12}$ แปรผันตามกำลังสามของความหนาเหล็ก ($t_{steel}^3$) การเพิ่มความหนาเหล็กจาก 1.5 mm เป็น 4.5 mm จึงลดการแอ่นตัวลงถึง <strong>27 เท่า!</strong>
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white">3. โมเมนต์งัดแกนจากการติดตั้งเยื้องศูนย์ (Eccentric Binding)</div>
+                <p class="text-slate-400 leading-relaxed">
+                  หากติดตั้งขาเชื่อมต่อและสปริงที่ระยะ $X_{spring}$ ไม่ตรงกับจุดศูนย์ถ่วงแผ่นกด $X_{CG}$ จะเกิดโมเมนต์ดัดแกน $M_{tilt} = F_{pull} \cdot |X_{spring} - X_{CG}|$ กดเบียดบูชเสาหลักจนฝืดและสึกหรอเร็ว
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: 3-STEP WORKING PRINCIPLE DIAGRAM (วาง -> เหยียบ -> คลาย) ==================== -->
+    <section id="tab-sequence" class="hidden space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="text-xs font-mono uppercase tracking-wider text-yellow-400 bg-yellow-400/10 px-2.5 py-1 rounded-md border border-yellow-400/20">Operational Workflow</span>
+            <h2 class="text-xl md:text-2xl font-bold text-white mt-2">หลักการทำงาน 3 ขั้นตอน (วาง ➔ เหยียบ ➔ คลาย)</h2>
+            <p class="text-xs text-slate-400 mt-1">เปรียบเทียบการทำงานเชิงกลและสมดุลแรงในแต่ละจังหวะตามแบบแปลนวิศวกรรม</p>
+          </div>
+          <button onclick="switchMainTab('simulator')" class="px-4 py-2 rounded-xl bg-yellow-400 text-slate-950 font-bold text-xs hover:bg-yellow-300 transition">
+            ⚙️ ทดลองกดจริงในหน้า Simulator
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Step 1 Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-yellow-400 text-slate-950 font-mono font-bold text-xs">STEP 1 • วาง (PLACE)</span>
+                <span class="text-2xl">🍌⬇️</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-2">1. วางกล้วยบนแผ่นอะคริลิกฐาน</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                สปริงสเตนเลสด้านบนออกแรงดึงเริ่มต้น $F_{sp,0} = k \cdot \Delta x_{preload}$ รั้งชุดแผ่นเหล็กและแผ่นอะคริลิกกดทับไว้ที่ตำแหน่งสูงสุด ($Y_{gap} = 28\text{ mm}$) ผู้ใช้งานวางกล้วยได้สะดวกโดยไม่ต้องใช้มือประคองแผ่นกด
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-emerald-400">
+              เงื่อนไขสมดุล: F_sp,0 ≥ W_dead + F_friction
+            </div>
+          </div>
+
+          <!-- Step 2 Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-sky-400 text-slate-950 font-mono font-bold text-xs">STEP 2 • เหยียบ (PRESS)</span>
+                <span class="text-2xl">🦶⬇️</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-2">2. เหยียบแป้นทดแรงกดทับชนแหวนรอง</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                ออกแรงเหยียบแป้นเท้า $F_{foot}$ คานอันดับ 2 ทดแรงเพิ่มขึ้นตามอัตราส่วน $L_2/L_1$ ร่วมกับน้ำหนักชุดแผ่นเหล็ก $W_{dead}$ ดึงแผ่นกดลงมาอัดกล้วยจนบูชชนแหวนรองกำหนดความหนา ($t_{washer}$)
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-sky-400">
+              ความหนากลางแผ่น: t_actual = t_washer + δ_plate
+            </div>
+          </div>
+
+          <!-- Step 3 Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 rounded-md bg-emerald-400 text-slate-950 font-mono font-bold text-xs">STEP 3 • คลาย (RELEASE)</span>
+                <span class="text-2xl">🔄⬆️</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-2">3. คลายแป้นเหยียบ สปริงดึงกลับอัตโนมัติ</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                เมื่อถอนเท้าออกจากแป้น พลังงานศักย์ยืดหยุ่นที่สะสมในสปริง ($F_{sp,max}$) จะดึงชุดแผ่นเหล็กกดทับและแป้นเหยียบกลับขึ้นสู่ตำแหน่งเริ่มต้นอย่างรวดเร็ว ลดรอบเวลาทำงานเหลือเพียง 3 วินาที/รอบ
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-yellow-400">
+              กำลังการผลิต: 16 - 20 ชิ้น/นาที (+400%)
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: BUSINESS COMPARISON, BOM & ROI CALCULATOR ==================== -->
+    <section id="tab-business" class="hidden space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Comparison Table & BOM (7 cols) -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <h2 class="text-lg font-bold text-white">📊 ตารางเปรียบเทียบประสิทธิภาพ & ต้นทุนวัสดุ (BOM)</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 bg-slate-950/70">
+                  <th class="p-2.5">เกณฑ์เปรียบเทียบ</th>
+                  <th class="p-2.5">ไม้ทับดั้งเดิม</th>
+                  <th class="p-2.5">แบบคันโยกมือ</th>
+                  <th class="p-2.5">ระบบนิวเมติกส์</th>
+                  <th class="p-2.5 text-yellow-400 font-bold">KluayPress</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                <tr>
+                  <td class="p-2.5 font-semibold text-white">กลไกการออกแรง</td>
+                  <td class="p-2.5">แขน/ข้อมือ/ไหล่</td>
+                  <td class="p-2.5">แขน/ข้อมือ/ไหล่</td>
+                  <td class="p-2.5">กดปุ่ม (ใช้ปั๊มลมไฟฟ้า)</td>
+                  <td class="p-2.5 text-emerald-400 font-bold">เท้าเหยียบ (ไม่ใช้ไฟฟ้า)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-semibold text-white">ความคลาดเคลื่อนความหนา</td>
+                  <td class="p-2.5">±20–40%</td>
+                  <td class="p-2.5">±10–20%</td>
+                  <td class="p-2.5">±0–5%</td>
+                  <td class="p-2.5 text-emerald-400 font-bold">±0–5% (ปรับแหวนรองได้)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-semibold text-white">กำลังการผลิต (ชิ้น/นาที)</td>
+                  <td class="p-2.5">3–4 ชิ้น</td>
+                  <td class="p-2.5">8–10 ชิ้น</td>
+                  <td class="p-2.5">8–10 ชิ้น</td>
+                  <td class="p-2.5 text-yellow-400 font-bold">16–20 ชิ้น (+400%)</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-semibold text-white">ราคาจำหน่าย (บาท)</td>
+                  <td class="p-2.5">199 ฿</td>
+                  <td class="p-2.5">1,290 ฿</td>
+                  <td class="p-2.5">28,000 ฿</td>
+                  <td class="p-2.5 text-yellow-400 font-bold">8,950 ฿ (ต้นทุน 5,170 ฿)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ROI Calculator (5 cols) -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <h2 class="text-lg font-bold text-white">💰 คำนวณจุดคุ้มทุนสำหรับผู้ประกอบการ (ROI Calculator)</h2>
+          <div class="space-y-3 text-xs">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-300">ชั่วโมงทำงานต่อวัน</label>
+                <span id="roiHoursVal" class="font-mono font-bold text-yellow-400">4 ชั่วโมง/วัน</span>
+              </div>
+              <input id="roiHoursInput" type="range" min="1" max="8" step="0.5" value="4" oninput="updateRoiCalc()" class="w-full" />
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="flex justify-between mb-1">
+                <label class="text-slate-300">กำไรสุทธิต่อกล่อง (16 ชิ้น)</label>
+                <span id="roiProfitVal" class="font-mono font-bold text-sky-400">15 บาท/กล่อง</span>
+              </div>
+              <input id="roiProfitInput" type="range" min="5" max="35" step="1" value="15" oninput="updateRoiCalc()" class="w-full" />
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex justify-between">
+                <span class="text-slate-400">ผลผลิตที่เพิ่มขึ้นต่อวัน:</span>
+                <span id="roiExtraBoxes" class="font-mono font-bold text-emerald-400">+180 กล่อง/วัน (+2,700 ฿/วัน)</span>
+              </div>
+              <div class="flex justify-between border-t border-slate-800 pt-2">
+                <span class="text-slate-400">ระยะเวลาคืนทุน (ราคาเครื่อง 8,950 ฿):</span>
+                <span id="roiPaybackDays" class="font-mono font-bold text-yellow-400">~4 วัน (คืนทุนไวมาก)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-3 px-4 mt-6 text-center text-[11px] text-slate-500">
+    KluayPress (เครื่องกดขึ้นรูปกล้วยแบบเท้าเหยียบควบคุมความหนา) • พัฒนาโดย ทีม ตึง ตึง โป๊ะ (นายธีระพงษ์ คงศรี, นายจักรกฤษณ์ นิลคง, นายธนกฤต แก้วท่าพยา) คณะวิศวกรรมศาสตร์ มหาวิทยาลัยทักษิณ (TSU)
+  </footer>
+
+  <!-- ==================== JAVASCRIPT LOGIC (REAL MECHANICS & ELASTICITY ENGINE) ==================== -->
+  <script>
+    // --- 1. STATE & REAL ENGINEERING PARAMETERS ---
+    const state = {
+      pedalPercent: 0,         // 0 to 100%
+      targetPedalPercent: 0,   // Target for smooth animation
+      currentStep: 1,          // 1: วาง, 2: เหยียบ, 3: คลาย
+      isHoldingPedal: false,
+      autoCycle: false,
+      autoPhase: 0,
+      showCallouts: true,
+      showFBD: true,
+      lightCanvas: false,
+
+      // 1. Material & Plate Dimensions (mm)
+      steelThickMm: 4.5,       // t_steel: 1.5 to 15.0 mm (SS400 Steel, rho = 7850 kg/m^3, E = 200 GPa)
+      plateWidthMm: 300,       // W_plate: 200 to 420 mm
+      plateLengthMm: 250,      // L_plate: 180 to 360 mm
+      acrylicThickMm: 10.0,    // t_acrylic: 3.0 to 20.0 mm (PMMA Food Grade, rho = 1190 kg/m^3, E = 3.2 GPa)
+      washerMm: 5.0,           // Mechanical Stop target thickness: 2.0 to 12.0 mm
+
+      // 2. Helical Extension Spring Parameters (SUS304, G = 77.2 GPa, tau_allow = 450 MPa)
+      springWireDMm: 3.2,      // d_wire: 1.8 to 5.5 mm
+      springCoilDMm: 24.0,     // D_coil: 16.0 to 45.0 mm
+      springActiveCoils: 16,   // N_a: 8 to 32 coils
+      springPreloadMm: 35.0,   // Delta x_preload via top adjuster bolt: 5 to 85 mm
+
+      // 3. Mounting Coordinates & Lever Geometry (mm)
+      leverL1Mm: 95,           // Pivot to Pull Rod joint: 65 to 150 mm
+      leverL2Mm: 285,          // Pivot to Foot Pedal Pad: 190 to 420 mm
+      springMountXMm: 160,     // Distance from main column axis (X=0) to spring/linkage pull line
+
+      // 4. Operation & Load Parameters
+      footForceN: 140,         // Applied foot pedal force: 60 to 300 N
+      bananaCount: 2,          // 1 to 3 bananas per press
+      ripeness: 'optimal',     // 'firm', 'optimal', 'soft'
+      initialBananaMm: 28.0    // Unpressed banana thickness (mm)
+    };
+
+    // Detailed Engineering Component Dictionary
+    const partDescriptions = {
+      shaftCap: {
+        title: "1. ฝาปิดแกนเสาหลัก (Main Shaft Cap • X = 0, Y = 750 mm)",
+        desc: "ปิดหัวเพลาเหล็กกลมตัน Ø 2 นิ้ว ป้องกันฝุ่นและล็อกชุดแคลมป์แขนยึดสปริงด้านบนไม่ให้เลื่อนหลุดขณะรับแรงดึงซ้ำๆ"
+      },
+      springBracket: {
+        title: "2. ตัวปรับเลื่อนตัวยึดสปริง (Spring Preload Adjuster • Δx_preload)",
+        desc: "ชุดน็อตปรับความตึงเริ่มต้นของสปริง (Preload Extension) ใช้ตั้งแรงดึงเริ่มต้น F_sp,0 ให้มากกว่าน้ำหนักแผ่นเหล็กกดทับ (W_dead) เพื่อไม่ให้แผ่นกดห้อยตกค้าง"
+      },
+      returnSpring: {
+        title: "3. สปริงสเตนเลส 304 ดึงกลับ (Helical Extension Spring • G = 77.2 GPa)",
+        desc: "คำนวณค่าคงที่สปริงจาก k = (d^4·G)/(8·D^3·N_a) ทำหน้าที่ยกมวลแผ่นเหล็ก+อะคริลิก+ขาเชื่อมต่อกลับขึ้นสู่จุดสูงสุดในขั้นตอน 'คลาย'"
+      },
+      antiRotation: {
+        title: "4. กระบอกเลื่อนล็อคแกน (Anti-Rotation Guide Rod • X = 235 mm)",
+        desc: "ติดตั้งห่างจากเสาหลัก 235 mm เพื่อรับโมเมนต์ต้านการหมุนรอบแกนดิ่ง บังคับให้แผ่นกดเคลื่อนที่ขนานกับฐานวางกล้วยตลอดระยะชัก"
+      },
+      upperPlate: {
+        title: "5. แผ่นเหล็กกดทับ SS400 + แผ่นอะคริลิก Food Grade (Composite Pressing Plate)",
+        desc: "แผ่นเหล็กบนรับแรงดัด (Bending Stress) ป้องกันการแอ่นตัวตรงกลาง (δ_plate) ส่วนแผ่นอะคริลิกล่างสัมผัสอาหารปลอดภัยและกระจายแรงกดสม่ำเสมอ"
+      },
+      lowerPlate: {
+        title: "6. แผ่นอะคริลิควางกล้วย (Fixed Base Plate • Y = 520 mm)",
+        desc: "ติดตั้งบนโครงโต๊ะเหล็กกล่องที่ความสูง 520 mm รองรับแรงอัดทั้งหมดลงสู่เสาโครงเครื่องทั้ง 4 ขาโดยตรง"
+      },
+      washers: {
+        title: "7. แหวนรองปรับแต่งความหนา (Mechanical Stop Washers • X = 0 mm)",
+        desc: "สวมอยู่บนแกนเสาหลักเพื่อหยุดบูชแผ่นกดที่ความหนาเป้าหมาย แต่ความหนาจริงตรงกลางกล้วยจะเท่ากับ t_washer + δ_plate (การแอ่นตัวของเหล็กแผ่น)"
+      },
+      linkageBar: {
+        title: "8. ขาเชื่อมต่อแป้นเหยียบ (Vertical Pull Linkage • พิกัดติดตั้ง X_spring)",
+        desc: "ต้องติดตั้งให้แนวแรงดึงตรงกับจุดศูนย์ถ่วงของแผ่นกด (X_spring = X_CG) เพื่อไม่ให้เกิดโมเมนต์งัดบูชเพลา (M_tilt = 0)"
+      },
+      footPedal: {
+        title: "9. คานแป้นเหยียบทดแรง (Second-Class Pedal Lever • อัตราทด L2 / L1)",
+        desc: "จุดหมุนอยู่ที่ขากรอบหลัง (X=0, Y=120 mm) จุดดึงขาเชื่อมต่ออยู่ที่ระยะ L1 และปลายแป้นเหยียบอยู่ที่ระยะ L2 ให้การทดแรง MA = L2/L1"
+      }
+    };
+
+    // --- 2. RIGOROUS MECHANICAL & ELASTICITY PHYSICS ENGINE ---
+    function calculatePhysics() {
+      const g = 9.81;
+
+      // A. Actual Moving Mass Calculation (kg) & Dead Weight (N)
+      // 1. Steel Plate (SS400: density = 7850 kg/m^3)
+      const volSteelM3 = (state.plateWidthMm / 1000) * (state.plateLengthMm / 1000) * (state.steelThickMm / 1000);
+      const massSteelKg = volSteelM3 * 7850;
+
+      // 2. Acrylic Plate (PMMA: density = 1190 kg/m^3)
+      const volAcrylicM3 = (state.plateWidthMm / 1000) * (state.plateLengthMm / 1000) * (state.acrylicThickMm / 1000);
+      const massAcrylicKg = volAcrylicM3 * 1190;
+
+      // 3. Moving Linkage Arms, Sliding Bushing Sleeve & Anti-Rotation Guide Rod (Steel)
+      // Scales slightly with plate width
+      const massLinkageKg = 1.42 + (state.plateWidthMm - 200) * 0.0016;
+
+      const totalMovingMassKg = massSteelKg + massAcrylicKg + massLinkageKg;
+      const deadWeightN = totalMovingMassKg * g; // W_dead acts downward!
+
+      // B. Center of Gravity Coordinate X_CG from Main Column Axis (X=0)
+      // Main column is at X=0; plate starts 35mm in front of column centerline
+      const plateCGXMm = 35 + state.plateLengthMm / 2;
+      const eccentricityMm = Math.abs(state.springMountXMm - plateCGXMm);
+
+      // C. Helical Extension Spring Calculation (Shigley's Method)
+      // Shear Modulus G for SUS304 = 77,200 MPa (N/mm^2)
+      const G_shear = 77200;
+      const d = state.springWireDMm;
+      const D = state.springCoilDMm;
+      const Na = state.springActiveCoils;
+
+      // Spring stiffness k in N/mm and N/m
+      const springK_Nmm = (Math.pow(d, 4) * G_shear) / (8 * Math.pow(D, 3) * Na);
+      const springK_Nm = springK_Nmm * 1000;
+
+      // Nominal max stroke from top rest (28mm) down to washer stop
+      const maxNominalStrokeMm = Math.max(0, state.initialBananaMm - state.washerMm);
+
+      // Base sliding friction + eccentric binding friction on main bushing (sleeve height h_sleeve = 65 mm)
+      const leverRatio = state.leverL2Mm / state.leverL1Mm;
+      const grossPullForceN = state.footForceN * leverRatio;
+      const tiltMomentNm = (grossPullForceN * eccentricityMm) / 1000;
+      const bearingNormalReactionN = (grossPullForceN * eccentricityMm) / 65.0;
+      const frictionCoeff = 0.16; // greased steel on steel
+      const baseFrictionN = 7.5;
+      const totalFrictionN = baseFrictionN + 2 * frictionCoeff * bearingNormalReactionN;
+
+      // Spring Preload Force at Top Position (y = 0)
+      const springForceTopN = springK_Nmm * state.springPreloadMm;
+
+      // Check if Spring can lift the Dead Weight + Friction back to the top!
+      const requiredLiftForceN = deadWeightN + baseFrictionN + (eccentricityMm * 0.25);
+      let staticSagMm = 0;
+      if (springForceTopN < requiredLiftForceN) {
+        staticSagMm = Math.min(maxNominalStrokeMm, (requiredLiftForceN - springForceTopN) / springK_Nmm);
+      }
+      const isLiftSufficient = staticSagMm <= 0.05;
+
+      // Current actual stroke position (accounting for static sag at rest)
+      const effectiveStrokeMm = staticSagMm + (state.pedalPercent / 100) * (maxNominalStrokeMm - staticSagMm);
+      const currentSpringForceN = springK_Nmm * (state.springPreloadMm + effectiveStrokeMm);
+      const maxSpringForceN = springK_Nmm * (state.springPreloadMm + maxNominalStrokeMm);
+
+      // Spring Stress & Safety Factor at full stroke
+      const springIndexC = D / d;
+      const bergstrasserKB = (4 * springIndexC + 2) / (4 * springIndexC - 3);
+      const maxSpringShearMPa = bergstrasserKB * ((8 * maxSpringForceN * D) / (Math.PI * Math.pow(d, 3)));
+      const springAllowableMPa = 450; // SUS304 extension spring allowable torsional shear
+      const springFOS = springAllowableMPa / Math.max(1, maxSpringShearMPa);
+
+      // D. Downward Pressing Force on Banana (F_net)
+      // Notice: Dead weight W_dead helps press downward! Spring force & friction oppose downward motion.
+      const netPressForceFullN = Math.max(
+        0,
+        grossPullForceN + deadWeightN - maxSpringForceN - totalFrictionN
+      );
+      // Instantaneous pressing force during stroke
+      const activePressRatio = Math.max(0, (state.pedalPercent - 15) / 85);
+      const currentNetPressForceN = netPressForceFullN * activePressRatio;
+
+      // Required compression force for bananas
+      const ripenessFactor = state.ripeness === 'firm' ? 145 : (state.ripeness === 'optimal' ? 95 : 55);
+      const requiredBananaForceN = ripenessFactor * state.bananaCount;
+
+      // E. Composite Plate Elastic Bending Deflection (Hibbeler Mechanics of Materials)
+      // Span = W_plate (mm), Depth = L_plate (mm)
+      // E_steel = 200,000 MPa (N/mm^2), E_acrylic = 3,200 MPa (N/mm^2)
+      const E_steel = 200000;
+      const E_acrylic = 3200;
+      const I_steel = (state.plateLengthMm * Math.pow(state.steelThickMm, 3)) / 12.0;
+      const I_acrylic = (state.plateLengthMm * Math.pow(state.acrylicThickMm, 3)) / 12.0;
+      const EI_total = E_steel * I_steel + E_acrylic * I_acrylic;
+
+      // Simply supported at side pull arms (span = W_plate) with central banana reaction force F_net
+      const maxPlateDeflectionMm = (netPressForceFullN * Math.pow(state.plateWidthMm, 3)) / (48.0 * EI_total);
+      const currentPlateDeflectionMm = maxPlateDeflectionMm * activePressRatio;
+
+      // Bending stress in Steel Plate (MPa)
+      const maxBendingMomentNmm = (netPressForceFullN * state.plateWidthMm) / 4.0;
+      const steelMomentShare = maxBendingMomentNmm * ((E_steel * I_steel) / EI_total);
+      const maxSteelStressMPa = (steelMomentShare * (state.steelThickMm / 2.0)) / I_steel;
+      const steelYieldMPa = 250; // SS400 Yield Strength
+      const plateFOS = steelYieldMPa / Math.max(0.5, maxSteelStressMPa);
+
+      // Actual Banana Thickness at Edge vs Center when pressed
+      const edgeBananaThickMm = Math.max(state.washerMm, state.initialBananaMm - effectiveStrokeMm);
+      const centerBananaThickMm = edgeBananaThickMm + currentPlateDeflectionMm;
+      const thicknessErrorPercent = (maxPlateDeflectionMm / state.washerMm) * 100;
+
+      // F. Pedal Kinematics & Ergonomics
+      const pedalStrokeMm = maxNominalStrokeMm * leverRatio;
+      const pedalAngleDeg = (Math.asin(Math.min(0.95, maxNominalStrokeMm / state.leverL1Mm)) * 180) / Math.PI;
+
+      // Dynamic Return Time (depends on net lift force = F_sp,max - W_dead - F_f and mass)
+      const avgNetLiftForceN = Math.max(1, (springForceTopN + maxSpringForceN) / 2 - deadWeightN - totalFrictionN);
+      const accelReturn = avgNetLiftForceN / totalMovingMassKg; // m/s^2
+      const strokeMeters = maxNominalStrokeMm / 1000;
+      const returnTimeSec = isLiftSufficient
+        ? Math.min(1.5, Math.max(0.15, Math.sqrt((2 * strokeMeters) / accelReturn) * 2.2)).toFixed(2)
+        : '∞ (ค้าง)';
+
+      return {
+        massSteelKg,
+        massAcrylicKg,
+        massLinkageKg,
+        totalMovingMassKg,
+        deadWeightN,
+        plateCGXMm,
+        eccentricityMm,
+        tiltMomentNm,
+        totalFrictionN,
+        springK_Nmm,
+        springK_Nm,
+        springForceTopN,
+        currentSpringForceN,
+        maxSpringForceN,
+        requiredLiftForceN,
+        staticSagMm,
+        isLiftSufficient,
+        maxSpringShearMPa,
+        springFOS,
+        leverRatio,
+        grossPullForceN,
+        netPressForceFullN,
+        currentNetPressForceN,
+        requiredBananaForceN,
+        maxPlateDeflectionMm,
+        currentPlateDeflectionMm,
+        maxSteelStressMPa,
+        plateFOS,
+        maxNominalStrokeMm,
+        effectiveStrokeMm,
+        edgeBananaThickMm,
+        centerBananaThickMm,
+        thicknessErrorPercent,
+        pedalStrokeMm,
+        pedalAngleDeg,
+        returnTimeSec,
+        isStopContact: state.pedalPercent >= 98
+      };
+    }
+
+    // --- 3. RENDER VISUAL SIMULATION & FBD VECTORS ---
+    function renderSimulation() {
+      const phys = calculatePhysics();
+
+      // Convert effectiveStrokeMm (which includes staticSagMm at rest!) to SVG pixel displacement
+      const maxTravelPx = 34;
+      const strokeRatio = phys.effectiveStrokeMm / 26.0;
+      const travelPx = Math.min(38, strokeRatio * maxTravelPx);
+
+      // Visual plate thicknesses in SVG
+      const steelPxH = Math.max(3.5, Math.min(16, state.steelThickMm * 1.35));
+      const acrylicPxH = Math.max(4, Math.min(14, state.acrylicThickMm * 0.8));
+
+      // Visual Elastic Arch in Center of Plate when pressed
+      const exaggerate = document.getElementById('chkExaggerateFlex')?.checked ?? true;
+      const archPx = Math.min(18, phys.currentPlateDeflectionMm * (exaggerate ? 22 : 2.5));
+
+      // 1. Update Upper Steel + Acrylic Plate Paths in Side View (with elastic upward arch at center x=213)
+      const steelBottomY = 120;
+      const steelTopY = steelBottomY - steelPxH;
+      const acrylicBottomY = steelBottomY + acrylicPxH;
+
+      const sideSteelPlatePath = document.getElementById('sideSteelPlatePath');
+      sideSteelPlatePath.setAttribute(
+        'd',
+        `M136,${steelTopY.toFixed(1)} Q213,${(steelTopY - archPx).toFixed(1)} 290,${steelTopY.toFixed(1)} ` +
+        `L290,${steelBottomY.toFixed(1)} Q213,${(steelBottomY - archPx).toFixed(1)} 136,${steelBottomY.toFixed(1)} Z`
+      );
+
+      const sideAcrylicPlatePath = document.getElementById('sideAcrylicPlatePath');
+      sideAcrylicPlatePath.setAttribute(
+        'd',
+        `M136,${steelBottomY.toFixed(1)} Q213,${(steelBottomY - archPx).toFixed(1)} 290,${steelBottomY.toFixed(1)} ` +
+        `L290,${acrylicBottomY.toFixed(1)} Q213,${(acrylicBottomY - archPx).toFixed(1)} 136,${acrylicBottomY.toFixed(1)} Z`
+      );
+
+      // Move Side View & Isometric Moving Groups
+      document.getElementById('sideMovingGroup').setAttribute('transform', `translate(0, ${travelPx.toFixed(1)})`);
+      document.getElementById('isoMovingGroup').setAttribute('transform', `translate(0, ${(travelPx * 0.85).toFixed(1)})`);
+      document.getElementById('antiRotationRod').setAttribute('y', (20 + travelPx).toFixed(1));
+
+      // Update Isometric Steel Plate visual thickness
+      const isoThickOffset = Math.max(4, Math.min(15, state.steelThickMm * 1.2));
+      document.getElementById('isoSteelTopFace').setAttribute(
+        'points',
+        `74,${(106 - isoThickOffset).toFixed(1)} 202,${(156 - isoThickOffset).toFixed(1)} 280,${(108 - isoThickOffset).toFixed(1)} 152,${(58 - isoThickOffset).toFixed(1)}`
+      );
+      document.getElementById('isoSteelLeftEdge').setAttribute(
+        'points',
+        `74,${(106 - isoThickOffset).toFixed(1)} 202,${(156 - isoThickOffset).toFixed(1)} 202,156 74,106`
+      );
+      document.getElementById('isoSteelRightEdge').setAttribute(
+        'points',
+        `202,${(156 - isoThickOffset).toFixed(1)} 280,${(108 - isoThickOffset).toFixed(1)} 280,108 202,156`
+      );
+
+      // 2. Update Mounting X Position of Spring & Linkage Bar (X_spring from Main Column x=301)
+      // Map X_spring (95 to 225 mm) to SVG x-coordinate (248 down to 176, where 160mm -> x=214)
+      const springSvgX = 301 - state.springMountXMm * 0.54375;
+      document.getElementById('springPreloadScrewGroup').setAttribute('transform', `translate(${springSvgX.toFixed(1)}, 42)`);
+      const preloadNutY = 24 - (state.springPreloadMm / 85) * 18;
+      document.getElementById('preloadNutRect').setAttribute('y', preloadNutY.toFixed(1));
+
+      document.getElementById('sideLinkageBarRect').setAttribute('x', (springSvgX - 9).toFixed(1));
+      document.getElementById('sideLinkageRodRect').setAttribute('x', (springSvgX - 3).toFixed(1));
+      document.getElementById('sideLinkageTopPin').setAttribute('cx', springSvgX.toFixed(1));
+
+      // 3. Update Dynamic Return Spring Coils
+      const springTopY = 77;
+      const springBotY = 115 + travelPx;
+      const coils = Math.max(5, Math.min(12, Math.round(state.springActiveCoils / 2.2)));
+      const stepY = (springBotY - springTopY) / coils;
+      const coilRadiusPx = Math.max(4, Math.min(9, state.springCoilDMm * 0.25));
+      let dPath = `M${springSvgX.toFixed(1)},${springTopY} `;
+      for (let i = 0; i < coils; i++) {
+        const y1 = springTopY + stepY * (i + 0.25);
+        const y2 = springTopY + stepY * (i + 0.75);
+        const y3 = springTopY + stepY * (i + 1.0);
+        dPath += `L${(springSvgX - coilRadiusPx).toFixed(1)},${y1.toFixed(1)} L${(springSvgX + coilRadiusPx).toFixed(1)},${y2.toFixed(1)} L${springSvgX.toFixed(1)},${y3.toFixed(1)} `;
+      }
+      const springEl = document.getElementById('returnSpringPath');
+      springEl.setAttribute('d', dPath);
+      springEl.setAttribute('stroke-width', Math.max(1.8, Math.min(4.5, state.springWireDMm * 0.9)).toFixed(1));
+      springEl.setAttribute('stroke', phys.isLiftSufficient ? '#E2E8F0' : '#F43F5E');
+
+      // 4. Update Washer Stack Height Visually
+      const washerPxHeight = Math.max(4, (state.washerMm / 12) * 20);
+      const washerY = 168 - washerPxHeight;
+      const sideWasherStack = document.getElementById('sideWasherStack');
+      sideWasherStack.setAttribute('y', washerY.toFixed(1));
+      sideWasherStack.setAttribute('height', washerPxHeight.toFixed(1));
+
+      // Zoomed Inset Washers & Sleeve
+      const zoomWasherH = Math.max(6, (state.washerMm / 12) * 28);
+      const zoomWasherY = 68 - zoomWasherH;
+      document.getElementById('zoomWasherStack').setAttribute('y', zoomWasherY.toFixed(1));
+      document.getElementById('zoomWasherStack').setAttribute('height', zoomWasherH.toFixed(1));
+
+      const zoomSleeveMaxTravel = zoomWasherY - 38;
+      const zoomSleeveY = 23 + (phys.effectiveStrokeMm / Math.max(1, phys.maxNominalStrokeMm)) * zoomSleeveMaxTravel;
+      document.getElementById('zoomTopSleeve').setAttribute('y', zoomSleeveY.toFixed(1));
+      document.getElementById('zoomWasherText').textContent = `แหวนรอง: ${state.washerMm.toFixed(1)} mm`;
+      document.getElementById('zoomDeflectText').textContent = `แอ่นตัวกลางแผ่น: ${phys.maxPlateDeflectionMm.toFixed(2)} mm`;
+
+      // 5. Compress Bananas in Side View & Isometric View
+      const plateGapPx = Math.max(5, 174 - (128 + travelPx));
+      const bananaH = Math.min(28, plateGapPx);
+      const bananaY = 174 - bananaH;
+      const compressionRatio = (28 - bananaH) / 22;
+      const bananaW = 44 + compressionRatio * 20;
+
+      const sideBananaLeft = document.getElementById('sideBananaLeft');
+      const sideBananaRight = document.getElementById('sideBananaRight');
+      sideBananaLeft.setAttribute('y', bananaY.toFixed(1));
+      sideBananaLeft.setAttribute('height', bananaH.toFixed(1));
+      sideBananaLeft.setAttribute('width', bananaW.toFixed(1));
+      sideBananaLeft.setAttribute('x', (178 - bananaW / 2).toFixed(1));
+      sideBananaLeft.setAttribute('rx', Math.max(3, bananaH / 2).toFixed(1));
+
+      sideBananaRight.setAttribute('y', bananaY.toFixed(1));
+      sideBananaRight.setAttribute('height', bananaH.toFixed(1));
+      sideBananaRight.setAttribute('width', bananaW.toFixed(1));
+      sideBananaRight.setAttribute('x', (256 - bananaW / 2).toFixed(1));
+      sideBananaRight.setAttribute('rx', Math.max(3, bananaH / 2).toFixed(1));
+
+      const isoRx = 22 + compressionRatio * 10;
+      const isoRy = 12 + compressionRatio * 5;
+      document.getElementById('isoBanana1').setAttribute('rx', isoRx.toFixed(1));
+      document.getElementById('isoBanana1').setAttribute('ry', isoRy.toFixed(1));
+      document.getElementById('isoBanana2').setAttribute('rx', isoRx.toFixed(1));
+      document.getElementById('isoBanana2').setAttribute('ry', isoRy.toFixed(1));
+
+      // 6. Foot Pedal Lever Geometry (L1 and L2 coordinates)
+      // Pivot at (286, 396). Map L2 (190..420mm) to pedal tip X
+      const pedalTipX = 286 - state.leverL2Mm * 0.56;
+      const pedalTipY = 342 + travelPx * 1.65;
+      const jointRatio = (286 - springSvgX) / Math.max(1, 286 - pedalTipX);
+      const pedalJointY = 396 - (396 - pedalTipY) * jointRatio;
+
+      document.getElementById('sidePedalBar').setAttribute('x2', pedalTipX.toFixed(1));
+      document.getElementById('sidePedalBar').setAttribute('y2', pedalTipY.toFixed(1));
+      document.getElementById('sidePedalBarOutline').setAttribute('x2', pedalTipX.toFixed(1));
+      document.getElementById('sidePedalBarOutline').setAttribute('y2', pedalTipY.toFixed(1));
+      document.getElementById('sidePedalTip').setAttribute('cx', pedalTipX.toFixed(1));
+      document.getElementById('sidePedalTip').setAttribute('cy', pedalTipY.toFixed(1));
+      document.getElementById('sidePedalJoint').setAttribute('cx', springSvgX.toFixed(1));
+      document.getElementById('sidePedalJoint').setAttribute('cy', pedalJointY.toFixed(1));
+
+      // Isometric Pedal tilt
+      const isoPedalDrop = travelPx * 0.65;
+      document.getElementById('isoPedalPoly').setAttribute(
+        'points',
+        `95,${(348 + isoPedalDrop).toFixed(1)} 165,${(378 + isoPedalDrop).toFixed(1)} 228,348 158,320`
+      );
+
+      // 7. Update FBD Vectors & Dimension Overlays
+      const cgSvgX = 301 - phys.plateCGXMm * 0.54375;
+      document.getElementById('fbdDeadWeightGroup').setAttribute('transform', `translate(${cgSvgX.toFixed(1)}, ${(120 + travelPx).toFixed(1)})`);
+      document.getElementById('fbdWeightLabel').textContent = `W_dead = ${phys.deadWeightN.toFixed(1)} N`;
+
+      document.getElementById('fbdSpringVectorGroup').setAttribute('transform', `translate(${springSvgX.toFixed(1)}, ${(75 + travelPx * 0.5).toFixed(1)})`);
+      document.getElementById('fbdSpringLabel').textContent = `F_sp = ${phys.currentSpringForceN.toFixed(1)} N`;
+
+      document.getElementById('fbdFootForceGroup').setAttribute('transform', `translate(${pedalTipX.toFixed(1)}, ${(pedalTipY - 32).toFixed(1)})`);
+      document.getElementById('fbdFootLabel').textContent = `F_foot = ${state.footForceN} N`;
+
+      // Dimension lines for L1 and L2
+      document.getElementById('dimLineL1').setAttribute('x1', springSvgX.toFixed(1));
+      document.getElementById('dimTickL1Left').setAttribute('x1', springSvgX.toFixed(1));
+      document.getElementById('dimTickL1Left').setAttribute('x2', springSvgX.toFixed(1));
+      document.getElementById('dimTextL1').setAttribute('x', ((springSvgX + 286) / 2).toFixed(1));
+      document.getElementById('dimTextL1').textContent = `L1 = ${state.leverL1Mm} mm`;
+
+      document.getElementById('dimLineL2').setAttribute('x1', pedalTipX.toFixed(1));
+      document.getElementById('dimTickL2Left').setAttribute('x1', pedalTipX.toFixed(1));
+      document.getElementById('dimTickL2Left').setAttribute('x2', pedalTipX.toFixed(1));
+      document.getElementById('dimTextL2').setAttribute('x', ((pedalTipX + 286) / 2).toFixed(1));
+      document.getElementById('dimTextL2').textContent = `L2 = ${state.leverL2Mm} mm (ทดแรง 1:${phys.leverRatio.toFixed(2)})`;
+
+      // Isometric Spec Box
+      document.getElementById('isoSpecLine1').textContent =
+        `เหล็กแผ่น: ${state.plateWidthMm}×${state.plateLengthMm}×${state.steelThickMm.toFixed(1)} mm (${phys.massSteelKg.toFixed(2)} kg)`;
+      document.getElementById('isoSpecLine2').textContent =
+        `อะคริลิก: ${state.acrylicThickMm} mm (${phys.massAcrylicKg.toFixed(2)} kg) + ขาดึง (${phys.massLinkageKg.toFixed(2)} kg)`;
+
+      // 8. Step Arrows visibility
+      const step1Arrows = document.getElementById('step1Arrows');
+      const step3Arrows = document.getElementById('step3Arrows');
+      if (state.currentStep === 1 && state.pedalPercent < 20) {
+        step1Arrows.style.display = 'block';
+        step3Arrows.style.display = 'none';
+      } else if (state.currentStep === 3 && state.pedalPercent < 60) {
+        step1Arrows.style.display = 'none';
+        step3Arrows.style.display = 'block';
+      } else {
+        step1Arrows.style.display = 'none';
+        step3Arrows.style.display = 'none';
+      }
+
+      // 9. Update Top Banner, Alert Banner & Bottom Telemetry Cards
+      document.getElementById('readoutMovingMass').textContent = `${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(1)} N)`;
+      document.getElementById('readoutDeflection').textContent = `${phys.maxPlateDeflectionMm.toFixed(3)} mm`;
+      document.getElementById('pedalSlider').value = Math.round(state.pedalPercent);
+      document.getElementById('pedalPercentText').textContent = `${Math.round(state.pedalPercent)}%`;
+
+      const stopBadge = document.getElementById('stopContactBadge');
+      const washerCircle = document.getElementById('washerZoomCircle');
+      if (!phys.isLiftSufficient && state.pedalPercent < 50) {
+        stopBadge.textContent = `⚠️ SAG: แผ่นกดตกค้าง ${phys.staticSagMm.toFixed(1)} mm`;
+        stopBadge.className = 'text-xs font-mono text-rose-400 font-bold';
+        washerCircle.setAttribute('stroke', '#F43F5E');
+      } else if (phys.isStopContact) {
+        stopBadge.textContent = `Stop: LOCKED (${state.washerMm.toFixed(1)} mm)`;
+        stopBadge.className = 'text-xs font-mono text-emerald-400 font-bold';
+        washerCircle.setAttribute('stroke', '#10B981');
+      } else {
+        stopBadge.textContent = 'Stop: OPEN';
+        stopBadge.className = 'text-xs font-mono text-slate-400';
+        washerCircle.setAttribute('stroke', '#FACC15');
+      }
+
+      // Dynamic Engineering Alert Banner
+      const alertBanner = document.getElementById('engineeringAlertBanner');
+      const alertText = document.getElementById('engineeringAlertText');
+      if (!phys.isLiftSufficient) {
+        alertBanner.classList.remove('hidden');
+        alertText.innerHTML = `<strong>สปริงดึงกลับตึงไม่พอ!</strong> น้ำหนักชุดแผ่นเหล็ก+ขาดึง (${phys.deadWeightN.toFixed(1)} N) รวมแรงเสียดทาน สูงกว่าแรงดึงเริ่มต้นของสปริง (${phys.springForceTopN.toFixed(1)} N) ทำให้แผ่นกดห้อยตกค้าง <strong>${phys.staticSagMm.toFixed(1)} mm</strong> (แก้ไขโดยเพิ่มขนาดลวดสปริง หรือขันน็อตดึงสปริง Δx_preload)`;
+      } else if (phys.maxPlateDeflectionMm > 0.25) {
+        alertBanner.classList.remove('hidden');
+        alertText.innerHTML = `<strong>เหล็กแผ่นบางเกินไป (${state.steelThickMm} mm)!</strong> เกิดการแอ่นตัวตรงกลางถึง <strong>${phys.maxPlateDeflectionMm.toFixed(2)} mm</strong> เมื่อกดทับ ทำให้กล้วยตรงกลางหนากว่าขอบ (+${phys.thicknessErrorPercent.toFixed(1)}%) แนะนำใช้เหล็กแผ่นหนา ≥ 4.5 mm`;
+      } else if (phys.eccentricityMm >= 20) {
+        alertBanner.classList.remove('hidden');
+        alertText.innerHTML = `<strong>จุดดึงสปริงและขาดึงเยื้องศูนย์ (${phys.eccentricityMm.toFixed(0)} mm)!</strong> พิกัด X_spring (${state.springMountXMm} mm) ไม่ตรงกับจุดศูนย์ถ่วงแผ่นกด X_CG (${phys.plateCGXMm.toFixed(0)} mm) เกิดโมเมนต์งัดแกน <strong>${phys.tiltMomentNm.toFixed(1)} N·m</strong> ทำให้บูชเพลาฝืด`;
+      } else {
+        alertBanner.classList.add('hidden');
+      }
+
+      // Bottom 4 Telemetry Cards
+      document.getElementById('metricMassVsSpring').textContent = `${phys.deadWeightN.toFixed(1)} N / ${phys.springForceTopN.toFixed(1)} N`;
+      const sagStatusEl = document.getElementById('metricSagStatus');
+      if (phys.isLiftSufficient) {
+        sagStatusEl.textContent = `✓ ยกกลับขึ้นสุด (คืนตัว ${phys.returnTimeSec}s)`;
+        sagStatusEl.className = 'text-[11px] text-emerald-400 mt-0.5';
+      } else {
+        sagStatusEl.textContent = `⚠️ ยกไม่สุด! ตกค้าง ${phys.staticSagMm.toFixed(1)} mm`;
+        sagStatusEl.className = 'text-[11px] text-rose-400 font-bold mt-0.5';
+      }
+
+      document.getElementById('metricNetForce').textContent = `${Math.round(phys.netPressForceFullN)} N`;
+      const pressNoteEl = document.getElementById('metricPressureNote');
+      if (phys.netPressForceFullN >= phys.requiredBananaForceN) {
+        pressNoteEl.textContent = `✓ เพียงพอ (ต้องการ ≥ ${phys.requiredBananaForceN} N)`;
+        pressNoteEl.className = 'text-[11px] text-emerald-400 mt-0.5';
+      } else {
+        pressNoteEl.textContent = `⚠️ แรงกดต่ำ (ต้องการ ${phys.requiredBananaForceN} N)`;
+        pressNoteEl.className = 'text-[11px] text-rose-400 font-bold mt-0.5';
+      }
+
+      document.getElementById('metricPlateDeflection').textContent = `${phys.maxPlateDeflectionMm.toFixed(3)} mm`;
+      document.getElementById('metricPlateFosBadge').textContent = `FOS ${Math.min(99, phys.plateFOS).toFixed(1)}`;
+      document.getElementById('metricPlateErrorNote').textContent =
+        `คลาดเคลื่อนกลางแผ่น: +${phys.thicknessErrorPercent.toFixed(1)}%`;
+      document.getElementById('metricPlateErrorNote').className =
+        phys.maxPlateDeflectionMm <= 0.15 ? 'text-[11px] text-emerald-400 mt-0.5' : 'text-[11px] text-amber-400 font-bold mt-0.5';
+
+      const centerPressedMm = state.washerMm + phys.maxPlateDeflectionMm;
+      document.getElementById('metricFinalThickness').textContent =
+        `${state.washerMm.toFixed(2)} / ${centerPressedMm.toFixed(2)} mm`;
+      document.getElementById('metricPedalStrokeNote').textContent =
+        `ระยะกดเท้า: ${Math.round(phys.pedalStrokeMm)} mm (มุม ${phys.pedalAngleDeg.toFixed(1)}°)`;
+
+      // Update Sub-Tab Breakdown Readouts
+      document.getElementById('breakdownTotalWeightN').textContent =
+        `รวม ${phys.totalMovingMassKg.toFixed(2)} kg (W_dead = ${phys.deadWeightN.toFixed(1)} N)`;
+      document.getElementById('breakdownSteelMass').textContent = `${phys.massSteelKg.toFixed(2)} kg`;
+      document.getElementById('breakdownAcrylicMass').textContent = `${phys.massAcrylicKg.toFixed(2)} kg`;
+      document.getElementById('breakdownLinkageMass').textContent = `${phys.massLinkageKg.toFixed(2)} kg`;
+      document.getElementById('breakdownPlateStress').textContent =
+        `${phys.maxSteelStressMPa.toFixed(1)} MPa (FOS = ${Math.min(99, phys.plateFOS).toFixed(1)})`;
+
+      document.getElementById('springCalcK').textContent =
+        `${phys.springK_Nmm.toFixed(2)} N/mm (${Math.round(phys.springK_Nm).toLocaleString()} N/m)`;
+      document.getElementById('springLiftCompare').textContent = phys.isLiftSufficient
+        ? `${phys.springForceTopN.toFixed(1)} N ≥ ${phys.requiredLiftForceN.toFixed(1)} N (ยกขึ้น 100%)`
+        : `${phys.springForceTopN.toFixed(1)} N < ${phys.requiredLiftForceN.toFixed(1)} N (ตกค้าง ${phys.staticSagMm.toFixed(1)} mm)`;
+      document.getElementById('springLiftCompare').className = phys.isLiftSufficient
+        ? 'font-mono font-bold text-emerald-400'
+        : 'font-mono font-bold text-rose-400';
+
+      document.getElementById('springMaxForceText').textContent = `${phys.maxSpringForceN.toFixed(1)} N`;
+      document.getElementById('springStressText').textContent =
+        `${Math.round(phys.maxSpringShearMPa)} MPa (FOS = ${phys.springFOS.toFixed(2)})`;
+      document.getElementById('springStressText').className =
+        phys.springFOS >= 1.2 ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-rose-400';
+
+      document.getElementById('cgTargetHint').textContent = `จุดศูนย์ถ่วงแผ่นกด X_CG = ${phys.plateCGXMm.toFixed(0)} mm`;
+      document.getElementById('mountTiltMomentText').textContent =
+        phys.eccentricityMm < 5
+          ? `0.0 N·m (ตรงศูนย์ X_CG สมดุล)`
+          : `${phys.tiltMomentNm.toFixed(1)} N·m (เยื้องศูนย์ ${phys.eccentricityMm.toFixed(0)} mm)`;
+      document.getElementById('mountTiltMomentText').className =
+        phys.eccentricityMm < 15 ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-amber-400';
+      document.getElementById('mountFrictionText').textContent = `${phys.totalFrictionN.toFixed(1)} N`;
+
+      // Update Mounting Blueprint Table live cells
+      document.getElementById('blueprintPlateCG').innerHTML =
+        `จุดศูนย์ถ่วง X_CG = ${phys.plateCGXMm.toFixed(0)} mm<br/>Y = 520 ถึง 548 mm`;
+      document.getElementById('blueprintPlateDim').textContent =
+        `เหล็กแผ่น SS400 ${state.plateWidthMm}×${state.plateLengthMm}×${state.steelThickMm} mm (${phys.massSteelKg.toFixed(2)} kg) + อะคริลิก ${state.acrylicThickMm} mm`;
+      document.getElementById('blueprintSpringAxis').innerHTML =
+        `X_spring = ${state.springMountXMm} mm<br/>(ระยะเยื้องศูนย์ e = ${phys.eccentricityMm.toFixed(0)} mm)`;
+      document.getElementById('blueprintPedalCoords').innerHTML =
+        `จุดหมุน (0, 120 mm)<br/>L1 = ${state.leverL1Mm} mm, L2 = ${state.leverL2Mm} mm (MA = 1:${phys.leverRatio.toFixed(2)})`;
+    }
+
+    // --- 4. ANIMATION LOOP ---
+    function animationLoop() {
+      if (state.autoCycle) {
+        state.autoPhase += 0.028;
+        const cyclePos = state.autoPhase % 3.0;
+        if (cyclePos < 1.0) {
+          if (state.currentStep !== 1) highlightStepButtons(1);
+          state.targetPedalPercent = 0;
+        } else if (cyclePos < 2.0) {
+          if (state.currentStep !== 2) highlightStepButtons(2);
+          state.targetPedalPercent = 100;
+        } else {
+          if (state.currentStep !== 3) highlightStepButtons(3);
+          state.targetPedalPercent = 0;
+        }
+      } else if (state.isHoldingPedal) {
+        state.targetPedalPercent = 100;
+      }
+
+      const diff = state.targetPedalPercent - state.pedalPercent;
+      if (Math.abs(diff) > 0.15) {
+        const speedFactor = state.targetPedalPercent > state.pedalPercent ? 0.18 : 0.15;
+        state.pedalPercent += diff * speedFactor;
+        renderSimulation();
+      } else if (state.pedalPercent !== state.targetPedalPercent) {
+        state.pedalPercent = state.targetPedalPercent;
+        renderSimulation();
+      }
+
+      requestAnimationFrame(animationLoop);
+    }
+
+    // --- 5. SCENARIO PRESETS & USER CONTROLS ---
+    function applyScenarioPreset(presetName) {
+      if (presetName === 'optimal') {
+        document.getElementById('paramSteelThick').value = 4.5;
+        document.getElementById('paramPlateWidth').value = 300;
+        document.getElementById('paramPlateLength').value = 250;
+        document.getElementById('paramAcrylicThick').value = 10.0;
+        document.getElementById('paramWasherMm').value = 5.0;
+        document.getElementById('paramSpringWireD').value = 3.2;
+        document.getElementById('paramSpringCoilD').value = 24.0;
+        document.getElementById('paramSpringCoils').value = 16;
+        document.getElementById('paramSpringPreload').value = 35;
+        document.getElementById('paramLeverL1').value = 95;
+        document.getElementById('paramLeverL2').value = 285;
+        document.getElementById('paramSpringMountX').value = 160;
+        document.getElementById('paramFootForce').value = 140;
+      } else if (presetName === 'thinPlate') {
+        // Thin 1.5mm steel plate -> high elastic bending deflection
+        document.getElementById('paramSteelThick').value = 1.5;
+        document.getElementById('paramPlateWidth').value = 360;
+        document.getElementById('paramPlateLength').value = 250;
+        document.getElementById('paramAcrylicThick').value = 5.0;
+        document.getElementById('paramFootForce').value = 220;
+        document.getElementById('paramSpringWireD').value = 3.2;
+        document.getElementById('paramSpringPreload').value = 30;
+        document.getElementById('paramSpringMountX').value = 160;
+        switchParamSubTab('material');
+        setStepState(2); // Press down to immediately show plate arch!
+      } else if (presetName === 'heavyPlateWeakSpring') {
+        // Heavy 12mm steel plate + weak 2.2mm wire spring -> fails to lift plate back up!
+        document.getElementById('paramSteelThick').value = 12.0;
+        document.getElementById('paramPlateWidth').value = 350;
+        document.getElementById('paramPlateLength').value = 280;
+        document.getElementById('paramAcrylicThick').value = 12.0;
+        document.getElementById('paramSpringWireD').value = 2.2;
+        document.getElementById('paramSpringCoilD').value = 30.0;
+        document.getElementById('paramSpringCoils').value = 20;
+        document.getElementById('paramSpringPreload').value = 15;
+        switchParamSubTab('spring');
+        setStepState(3); // Release state to show static sag!
+      } else if (presetName === 'eccentricMount') {
+        // Misaligned pull axis X_spring = 100 mm vs X_CG = 160 mm -> high tilting moment & friction
+        document.getElementById('paramSteelThick').value = 4.5;
+        document.getElementById('paramPlateWidth').value = 300;
+        document.getElementById('paramPlateLength').value = 250;
+        document.getElementById('paramSpringMountX').value = 100;
+        document.getElementById('paramFootForce').value = 180;
+        switchParamSubTab('geometry');
+      }
+
+      updateEngineeringParams();
+      runAiAnalysis(presetName === 'thinPlate' ? 'elasticity' : (presetName === 'eccentricMount' ? 'mounting' : 'mechanics'));
+    }
+
+    function switchParamSubTab(subTab) {
+      ['material', 'spring', 'geometry'].forEach((t) => {
+        const el = document.getElementById(`subTab-${t}`);
+        const btn = document.getElementById(`subTabBtn-${t}`);
+        if (t === subTab) {
+          el.classList.remove('hidden');
+          btn.className = 'py-1.5 px-2 rounded-lg font-bold bg-yellow-400 text-slate-950 transition';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'py-1.5 px-2 rounded-lg font-semibold text-slate-400 hover:text-white transition';
+        }
+      });
+    }
+
+    function setStepState(step) {
+      state.autoCycle = false;
+      updateAutoCycleButtonUI();
+      highlightStepButtons(step);
+
+      if (step === 1) {
+        state.targetPedalPercent = 0;
+      } else if (step === 2) {
+        state.targetPedalPercent = 100;
+      } else if (step === 3) {
+        if (state.pedalPercent < 20) state.pedalPercent = 90;
+        state.targetPedalPercent = 0;
+      }
+      renderSimulation();
+    }
+
+    function highlightStepButtons(step) {
+      state.currentStep = step;
+      const titles = {
+        1: 'สถานะ: 1. วางกล้วย (Place Mode)',
+        2: 'สถานะ: 2. เหยียบกดทับ (Pressing + Plate Deflection)',
+        3: 'สถานะ: 3. คลายแป้นเหยียบ (Spring Lift Return)'
+      };
+      const dotColors = {
+        1: 'w-2.5 h-2.5 rounded-full bg-yellow-400',
+        2: 'w-2.5 h-2.5 rounded-full bg-sky-400 animate-ping',
+        3: 'w-2.5 h-2.5 rounded-full bg-emerald-400'
+      };
+      document.getElementById('stateBadgeTitle').textContent = titles[step];
+      document.getElementById('stateBadgeDot').className = dotColors[step];
+
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`stepBtn-${i}`);
+        const badge = btn.querySelector('span');
+        if (i === step) {
+          btn.className = 'group relative flex flex-col items-start p-3 rounded-xl border-2 border-yellow-400 bg-yellow-400/10 text-left transition-all';
+          badge.className = 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-400 text-slate-950';
+        } else {
+          btn.className = 'group relative flex flex-col items-start p-3 rounded-xl border-2 border-slate-800 bg-slate-950/70 hover:border-slate-700 text-left transition-all';
+          badge.className = 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300';
+        }
+      }
+    }
+
+    function startHoldPedal(e) {
+      if (e) e.preventDefault();
+      state.autoCycle = false;
+      updateAutoCycleButtonUI();
+      state.isHoldingPedal = true;
+      highlightStepButtons(2);
+    }
+
+    function releaseHoldPedal(e) {
+      if (e) e.preventDefault();
+      if (!state.isHoldingPedal) return;
+      state.isHoldingPedal = false;
+      highlightStepButtons(3);
+      state.targetPedalPercent = 0;
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        if (!state.isHoldingPedal) startHoldPedal();
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        releaseHoldPedal();
+      }
+    });
+
+    function onManualSliderInput(val) {
+      state.autoCycle = false;
+      updateAutoCycleButtonUI();
+      const num = parseFloat(val);
+      state.pedalPercent = num;
+      state.targetPedalPercent = num;
+      if (num === 0) highlightStepButtons(1);
+      else if (num >= 90) highlightStepButtons(2);
+      renderSimulation();
+    }
+
+    function toggleAutoCycle() {
+      state.autoCycle = !state.autoCycle;
+      state.autoPhase = 0;
+      updateAutoCycleButtonUI();
+    }
+
+    function updateAutoCycleButtonUI() {
+      const btn = document.getElementById('btnAutoCycle');
+      const icon = document.getElementById('autoCycleIcon');
+      const txt = document.getElementById('autoCycleText');
+      if (state.autoCycle) {
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5';
+        icon.textContent = '⏸️';
+        txt.textContent = 'กำลังจำลองอัตโนมัติ (หยุด)';
+      } else {
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5';
+        icon.textContent = '▶️';
+        txt.textContent = 'จำลองอัตโนมัติ (Auto Loop)';
+      }
+    }
+
+    function inspectPart(partKey) {
+      const info = partDescriptions[partKey];
+      if (!info) return;
+      document.getElementById('partInspectorTitle').textContent = info.title;
+      document.getElementById('partInspectorDesc').textContent = info.desc;
+    }
+
+    function toggleCallouts() {
+      state.showCallouts = !state.showCallouts;
+      document.getElementById('calloutGroup').style.display = state.showCallouts ? 'block' : 'none';
+      document.getElementById('calloutBtnText').textContent = state.showCallouts
+        ? 'ซ่อนป้ายชิ้นส่วน (Labels)'
+        : 'แสดงป้ายชิ้นส่วน (Labels)';
+    }
+
+    function toggleFBDOverlay() {
+      state.showFBD = !state.showFBD;
+      document.getElementById('fbdOverlayGroup').style.display = state.showFBD ? 'block' : 'none';
+      document.getElementById('fbdBtnText').textContent = state.showFBD
+        ? 'ซ่อนเวกเตอร์แรง & พิกัด (FBD)'
+        : 'แสดงเวกเตอร์แรง & พิกัด (FBD)';
+    }
+
+    function toggleCanvasTheme() {
+      state.lightCanvas = !state.lightCanvas;
+      const container = document.getElementById('canvasContainer');
+      const icon = document.getElementById('themeIcon');
+      const text = document.getElementById('themeText');
+      if (state.lightCanvas) {
+        container.classList.remove('cad-grid');
+        container.classList.add('cad-light-grid');
+        icon.textContent = '🌙';
+        text.textContent = 'พื้นหลังมืด';
+      } else {
+        container.classList.remove('cad-light-grid');
+        container.classList.add('cad-grid');
+        icon.textContent = '☀️';
+        text.textContent = 'พื้นหลังสว่าง';
+      }
+    }
+
+    function switchMainTab(tabName) {
+      ['simulator', 'mounting', 'sequence', 'business'].forEach((t) => {
+        const sec = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (!sec || !btn) return;
+        if (t === tabName) {
+          sec.classList.remove('hidden');
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-yellow-400 text-slate-950 transition';
+        } else {
+          sec.classList.add('hidden');
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+        }
+      });
+    }
+
+    // --- 6. PARAMETER UPDATES ---
+    function updateEngineeringParams() {
+      state.steelThickMm = parseFloat(document.getElementById('paramSteelThick').value);
+      state.plateWidthMm = parseFloat(document.getElementById('paramPlateWidth').value);
+      state.plateLengthMm = parseFloat(document.getElementById('paramPlateLength').value);
+      state.acrylicThickMm = parseFloat(document.getElementById('paramAcrylicThick').value);
+      state.washerMm = parseFloat(document.getElementById('paramWasherMm').value);
+
+      state.springWireDMm = parseFloat(document.getElementById('paramSpringWireD').value);
+      state.springCoilDMm = parseFloat(document.getElementById('paramSpringCoilD').value);
+      state.springActiveCoils = parseInt(document.getElementById('paramSpringCoils').value, 10);
+      state.springPreloadMm = parseFloat(document.getElementById('paramSpringPreload').value);
+
+      state.leverL1Mm = parseFloat(document.getElementById('paramLeverL1').value);
+      state.leverL2Mm = parseFloat(document.getElementById('paramLeverL2').value);
+      state.springMountXMm = parseFloat(document.getElementById('paramSpringMountX').value);
+
+      state.footForceN = parseFloat(document.getElementById('paramFootForce').value);
+      state.bananaCount = parseInt(document.getElementById('paramBananaCount').value, 10);
+
+      // Update UI Labels
+      document.getElementById('valSteelThick').textContent = `${state.steelThickMm.toFixed(1)} mm`;
+      document.getElementById('valPlateWidth').textContent = `${state.plateWidthMm} mm`;
+      document.getElementById('valPlateLength').textContent = `${state.plateLengthMm} mm`;
+      document.getElementById('valAcrylicThick').textContent = `${state.acrylicThickMm.toFixed(1)} mm`;
+      document.getElementById('valWasherMm').textContent = `${state.washerMm.toFixed(1)} mm`;
+
+      document.getElementById('valSpringWireD').textContent = `${state.springWireDMm.toFixed(1)} mm`;
+      document.getElementById('valSpringCoilD').textContent = `${state.springCoilDMm.toFixed(1)} mm`;
+      document.getElementById('valSpringCoils').textContent = `${state.springActiveCoils} ขด`;
+      document.getElementById('valSpringPreload').textContent = `${state.springPreloadMm} mm`;
+
+      document.getElementById('valLeverL1').textContent = `${state.leverL1Mm} mm`;
+      document.getElementById('valLeverL2').textContent = `${state.leverL2Mm} mm`;
+      const cgX = 35 + state.plateLengthMm / 2;
+      document.getElementById('valSpringMountX').textContent =
+        Math.abs(state.springMountXMm - cgX) < 5
+          ? `${state.springMountXMm} mm (ตรงจุด CG)`
+          : `${state.springMountXMm} mm (เยื้องศูนย์ ${Math.abs(state.springMountXMm - cgX).toFixed(0)} mm)`;
+
+      document.getElementById('valFootForce').textContent = `${state.footForceN} N (~${Math.round(state.footForceN / 9.81)} kgf)`;
+      document.getElementById('valBananaCount').textContent = `${state.bananaCount} ลูก/ครั้ง`;
+
+      renderSimulation();
+    }
+
+    function setRipeness(level) {
+      state.ripeness = level;
+      ['firm', 'optimal', 'soft'].forEach((r) => {
+        const btn = document.getElementById(`ripeBtn-${r}`);
+        if (r === level) {
+          btn.className = 'flex-1 py-0.5 rounded bg-yellow-400/20 border border-yellow-400 text-[10px] text-yellow-300 font-bold';
+        } else {
+          btn.className = 'flex-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300';
+        }
+      });
+      renderSimulation();
+    }
+
+    function resetDefaultParams() {
+      applyScenarioPreset('optimal');
+      setRipeness('optimal');
+    }
+
+    function updateRoiCalc() {
+      const hoursEl = document.getElementById('roiHoursInput');
+      const profitEl = document.getElementById('roiProfitInput');
+      if (!hoursEl || !profitEl) return;
+      const hours = parseFloat(hoursEl.value);
+      const profitPerBox = parseFloat(profitEl.value);
+      document.getElementById('roiHoursVal').textContent = `${hours} ชั่วโมง/วัน`;
+      document.getElementById('roiProfitVal').textContent = `${profitPerBox} บาท/กล่อง`;
+
+      const extraBananasPerMin = 12;
+      const extraBoxesPerDay = Math.round((extraBananasPerMin * 60 * hours) / 16);
+      const extraDailyProfit = extraBoxesPerDay * profitPerBox;
+      const paybackDays = Math.max(3, Math.round(8950 / extraDailyProfit));
+
+      document.getElementById('roiExtraBoxes').textContent = `+${extraBoxesPerDay} กล่อง/วัน (+${extraDailyProfit.toLocaleString()} ฿/วัน)`;
+      document.getElementById('roiPaybackDays').textContent = `~${paybackDays} วัน (คืนทุนไวมาก)`;
+    }
+
+    // --- 7. GEMINI AI ENGINEERING ANALYZER ---
+    function generateInstantEngineeringReport(mode) {
+      const phys = calculatePhysics();
+
+      if (mode === 'mechanics') {
+        const liftStatus = phys.isLiftSufficient
+          ? `<span class="text-emerald-400 font-bold">✅ สปริงยกชุดแผ่นเหล็กขึ้นสุด 100%</span> (แรงดึงเริ่มต้น $F_{sp,0} = ${phys.springForceTopN.toFixed(1)}\\text{ N}$ เอาชนะน้ำหนักชุดกดทับ $W_{dead} = ${phys.deadWeightN.toFixed(1)}\\text{ N}$ และแรงเสียดทาน ${phys.totalFrictionN.toFixed(1)} N ได้อย่างสมบูรณ์)`
+          : `<span class="text-rose-400 font-bold">🚨 สปริงยกไม่ขึ้น! เกิดระยะห้อยตกค้าง $\\delta_{sag} = ${phys.staticSagMm.toFixed(1)}\\text{ mm}$</span> เนื่องจากแผ่นเหล็กหนา ${state.steelThickMm} mm ทำให้น้ำหนักรวมพุ่งสูงถึง ${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(1)} N) แนะนำให้เพิ่มลวดสปริงเป็น Ø 3.5-4.0 mm หรือขันน็อตดึงสปริง $\\Delta x_{preload}$ เพิ่มขึ้น`;
+        return `
+          <div class="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-300 font-semibold">
+            ⚖️ วิเคราะห์สมดุลน้ำหนักเหล็กแผ่นและแรงยกสปริง (Shigley Spring & Mass Balance)
+          </div>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>มวลเคลื่อนที่รวมจริง ($m_{total} = ${phys.totalMovingMassKg.toFixed(2)}\\text{ kg}$):</strong> มาจากเหล็กแผ่นบน (${phys.massSteelKg.toFixed(2)} kg) + อะคริลิก (${phys.massAcrylicKg.toFixed(2)} kg) + ขาเชื่อมต่อและบูชเพลา (${phys.massLinkageKg.toFixed(2)} kg) คิดเป็นน้ำหนักกดลง $W_{dead} = ${phys.deadWeightN.toFixed(1)}\\text{ N}$</li>
+            <li><strong>การตรวจสอบการยกตัวของสปริง ($k = ${phys.springK_Nmm.toFixed(2)}\\text{ N/mm}$):</strong> ${liftStatus}</li>
+            <li><strong>ความเค้นเฉือนในลวดสปริง:</strong> เมื่อเหยียบสุดระยะ แรงดึงสปริงเพิ่มเป็น ${phys.maxSpringForceN.toFixed(1)} N เกิดความเค้นเฉือน $\\tau_{max} = ${Math.round(phys.maxSpringShearMPa)}\\text{ MPa}$ (Safety Factor = ${phys.springFOS.toFixed(2)})</li>
+          </ul>
+        `;
+      } else if (mode === 'elasticity') {
+        const flexWarning = phys.maxPlateDeflectionMm <= 0.12
+          ? `<span class="text-emerald-400 font-bold">✅ ความแข็งเกร็งดีเยี่ยม ($\\delta_{plate} = ${phys.maxPlateDeflectionMm.toFixed(3)}\\text{ mm}$)</span> แผ่นเหล็กหนา ${state.steelThickMm} mm แอ่นตัวน้อยมาก ทำให้กล้วยมีความหนาสม่ำเสมอทั่วทั้งแผ่น`
+          : `<span class="text-amber-400 font-bold">⚠️ แผ่นเหล็กเกิดการแอ่นตัวชัดเจน ($\\delta_{plate} = ${phys.maxPlateDeflectionMm.toFixed(2)}\\text{ mm}$)</span> ส่งผลให้กล้วยบริเวณกลางแผ่นหนา ${ (state.washerMm + phys.maxPlateDeflectionMm).toFixed(2) } mm ในขณะที่ขอบหนา ${state.washerMm.toFixed(2)} mm (คลาดเคลื่อน +${phys.thicknessErrorPercent.toFixed(1)}%)`;
+        return `
+          <div class="p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 font-semibold">
+            📐 วิเคราะห์ความยืดหยุ่นและการแอ่นตัวของเหล็กแผ่น (Hibbeler Plate Bending)
+          </div>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>ผลการคำนวณการแอ่นตัวตรงกลางแผ่น:</strong> ${flexWarning}</li>
+            <li><strong>ความเค้นดัดในเหล็กแผ่น (Bending Stress):</strong> ที่แรงกดสุทธิ $F_{net} = ${Math.round(phys.netPressForceFullN)}\\text{ N}$ บนความกว้างช่วงดึง ${state.plateWidthMm} mm เกิดความเค้นดัด $\\sigma = ${phys.maxSteelStressMPa.toFixed(1)}\\text{ MPa}$ (จุดครากเหล็ก SS400 = 250 MPa, Safety Factor = ${Math.min(99, phys.plateFOS).toFixed(1)})</li>
+            <li><strong>หลักการออกแบบ:</strong> ความต้านทานการแอ่นตัวแปรผันตาม $t_{steel}^3$ การใช้เหล็กแผ่นหนา 4.5 - 6.0 mm ร่วมกับอะคริลิกหนา 10 mm จะจำกัดการแอ่นตัวไม่ให้เกิน 0.05 mm</li>
+          </ul>
+        `;
+      } else if (mode === 'mounting') {
+        return `
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold">
+            📏 วิเคราะห์พิกัดการติดตั้งชิ้นส่วนและกลศาสตร์คานเหยียบ (Mounting & Kinematics)
+          </div>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>ความร่วมศูนย์ของจุดดึง ($X_{spring}$ vs $X_{CG}$):</strong> จุดศูนย์ถ่วงแผ่นกดอยู่ที่ $X_{CG} = ${phys.plateCGXMm.toFixed(0)}\\text{ mm}$ จากเสาหลัก ขณะที่จุดดึงสปริงและขาเชื่อมต่อติดตั้งที่ $X_{spring} = ${state.springMountXMm}\\text{ mm}$ (เยื้องศูนย์ ${phys.eccentricityMm.toFixed(0)} mm ➔ โมเมนต์งัดแกน $M_{tilt} = ${phys.tiltMomentNm.toFixed(1)}\\text{ N·m}$)</li>
+            <li><strong>พิกัดคานแป้นเหยียบ ($L_1 = ${state.leverL1Mm}\\text{ mm}, L_2 = ${state.leverL2Mm}\\text{ mm}$):</strong> ให้การทดแรง $MA = 1:${phys.leverRatio.toFixed(2)}$ ต้องเหยียบแป้นลงเป็นระยะ ${Math.round(phys.pedalStrokeMm)} mm คิดเป็นมุมเอียงข้อเท้า ${phys.pedalAngleDeg.toFixed(1)}° (${phys.pedalAngleDeg <= 22 ? 'ผ่านเกณฑ์การยศาสตร์ NIOSH ไม่เกิน 22°' : '⚠️ มุมเหยียบสูงเกินไป ควรเพิ่มระยะ L1'})</li>
+          </ul>
+        `;
+      } else {
+        return `
+          <div class="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 font-semibold">
+            📡 แนวทางติดตั้งเซนเซอร์วัดความเครียด (Strain Gauge) และ AI Vision
+          </div>
+          <ul class="list-disc pl-4 space-y-1 text-slate-300">
+            <li><strong>1. Strain Gauge บนแผ่นเหล็กกดทับ:</strong> ติดตั้งที่กึ่งกลางแผ่นเหล็กด้านบน ($X = ${phys.plateCGXMm.toFixed(0)}\\text{ mm}$) เพื่อวัดค่าการแอ่นตัว $\\delta_{plate}$ และแรงกดสุทธิ $F_{net}$ แบบ Real-time</li>
+            <li><strong>2. Ultrasonic / Hall Sensor ที่แหวนรอง:</strong> ตรวจจับว่าบูชแผ่นกดลงมาแตะแหวนรองครบ 100% และตรวจสอบว่าเมื่อปล่อยเท้า แผ่นกดยกกลับขึ้นสุดโดยไม่มีระยะห้อยตกค้าง ($\\delta_{sag} = 0$)</li>
+          </ul>
+        `;
+      }
+    }
+
+    async function callGeminiWithBackoff(promptText, systemInstructionText) {
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ parts: [{ text: promptText }] }],
+        systemInstruction: { parts: [{ text: systemInstructionText }] }
+      };
+
+      const delays = [1000, 2000, 4000];
+      for (let attempt = 0; attempt <= delays.length; attempt++) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const result = await response.json();
+          const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) return text;
+          throw new Error('Empty response');
+        } catch (err) {
+          if (attempt === delays.length) return null;
+          await new Promise((r) => setTimeout(r, delays[attempt]));
+        }
+      }
+      return null;
+    }
+
+    async function runAiAnalysis(mode) {
+      const box = document.getElementById('aiResponseBox');
+      const customInput = document.getElementById('customAiInput').value.trim();
+      const phys = calculatePhysics();
+
+      const instantHtml = generateInstantEngineeringReport(mode === 'custom' ? 'mechanics' : mode);
+      box.innerHTML = `
+        ${instantHtml}
+        <div id="aiLiveStreamingBadge" class="mt-2 pt-2 border-t border-slate-800 flex items-center gap-2 text-sky-400 text-[11px]">
+          <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+          <span>กำลังคำนวณและขอคำแนะนำเชิงลึกจาก Gemini AI Engineer...</span>
+        </div>
+      `;
+
+      const systemPrompt = `คุณคือวิศวกรเครื่องกลอาวุโสและผู้เชี่ยวชาญด้านการออกแบบเครื่องจักรกล (Shigley & Hibbeler) ประจำทีมพัฒนาเครื่อง KluayPress มหาวิทยาลัยทักษิณ วิเคราะห์ผลจากตัวเลขจริงที่ส่งให้และแนะนำการปรับขนาดความหนาเหล็ก สปริง หรือพิกัดติดตั้งอย่างกระชับ ชัดเจน เป็นข้อๆ ไม่เกิน 130 คำ`;
+
+      const telemetryContext = `ข้อมูลจำลองทางกลศาสตร์ของเครื่อง KluayPress ปัจจุบัน:
+- ขนาดแผ่นเหล็กกดทับ SS400: กว้าง ${state.plateWidthMm} mm × ลึก ${state.plateLengthMm} mm × หนา ${state.steelThickMm} mm (มวลเหล็ก ${phys.massSteelKg.toFixed(2)} kg)
+- แผ่นอะคริลิก Food Grade: หนา ${state.acrylicThickMm} mm (มวล ${phys.massAcrylicKg.toFixed(2)} kg), มวลขาเชื่อมต่อ+บูช: ${phys.massLinkageKg.toFixed(2)} kg
+- มวลเคลื่อนที่รวมทั้งหมด: ${phys.totalMovingMassKg.toFixed(2)} kg (น้ำหนักกดลง W_dead = ${phys.deadWeightN.toFixed(1)} N)
+- สปริงสเตนเลส: ลวด Ø ${state.springWireDMm} mm, ขด Ø ${state.springCoilDMm} mm, ${state.springActiveCoils} ขด, ค่า k = ${phys.springK_Nmm.toFixed(2)} N/mm, ขันน็อตพรีโหลด ${state.springPreloadMm} mm
+- แรงดึงสปริงเริ่มต้น F_sp,0 = ${phys.springForceTopN.toFixed(1)} N, ระยะห้อยตกค้าง (Static Sag) = ${phys.staticSagMm.toFixed(1)} mm
+- แรงกดสุทธิที่กล้วย F_net = ${Math.round(phys.netPressForceFullN)} N, การแอ่นตัวกลางแผ่นเหล็ก δ_plate = ${phys.maxPlateDeflectionMm.toFixed(3)} mm, ความเค้นดัด = ${phys.maxSteelStressMPa.toFixed(1)} MPa
+- พิกัดติดตั้ง: จุดดึงสปริง X_spring = ${state.springMountXMm} mm (จุด CG แผ่นกด = ${phys.plateCGXMm.toFixed(0)} mm), คานเหยียบ L1 = ${state.leverL1Mm} mm, L2 = ${state.leverL2Mm} mm`;
+
+      let taskQuestion = '';
+      if (mode === 'mechanics') {
+        taskQuestion = 'วิเคราะห์ว่าสปริงชุดนี้เหมาะสมกับน้ำหนักแผ่นเหล็กและชุดกดทับหรือไม่ และควรปรับตั้งค่าอย่างไรให้ยกกลับนุ่มนวลและไม่ตกค้าง';
+      } else if (mode === 'elasticity') {
+        taskQuestion = 'วิเคราะห์ความยืดหยุ่นและการแอ่นตัวของแผ่นเหล็กกดทับที่ความหนานี้ ส่งผลต่อความหนากล้วยทับอย่างไร และความหนาเหล็กที่เหมาะสมที่สุดคือกี่ mm';
+      } else if (mode === 'mounting') {
+        taskQuestion = 'วิเคราะห์พิกัดการติดตั้งจุดดึงสปริง X_spring เทียบกับ X_CG และระยะคานเหยียบ L1, L2 ตามหลักกลศาสตร์';
+      } else if (mode === 'smart_ai') {
+        taskQuestion = 'แนะนำตำแหน่งติดตั้งเซนเซอร์วัดแรงและระยะยุบตัวบนโครงสร้างเครื่องนี้เพื่อทำระบบ AI ควบคุมคุณภาพ';
+      } else {
+        taskQuestion = customInput || 'วิเคราะห์ความสมดุลของสเปกเครื่อง KluayPress ชุดนี้และข้อเสนอแนะในการปรับปรุง';
+      }
+
+      const aiText = await callGeminiWithBackoff(`${telemetryContext}\n\nคำถาม: ${taskQuestion}`, systemPrompt);
+      const loadingEl = document.getElementById('aiLiveStreamingBadge');
+
+      if (aiText && loadingEl) {
+        const formattedAi = aiText
+          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-yellow-300">$1</strong>')
+          .replace(/\n/g, '<br/>');
+        loadingEl.outerHTML = `
+          <div class="mt-2.5 pt-2.5 border-t border-slate-800 text-slate-200">
+            <div class="text-[11px] font-bold text-sky-400 mb-1">✨ คำแนะนำเพิ่มเติมจาก Gemini AI Engineer:</div>
+            <div class="text-xs leading-relaxed text-slate-300">${formattedAi}</div>
+          </div>
+        `;
+      } else if (loadingEl) {
+        loadingEl.remove();
+      }
+    }
+
+    // --- 8. INITIALIZE ON WINDOW LOAD ---
+    window.onload = function () {
+      updateEngineeringParams();
+      updateRoiCalc();
+      document.getElementById('aiResponseBox').innerHTML = generateInstantEngineeringReport('mechanics');
+      requestAnimationFrame(animationLoop);
+    };
+  </script>
+</body>
+</html>
