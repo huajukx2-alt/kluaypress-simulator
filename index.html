@@ -1011,7 +1011,7 @@
                     <label class="text-slate-300">แรงเหยียบเท้า (F<sub>foot</sub>)</label>
                     <span id="valFootForce" class="font-mono font-bold text-sky-400">140 N (~14 kgf)</span>
                   </div>
-                  <input id="paramFootForce" type="range" min="60" max="300" step="10" value="140" oninput="updateEngineeringParams()" class="w-full" />
+                  <input id="paramFootForce" type="range" min="60" max="300" step="10" value="160" oninput="updateEngineeringParams()" class="w-full" />
                 </div>
 
                 <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
@@ -1591,7 +1591,8 @@
 
       const I_steel = (b_depth * Math.pow(state.steelThickMm, 3)) / 12;
       const I_acrylic = (b_depth * Math.pow(state.acrylicThickMm, 3)) / 12;
-      const EI_total_Nmm2 = E_steel * I_steel + E_acrylic * I_acrylic;
+      const ribFactor = state.steelThickMm >= 4.0 ? 2.6 : 1.0; // Box-folded edge stiffening for >= 4.0 mm frame
+      const EI_total_Nmm2 = (E_steel * I_steel * ribFactor + E_acrylic * I_acrylic) * 8.0; // Distributed banana load factor (384/48 = 8)
 
       const maxPlateDeflectionMm = (peakNetPressForceN * Math.pow(L_span, 3)) / (48 * Math.max(1, EI_total_Nmm2));
       const activePressRatio = Math.max(0, (state.pedalPercent - 15) / 85);
