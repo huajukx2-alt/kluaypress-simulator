@@ -1697,10 +1697,21 @@
       const phys = computePhysics();
       const pRatio = state.pedalPercent / 100;
 
-      // 1. Visual Vertical Travel (px)
-      const maxVisualTravelPx = 36 - (state.washerMm / 12) * 14;
+      // 1. Visual Vertical Travel (px) - Calibrated so Part 6 sleeve lands flush on Part 25 washers at 100% press
+      const washerPxHeight2d = Math.max(4, (state.washerMm / 12) * 20);
+      const maxVisualTravelPx = 38 - washerPxHeight2d;
       const sagPx = (phys.sagMm / Math.max(1, phys.maxNominalStrokeMm)) * maxVisualTravelPx;
       const travelPx = sagPx + pRatio * (maxVisualTravelPx - sagPx);
+
+      // Track inelastic banana compression state across Step 1 (Place) -> Step 2 (Press) -> Step 3 (Release)
+      if (typeof state.maxPressedRatio === 'undefined') state.maxPressedRatio = 0;
+      if (state.currentStep === 1 && pRatio < 0.05) {
+        state.maxPressedRatio = 0;
+      } else if (pRatio > state.maxPressedRatio) {
+        state.maxPressedRatio = pRatio;
+      } else if (state.currentStep !== 3 && !state.autoCycle && pRatio < state.maxPressedRatio) {
+        state.maxPressedRatio = pRatio;
+      }
 
       // Move Isometric & Side View Moving Groups
       setAttr('isoMovingGroup', 'transform', `translate(0, ${(travelPx * 0.9).toFixed(1)})`);
@@ -1782,11 +1793,14 @@
       setText('zoomWasherText', `Part 25: ${washerCount} แผ่น (${state.washerMm.toFixed(1)} mm)`);
       setText('zoomDeflectText', `แอ่นตัวกลางแผ่น: ${phys.maxPlateDeflectionMm.toFixed(2)} mm`);
 
-      // 5. Compress Bananas in Side View & Isometric View
-      const plateGapPx = Math.max(5, 174 - (128 + travelPx));
-      const bananaH = Math.min(28, plateGapPx);
+      // 5. Compress Bananas in Side View (Only compresses after upper plate contacts top of banana; stays flat during Step 3 release)
+      const effBanTravelPx = state.currentStep === 3
+        ? sagPx + Math.max(pRatio, state.maxPressedRatio || 0) * (maxVisualTravelPx - sagPx)
+        : travelPx;
+      const plateGapPx = Math.max(5, 174 - (acrylicBottomY + effBanTravelPx));
+      const bananaH = Math.min(26, plateGapPx);
       const bananaY = 174 - bananaH;
-      const compressionRatio = Math.max(0, (28 - bananaH) / 22);
+      const compressionRatio = Math.max(0, (26 - bananaH) / 20);
       const bananaW = 44 + compressionRatio * 20;
 
       setAttr('sideBananaLeft', 'y', bananaY.toFixed(1));
@@ -1805,22 +1819,17 @@
         setAttr('sideBananaRight', 'rx', Math.max(3, bananaH / 2).toFixed(1));
       }
 
-      const isoRx = 22 + compressionRatio * 12;
-      const isoRy = Math.max(5, 12 - compressionRatio * 5);
-      setAttr('isoBanana1', 'rx', isoRx.toFixed(1));
-      setAttr('isoBanana1', 'ry', isoRy.toFixed(1));
-      const isoBan2 = el('isoBanana2');
-      if (isoBan2) {
-        isoBan2.style.display = state.bananaCount >= 2 ? 'block' : 'none';
-        setAttr('isoBanana2', 'rx', isoRx.toFixed(1));
-        setAttr('isoBanana2', 'ry', isoRy.toFixed(1));
-      }
-
-      // 6. Foot Pedal Lever Rotation (Part 19: L2 = 37.88 cm, Pivot Part 20 at (286, 396))
+      // 6. True Rigid-Body Class-2 Foot Pedal Lever Rotation (Pivot Part 20 at rear (286, 396))
       const pedalTipX = 286 - (state.leverL2Mm / 379) * 160;
-      const pedalTipY = 342 + travelPx * 1.55;
-      const jointRatio = (286 - springSvgX) / Math.max(1, 286 - pedalTipX);
-      const pedalJointY = 396 - (396 - pedalTipY) * jointRatio;
+      const leverJointX = 286 - (state.leverL1Mm / 379) * 160;
+      const pedalJointY = 364 + travelPx; // Rigid rod Part 18 (height 68) moves down by exact travelPx
+      const leverSpanRatio = (286 - pedalTipX) / Math.max(12, 286 - leverJointX);
+      const pedalTipY = 396 - (396 - pedalJointY) * leverSpanRatio;
+
+      setAttr('sideLinkageBarRect', 'x', (leverJointX - 9).toFixed(1));
+      setAttr('sideLinkageRodRect', 'x', (leverJointX - 3).toFixed(1));
+      setAttr('sideLinkageRodRect', 'height', '68');
+      setAttr('sideLinkageTopPin', 'cx', leverJointX.toFixed(1));
 
       setAttr('sidePedalBar', 'x2', pedalTipX.toFixed(1));
       setAttr('sidePedalBar', 'y2', pedalTipY.toFixed(1));
@@ -1828,9 +1837,8 @@
       setAttr('sidePedalBarOutline', 'y2', pedalTipY.toFixed(1));
       setAttr('sidePedalTip', 'cx', pedalTipX.toFixed(1));
       setAttr('sidePedalTip', 'cy', pedalTipY.toFixed(1));
-      setAttr('sidePedalJoint', 'cx', springSvgX.toFixed(1));
+      setAttr('sidePedalJoint', 'cx', leverJointX.toFixed(1));
       setAttr('sidePedalJoint', 'cy', pedalJointY.toFixed(1));
-      setAttr('sideLinkageRodRect', 'height', Math.max(20, pedalJointY - (296 + travelPx)).toFixed(1));
 
       // Isometric Pedal Tilt
       const isoPedalDrop = travelPx * 0.65;
@@ -1847,10 +1855,10 @@
       setAttr('fbdFootForceGroup', 'transform', `translate(${pedalTipX.toFixed(1)}, ${(pedalTipY - 32).toFixed(1)})`);
       setText('fbdFootLabel', `F_foot = ${state.footForceN} N`);
 
-      setAttr('dimLineL1', 'x1', springSvgX.toFixed(1));
-      setAttr('dimTickL1Left', 'x1', springSvgX.toFixed(1));
-      setAttr('dimTickL1Left', 'x2', springSvgX.toFixed(1));
-      setAttr('dimTextL1', 'x', ((springSvgX + 286) / 2).toFixed(1));
+      setAttr('dimLineL1', 'x1', leverJointX.toFixed(1));
+      setAttr('dimTickL1Left', 'x1', leverJointX.toFixed(1));
+      setAttr('dimTickL1Left', 'x2', leverJointX.toFixed(1));
+      setAttr('dimTextL1', 'x', ((leverJointX + 286) / 2).toFixed(1));
       setText('dimTextL1', `L1 = ${(state.leverL1Mm / 10).toFixed(1)} cm (${state.leverL1Mm} mm)`);
 
       setAttr('dimLineL2', 'x1', pedalTipX.toFixed(1));
@@ -2029,7 +2037,6 @@
       if (autoRotate3d && scene3d) {
         camSpherical.theta += 0.012;
         update3DCameraPosition();
-        if (renderer3d && camera3d) renderer3d.render(scene3d, camera3d);
       }
       requestAnimationFrame(animationLoop);
     }
@@ -2039,7 +2046,7 @@
       const s = state.currentStep;
       const titles = {
         1: 'สถานะ: 1. วางกล้วย (Place Mode)',
-        2: 'สถานะ: 2. เหยียบกดทับ (Pressing + Plate Deflection)',
+        2: 'สถานะ: 2. เหยียบกดทับ (Pressing Mode)',
         3: 'สถานะ: 3. คลายแป้นเหยียบ (Spring Lift Return)'
       };
       const dotColors = {
@@ -2065,6 +2072,8 @@
     }
 
     function setStepState(step) {
+      if (step === 1) state.maxPressedRatio = 0;
+      if (step === 2 || step === 3) state.maxPressedRatio = 1.0;
       state.autoCycle = false;
       updateAutoCycleButtonUI();
       highlightStepButtons(step);
@@ -2479,14 +2488,14 @@
     // --- 7B. REALISTIC 3D WEBGL CAD MODEL (THREE.JS PBR ENGINE - BPM-DWG-001 28 PARTS) ---
     let scene3d, camera3d, renderer3d;
     let machineGroup3d, movingCarriage3d, pedalPivotGroup3d, pedalPlateMesh3d;
-    let pressSteelMesh3d, pressAcrylicMesh3d, linkageUGroup3d, gussetLinkMesh3d;
-    let springCoilMesh3d, auxSpringMesh3d, preloadNutMesh3d, washerGroup3d;
+    let pressSteelMesh3d, pressAcrylicMesh3d, sliderBlockMesh3d, sliderBracketMesh3d;
+    let linkageUGroup3d, gussetLinkMesh3d, pinTop23Mesh3d, pinBot23Mesh3d;
+    let lockTubeMesh3d, preloadNutMesh3d, auxSpringMesh3d;
+    let anchorTopMesh3d, anchorBotMesh3d, springCoilMesh3d, washerGroup3d;
     let bananaMeshes3d = [];
     let partMeshes3d = [];
-    let highlightedMat3d = null;
     let autoRotate3d = false;
     let camSpherical = { radius: 175, theta: -0.62, phi: 1.15, targetY: 58 };
-    let lastSpringGeomKey = '';
     let lastWasherCount3d = -1;
 
     function createBrushedMetalTexture(baseHex, noiseAmt = 18) {
@@ -2585,7 +2594,7 @@
       fillLight.position.set(-60, 40, 90);
       scene3d.add(fillLight);
 
-      // Subtle Ground Grid & Shadow Catcher Floor (Y = 0)
+      // Ground Grid & Shadow Catcher Floor (Y = 0)
       const grid = new THREE.GridHelper(120, 12, 0x0284c7, 0x1e293b);
       grid.position.y = 0;
       grid.material.opacity = 0.45;
@@ -2630,7 +2639,7 @@
       const matClearAcrylic = new THREE.MeshPhysicalMaterial({
         color: 0x38bdf8,
         transparent: true,
-        opacity: 0.62,
+        opacity: 0.65,
         metalness: 0.05,
         roughness: 0.08,
         clearcoat: 1.0
@@ -2647,35 +2656,34 @@
       });
       const matBanana = new THREE.MeshStandardMaterial({
         color: 0xfacc15,
-        roughness: 0.42,
-        metalness: 0.05
+        roughness: 0.4,
+        metalness: 0.04
       });
 
       machineGroup3d = new THREE.Group();
       scene3d.add(machineGroup3d);
 
-      // 1. Part 2: 4 Main_Leg (73 x 5 x 5 cm) at corners of 50 x 40 cm base
-      const legGeo = new THREE.BoxGeometry(5, 73, 5);
-      const legCoords = [
-        [-22.5, 36.5, -17.5],
-        [22.5, 36.5, -17.5],
-        [-22.5, 36.5, 17.5],
-        [22.5, 36.5, 17.5]
-      ];
-      legCoords.forEach(([x, y, z]) => {
+      // 1. Part 2: 4 Main_Leg (5 x 71 x 5 cm under Part 1 so total table height = 73.0 cm)
+      const legGeo = new THREE.BoxGeometry(5, 71, 5);
+      [
+        [-22.5, 35.5, -17.5],
+        [22.5, 35.5, -17.5],
+        [-22.5, 35.5, 17.5],
+        [22.5, 35.5, 17.5]
+      ].forEach(([x, y, z]) => {
         const m = regPart(new THREE.Mesh(legGeo, matFrameLeg), 2);
         m.position.set(x, y, z);
         addEdges(m);
         machineGroup3d.add(m);
       });
 
-      // 2. Part 21: Leg_Crossbeam_Bottom (40 x 5 x 5 cm) at Y = 12.5 cm, Z = -17.5 cm
+      // 2. Part 21: Leg_Crossbeam_Bottom (40 x 5 x 5 cm) at rear Y = 12.5 cm, Z = -17.5 cm
       const cbBot = regPart(new THREE.Mesh(new THREE.BoxGeometry(40, 5, 5), matFrameLeg), 21);
       cbBot.position.set(0, 12.5, -17.5);
       addEdges(cbBot);
       machineGroup3d.add(cbBot);
 
-      // 3. Part 22: Leg_Crossbeam_Mid (30 x 5 x 5 cm, Qty 2) at Y = 20 cm, X = ±22.5 cm
+      // 3. Part 22: Leg_Crossbeam_Mid (5 x 5 x 30 cm, Qty 2) at Y = 20.0 cm, X = ±22.5 cm
       [-22.5, 22.5].forEach((x) => {
         const cbMid = regPart(new THREE.Mesh(new THREE.BoxGeometry(5, 5, 30), matFrameLeg), 22);
         cbMid.position.set(x, 20.0, 0);
@@ -2683,173 +2691,191 @@
         machineGroup3d.add(cbMid);
       });
 
-      // 4. Part 1: Main_Table (50 x 40 x 2 cm) at Y = 74 cm
+      // 4. Part 1: Main_Table (50 x 2 x 40 cm) from Y = 71 to 73 cm
       const mainTable = regPart(new THREE.Mesh(new THREE.BoxGeometry(50, 2, 40), matSteelPlate), 1);
-      mainTable.position.set(0, 74.0, 0);
+      mainTable.position.set(0, 72.0, 0);
       addEdges(mainTable);
       machineGroup3d.add(mainTable);
 
-      // 5. Part 3: Top_Worktable_Plate (50 x 34 x 1 cm PMMA) at Y = 75.5 cm
-      const workTable = regPart(new THREE.Mesh(new THREE.BoxGeometry(50, 1.2, 34), matDarkAcrylic), 3);
-      workTable.position.set(0, 75.6, 2);
+      // 5. Part 3: Top_Worktable_Plate (50 x 1 x 34 cm PMMA) on front 34 cm of Part 1 (Y = 73 to 74 cm, Z = -14 to +20)
+      const workTable = regPart(new THREE.Mesh(new THREE.BoxGeometry(50, 1.0, 34), matDarkAcrylic), 3);
+      workTable.position.set(0, 73.5, 3.0);
       addEdges(workTable);
       machineGroup3d.add(workTable);
 
-      // 6. Part 24: Equipment stand (60 x 15 x 2 cm + 2 pins Ø2 x 9 cm) & Part 28: Handles (135° struts)
+      // 6. Part 24: Equipment stand (60 x 2 x 15 cm + 2 pins Ø2 x 9 cm) & Part 28: 45° handles
       const eqTray = regPart(new THREE.Mesh(new THREE.BoxGeometry(60, 2, 15), matSteelPlate), 24);
-      eqTray.position.set(0, 74.0, 27.5);
+      eqTray.position.set(0, 68.0, 27.5);
       addEdges(eqTray);
       machineGroup3d.add(eqTray);
 
       const pinGeo = new THREE.CylinderGeometry(1.0, 1.0, 9, 16);
       [-26, 26].forEach((x) => {
         const pin = regPart(new THREE.Mesh(pinGeo, matChromeShaft), 24);
-        pin.position.set(x, 79.5, 29.5);
+        pin.position.set(x, 73.5, 31.0);
         machineGroup3d.add(pin);
       });
 
       const strutGeo = new THREE.BoxGeometry(2, 2, 15);
       [-22.5, 22.5].forEach((x) => {
         const strut = regPart(new THREE.Mesh(strutGeo, matFrameLeg), 28);
-        strut.position.set(x, 68.5, 24.5);
+        strut.position.set(x, 62.5, 24.5);
         strut.rotation.x = Math.PI / 4;
         addEdges(strut);
         machineGroup3d.add(strut);
       });
 
-      // 7. Part 5: Base_Foundation_Plate (8 x 6 x 3 cm) & Part 4: Slide_guide_pipe (Ø5 x 40 cm) & Part 11: Cap
+      // 7. Part 5: Base_Foundation_Plate (8 x 3 x 6 cm) on rear 6 cm of Part 1 (Z = -17.0, Y = 73 to 76 cm)
       const baseFound = regPart(new THREE.Mesh(new THREE.BoxGeometry(8, 3, 6), matFrameLeg), 5);
-      baseFound.position.set(0, 76.5, -16.5);
+      baseFound.position.set(0, 74.5, -17.0);
       addEdges(baseFound);
       machineGroup3d.add(baseFound);
 
+      // Part 4: Slide_guide_pipe (Ø5 x 40 cm) at single rear-center axis (X = 0, Z = -17.0, Y = 73 to 113 cm)
       const guidePipe = regPart(new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 40, 24), matChromeShaft), 4);
-      guidePipe.position.set(0, 95.0, -16.5);
+      guidePipe.position.set(0, 93.0, -17.0);
       machineGroup3d.add(guidePipe);
 
+      // Part 11: Column_End_Cap (Ø6 x 3 cm) on top of Part 4 (Y = 113 to 116 cm)
       const endCap = regPart(new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 3, 24), matSteelPlate), 11);
-      endCap.position.set(0, 115.5, -16.5);
+      endCap.position.set(0, 114.5, -17.0);
       addEdges(endCap);
       machineGroup3d.add(endCap);
 
-      // 8. Part 25: Spacer_Washer stack on Part 5
+      // 8. Part 25: Spacer_Washer stack sitting on top of Part 5 (Y = 76.0 cm, Z = -17.0 cm)
       washerGroup3d = new THREE.Group();
-      washerGroup3d.position.set(0, 78.0, -16.5);
+      washerGroup3d.position.set(0, 76.0, -17.0);
       machineGroup3d.add(washerGroup3d);
 
-      // 9. Part 9: Spring lock shaft, Part 14: Thumb Screw, Part 10: Structural_Pipe (Ø5x20), Part 8: Frame lock plate (50x31.5x3)
-      const lockCollar = regPart(new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.1, 7, 24), matFrameLeg), 9);
-      lockCollar.position.set(0, 108.5, -16.5);
+      // 9. Stationary Upper Spring Support: Part 9 (collar), Part 14 (thumb screw), Part 10 (Ø5x20 pipe), Part 8 (50x31.5x3 plate)
+      const lockCollar = regPart(new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.1, 6.5, 24), matFrameLeg), 9);
+      lockCollar.position.set(0, 108.5, -17.0);
       machineGroup3d.add(lockCollar);
 
-      const collarEar = regPart(new THREE.Mesh(new THREE.BoxGeometry(3.2, 6, 4.5), matFrameLeg), 9);
-      collarEar.position.set(0, 108.5, -20.0);
+      const collarEar = regPart(new THREE.Mesh(new THREE.BoxGeometry(3.2, 5.5, 4.5), matFrameLeg), 9);
+      collarEar.position.set(0, 108.5, -20.5);
       machineGroup3d.add(collarEar);
 
       const thumbScrew = regPart(new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 5, 12), matBrassWasher), 14);
       thumbScrew.rotation.z = Math.PI / 2;
-      thumbScrew.position.set(2.5, 108.5, -20.5);
+      thumbScrew.position.set(2.5, 108.5, -21.0);
       machineGroup3d.add(thumbScrew);
 
+      // Part 10 extends from Z = -14.5 to Z = +5.5 (20 cm long), sitting on top of Part 8
       const structPipe = regPart(new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 20, 20), matChromeShaft), 10);
       structPipe.rotation.x = Math.PI / 2;
-      structPipe.position.set(0, 108.5, -6.5);
+      structPipe.position.set(0, 108.5, -4.5);
       machineGroup3d.add(structPipe);
 
+      // Part 8: Frame lock plate (50 x 3.0 x 31.5 cm), Z = -14.0 to +17.5 (center Z = +1.75), Y = 103.5 to 106.5
       const frameLockPlate = regPart(new THREE.Mesh(new THREE.BoxGeometry(50, 3.0, 31.5), matSteelPlate), 8);
-      frameLockPlate.position.set(0, 105.0, 3.5);
+      frameLockPlate.position.set(0, 105.0, 1.75);
       addEdges(frameLockPlate);
       machineGroup3d.add(frameLockPlate);
 
-      // 10. Part 15: Locking tube (Ø2.5x30), Part 26: Hex Nut, Part 27: Tension_Spring_Heavy
-      const lockTube = regPart(new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 30, 16), matChromeShaft), 15);
-      lockTube.position.set(0, 104.0, 10.0);
-      machineGroup3d.add(lockTube);
-
-      preloadNutMesh3d = regPart(new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 1.8, 6), matBrassWasher), 26);
-      preloadNutMesh3d.position.set(0, 114.0, 10.0);
-      machineGroup3d.add(preloadNutMesh3d);
-
-      auxSpringMesh3d = regPart(
-        new THREE.Mesh(buildHelicalSpringGeometry(1.7, 7.5, 8, 0.28), matSpringSteel),
-        27
-      );
-      auxSpringMesh3d.position.set(0, 113.5, 10.0);
-      machineGroup3d.add(auxSpringMesh3d);
-
-      // 11. Moving Press Carriage Group (Parts 6, 7, 12, 13, 17, 18)
+      // 10. Moving Press Carriage Group (Parts 6, 7, 12, 13-bot, 15, 17)
+      // Built in local coordinates where bottom of Part 7 (acrylic press plate) is at local Y = 0,
+      // and bottom of Part 6 (linear slider block on Part 4) is at local Y = +2.0 cm (matching Part 5 top 76.0 vs Part 3 top 74.0!)
       movingCarriage3d = new THREE.Group();
+      movingCarriage3d.position.set(0, 85.0, 0);
       machineGroup3d.add(movingCarriage3d);
 
-      const sliderBlock = regPart(new THREE.Mesh(new THREE.BoxGeometry(6, 2.4, 6), matFrameLeg), 6);
-      sliderBlock.position.set(0, 91.5, -16.5);
-      addEdges(sliderBlock);
-      movingCarriage3d.add(sliderBlock);
+      // Part 6: Linear_Slider_Block (6 x 2.4 x 6 cm) on Part 4 (Z = -17.0), bottom at local Y = +2.0 (center local Y = +3.2)
+      sliderBlockMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(6, 2.4, 6), matFrameLeg), 6);
+      sliderBlockMesh3d.position.set(0, 3.2, -17.0);
+      addEdges(sliderBlockMesh3d);
+      movingCarriage3d.add(sliderBlockMesh3d);
 
-      pressSteelMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(52, 1.8, 35), matSteelPlate), 12);
-      pressSteelMesh3d.position.set(0, 91.5, 4.5);
-      addEdges(pressSteelMesh3d);
-      movingCarriage3d.add(pressSteelMesh3d);
-
-      pressAcrylicMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(52, 1.2, 35), matClearAcrylic), 7);
-      pressAcrylicMesh3d.position.set(0, 90.0, 4.5);
+      // Part 7: Work pressure plate (52 x 1.0 x 35 cm clear blue PMMA), bottom at local Y = 0 (center local Y = +0.5, Z = +3.0)
+      pressAcrylicMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(52, 1.0, 35), matClearAcrylic), 7);
+      pressAcrylicMesh3d.position.set(0, 0.5, 3.0);
       addEdges(pressAcrylicMesh3d, 0.18);
       movingCarriage3d.add(pressAcrylicMesh3d);
 
-      // Part 13: Spring anchors
-      const anchorTop = regPart(new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.3, 8, 16), matFrameLeg), 13);
-      anchorTop.position.set(0, 103.2, 4.5);
-      machineGroup3d.add(anchorTop);
+      // Part 12: Acrylic_Protective_Cover / Steel Press Frame (52 x 1.8 x 35 cm), sitting on Part 7 (local Y = +1.9, Z = +3.0)
+      pressSteelMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(52, 1.8, 35), matSteelPlate), 12);
+      pressSteelMesh3d.position.set(0, 1.9, 3.0);
+      addEdges(pressSteelMesh3d);
+      movingCarriage3d.add(pressSteelMesh3d);
 
-      const anchorBot = regPart(new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.3, 8, 16), matFrameLeg), 13);
-      anchorBot.position.set(0, 92.8, 4.5);
-      movingCarriage3d.add(anchorBot);
+      // Part 15: Locking tube with spring (Ø2.5 x 26 cm) attached to front-center of Part 12 (Z = +13.0, in front of Part 10!)
+      // Slides UP and DOWN through the Ø2.5 hole in stationary Part 8 as anti-rotation & spring guide
+      lockTubeMesh3d = regPart(new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 26, 16), matChromeShaft), 15);
+      lockTubeMesh3d.position.set(0, 15.0, 13.0);
+      movingCarriage3d.add(lockTubeMesh3d);
 
-      // Part 16: Main Return Spring
+      // Part 26: Heavy hex flat nut at top of Part 15 (moves with Part 15 & adjusts with preload)
+      preloadNutMesh3d = regPart(new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.3, 1.6, 6), matBrassWasher), 26);
+      preloadNutMesh3d.position.set(0, 26.5, 13.0);
+      movingCarriage3d.add(preloadNutMesh3d);
+
+      // Part 27: Auxiliary coil spring around Part 15 above stationary Part 8 (Y = 106.5 up to Part 26 nut)
+      auxSpringMesh3d = regPart(
+        new THREE.Mesh(buildHelicalSpringGeometry(1.65, 8.0, 8, 0.26), matSpringSteel),
+        27
+      );
+      auxSpringMesh3d.position.set(0, 114.5, 13.0);
+      machineGroup3d.add(auxSpringMesh3d);
+
+      // Part 13: Spring anchors (Top under stationary Part 8 at Y = 103.5; Bottom on top of moving Part 12)
+      anchorTopMesh3d = regPart(new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.3, 8, 16), matFrameLeg), 13);
+      anchorTopMesh3d.position.set(0, 103.5, 4.0);
+      machineGroup3d.add(anchorTopMesh3d);
+
+      anchorBotMesh3d = regPart(new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.3, 8, 16), matFrameLeg), 13);
+      anchorBotMesh3d.position.set(0, 3.2, 4.0);
+      movingCarriage3d.add(anchorBotMesh3d);
+
+      // Part 16: Main Helical Return Tension Spring between anchorTopMesh3d and anchorBotMesh3d
       springCoilMesh3d = regPart(
-        new THREE.Mesh(buildHelicalSpringGeometry(2.2, 11.0, 7, 0.38), matSpringSteel.clone()),
+        new THREE.Mesh(buildHelicalSpringGeometry(2.2, 10.0, 7, 0.38), matSpringSteel.clone()),
         16
       );
-      springCoilMesh3d.position.set(0, 103.2, 4.5);
+      springCoilMesh3d.position.set(0, 103.5, 4.0);
       machineGroup3d.add(springCoilMesh3d);
 
-      // Part 17: Linkage_Arm (U-Frame: 2 vertical side arms 2.5 x 57 x 5 cm + bottom crossbar 57 x 5 x 2.5 cm)
+      // Part 17: Linkage_Arm (Wide U-Frame wrapping outside left & right edges of Part 1 Main_Table)
+      // Side arms from local Y = +2.5 down to local Y = -46.5 (height 49 cm), bottom crossbar at local Y = -45.5
       linkageUGroup3d = new THREE.Group();
-      linkageUGroup3d.position.set(0, 0, 4.5);
+      linkageUGroup3d.position.set(0, 0, 4.0);
       movingCarriage3d.add(linkageUGroup3d);
 
-      const uSideGeo = new THREE.BoxGeometry(2.5, 57, 5);
+      const uSideGeo = new THREE.BoxGeometry(2.5, 49, 5);
       [-27.25, 27.25].forEach((x) => {
         const arm = regPart(new THREE.Mesh(uSideGeo, matSteelPlate), 17);
-        arm.position.set(x, 64.0, 0);
+        arm.position.set(x, -22.0, 0);
         addEdges(arm);
         linkageUGroup3d.add(arm);
       });
-      const uBotBar = regPart(new THREE.Mesh(new THREE.BoxGeometry(57, 5, 2.5), matSteelPlate), 17);
-      uBotBar.position.set(0, 38.0, 0);
+      const uBotBar = regPart(new THREE.Mesh(new THREE.BoxGeometry(57, 4.5, 2.5), matSteelPlate), 17);
+      uBotBar.position.set(0, -45.5, 0);
       addEdges(uBotBar);
       linkageUGroup3d.add(uBotBar);
 
-      // Part 18: Structural_Gusset & Part 23: Fillister pins
-      gussetLinkMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(2.2, 20, 1.4), matChromeShaft), 18);
-      gussetLinkMesh3d.position.set(0, 26.0, 0);
-      linkageUGroup3d.add(gussetLinkMesh3d);
+      // 11. Part 18: Structural_Gusset (vertical clevis rod) & Part 23: Fillister pins (top & bottom)
+      // Managed in world/machine space so it always connects Part 17's bottom bar directly to Part 19 pedal at L1!
+      gussetLinkMesh3d = regPart(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 1.5), matChromeShaft), 18);
+      machineGroup3d.add(gussetLinkMesh3d);
 
-      const pinTop23 = regPart(new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 3.5, 12), matBrassWasher), 23);
-      pinTop23.rotation.x = Math.PI / 2;
-      pinTop23.position.set(0, 36.0, 0);
-      linkageUGroup3d.add(pinTop23);
+      pinTop23Mesh3d = regPart(new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 3.8, 12), matBrassWasher), 23);
+      pinTop23Mesh3d.rotation.x = Math.PI / 2;
+      machineGroup3d.add(pinTop23Mesh3d);
 
-      // 12. Part 20: Pivot Bushings (Ø4x10 cm, Qty 2) & Part 19: Support Beam (Foot Pedal 37.88x20x2 cm + Ø3x40 shaft)
+      pinBot23Mesh3d = regPart(new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 3.8, 12), matBrassWasher), 23);
+      pinBot23Mesh3d.rotation.z = Math.PI / 2;
+      machineGroup3d.add(pinBot23Mesh3d);
+
+      // 12. Part 20: Pivot Bushings (Ø4x10 cm, Qty 2) at rear Y = 12.5 cm, Z = -15.0 cm
+      // & Part 19: Support Beam (Foot Pedal 37.88x20x2 cm + Ø3x40 pivot shaft)
       [-14, 14].forEach((x) => {
         const bush = regPart(new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 10, 20), matFrameLeg), 20);
         bush.rotation.z = Math.PI / 2;
-        bush.position.set(x, 12.5, -12.5);
+        bush.position.set(x, 12.5, -15.0);
         machineGroup3d.add(bush);
       });
 
       pedalPivotGroup3d = new THREE.Group();
-      pedalPivotGroup3d.position.set(0, 12.5, -12.5);
+      pedalPivotGroup3d.position.set(0, 12.5, -15.0);
       machineGroup3d.add(pedalPivotGroup3d);
 
       const pedalShaft = regPart(new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 40, 20), matChromeShaft), 19);
@@ -2861,13 +2887,13 @@
       addEdges(pedalPlateMesh3d);
       pedalPivotGroup3d.add(pedalPlateMesh3d);
 
-      // 13. Bananas on Lower Worktable (1 to 3 bananas)
-      const banGeo = new THREE.CylinderGeometry(2.1, 2.3, 13, 16);
+      // 13. Bananas on Lower Worktable Part 3 (top surface of Part 3 is at Y = 74.0 cm)
+      // Base cylinder has radius 1.0 (height = 2.0 along Y after 90° Z-rotation) so scaling Y by h/2 sets exact height h cm!
+      const banGeo = new THREE.CylinderGeometry(1.0, 1.08, 13, 18);
       [-10, 0, 10].forEach((x) => {
         const b = new THREE.Mesh(banGeo, matBanana);
         b.rotation.z = Math.PI / 2;
-        b.rotation.y = 0.12;
-        b.position.set(x, 78.2, 4.5);
+        b.position.set(x, 75.7, 3.5);
         b.castShadow = true;
         b.receiveShadow = true;
         machineGroup3d.add(b);
@@ -2954,6 +2980,7 @@
         radius * Math.sin(phi) * Math.cos(theta)
       );
       camera3d.lookAt(0, targetY, 3);
+      if (renderer3d && scene3d) renderer3d.render(scene3d, camera3d);
     }
 
     function set3DCameraView(preset) {
@@ -2981,69 +3008,131 @@
     function sync3DModelWithPhysics(phys) {
       if (!scene3d || !movingCarriage3d) return;
 
-      // 1. Vertical stroke displacement (cm)
-      const strokeCm = (phys.effectiveStrokeMm / 24.0) * 10.5;
-      movingCarriage3d.position.y = -strokeCm;
+      // 1. Washer stack (Part 25: 0 to 5 rings sitting on Part 5 at Y = 76.0 cm)
+      const washerCount = Math.round(state.washerMm / 2.0);
+      const ringVisualThickCm = 0.45;
+      const washerStackHCm = washerCount * ringVisualThickCm;
+      if (washerCount !== lastWasherCount3d && washerGroup3d) {
+        lastWasherCount3d = washerCount;
+        while (washerGroup3d.children.length > 0) washerGroup3d.remove(washerGroup3d.children[0]);
+        const ringGeo = new THREE.CylinderGeometry(3.0, 3.0, ringVisualThickCm * 0.88, 20);
+        const ringMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
+        for (let i = 0; i < washerCount; i++) {
+          const r = regPart(new THREE.Mesh(ringGeo, ringMat), 25);
+          r.position.y = ringVisualThickCm * 0.5 + i * ringVisualThickCm;
+          washerGroup3d.add(r);
+        }
+      }
+
+      // 2. Vertical Carriage Position (cm)
+      // Top of Part 3 worktable is at Y = 74.0 cm; Top of Part 5 is at Y = 76.0 cm.
+      // At full press (strokeFrac = 1.0), bottom of Part 6 (at carriageY + 2.0) lands FLUSH on top of Part 25 washers (76.0 + washerStackHCm),
+      // and bottom of Part 7 (at carriageY) is at 74.0 + minGapCm (compressing the banana to exact washer thickness)!
+      const openGapCm = 11.2;
+      const minGapCm = Math.max(0.35, washerStackHCm);
+      const strokeFrac = Math.min(1.0, Math.max(0.0, phys.effectiveStrokeMm / Math.max(1, phys.maxNominalStrokeMm)));
+      const currentGapCm = openGapCm - strokeFrac * (openGapCm - minGapCm);
+      const carriageY = 74.0 + currentGapCm;
+      movingCarriage3d.position.y = carriageY;
 
       // Eccentric tilt visual if X_spring != X_CG
-      const tiltRad = ((state.springMountXMm - phys.plateCGXMm) / 350) * (state.pedalPercent / 100) * 0.08;
+      const pRatio = state.pedalPercent / 100;
+      const tiltRad = ((state.springMountXMm - phys.plateCGXMm) / 350) * pRatio * 0.07;
       movingCarriage3d.rotation.x = tiltRad;
 
-      // 2. Plate dimensions & thickness (Part 12 & Part 7)
+      // 3. Plate dimensions & thickness (Part 12 steel & Part 7 acrylic)
       const wScale = state.plateWidthMm / 520;
       const lScale = state.plateLengthMm / 350;
-      const tSteelScale = Math.max(0.35, Math.min(2.6, state.steelThickMm / 7.5));
-      const tAcrylicScale = Math.max(0.4, Math.min(2.0, state.acrylicThickMm / 10.0));
+      const tAcrylicCm = Math.max(0.5, Math.min(2.0, state.acrylicThickMm / 10.0));
+      const tSteelCm = Math.max(0.5, Math.min(3.5, state.steelThickMm / 6.0));
 
-      pressSteelMesh3d.scale.set(wScale, tSteelScale, lScale);
-      pressSteelMesh3d.position.y = 90.6 + (1.8 * tSteelScale) / 2;
-      pressAcrylicMesh3d.scale.set(wScale, tAcrylicScale, lScale);
+      pressAcrylicMesh3d.scale.set(wScale, tAcrylicCm, lScale);
+      pressAcrylicMesh3d.position.y = tAcrylicCm / 2;
 
-      // 3. Spring & Linkage Z-offset from column (Part 6 = 21.0 cm -> Z = 4.5)
-      const zMount = -16.5 + state.springMountXMm / 10;
+      pressSteelMesh3d.scale.set(wScale, tSteelCm / 1.8, lScale);
+      pressSteelMesh3d.position.y = tAcrylicCm + tSteelCm / 2;
+
+      const topOfPart12LocalY = tAcrylicCm + tSteelCm;
+
+      // 4. Spring & Linkage Z-offset from rear column (Part 4 at Z = -17.0 cm)
+      const zMount = -17.0 + state.springMountXMm / 10;
       linkageUGroup3d.position.z = zMount;
       linkageUGroup3d.scale.x = wScale;
 
-      // 4. Main Return Spring stretch & color
-      const springLenCm = Math.max(6.0, 10.8 + strokeCm);
-      springCoilMesh3d.position.z = zMount;
+      anchorTopMesh3d.position.z = zMount;
+      anchorBotMesh3d.position.set(0, topOfPart12LocalY + 0.3, zMount);
+
+      // 5. Main Return Tension Spring (Part 16) stretches between stationary Part 8 (Y = 103.5) and moving Part 12
+      const botHookWorldY = carriageY + topOfPart12LocalY + 0.3;
+      const mainSpringLenCm = Math.max(3.0, 103.5 - botHookWorldY);
+      springCoilMesh3d.position.set(0, 103.5, zMount);
       springCoilMesh3d.scale.set(
         state.springCoilDMm / 24.0,
-        springLenCm / 11.0,
+        mainSpringLenCm / 10.0,
         state.springCoilDMm / 24.0
       );
       springCoilMesh3d.material.color.setHex(phys.canReturnFully ? 0xe2e8f0 : 0xf43f5e);
       springCoilMesh3d.material.emissive.setHex(phys.canReturnFully ? 0x000000 : 0x7f1d1d);
 
-      // Preload nut height on Part 15
+      // 6. Front Anti-Rotation Locking Tube (Part 15), Preload Nut (Part 26), and Auxiliary Spring (Part 27)
+      const preloadOffsetCm = (state.springPreloadMm / 85) * 4.0;
+      const nutLocalY = 27.5 - preloadOffsetCm;
       if (preloadNutMesh3d) {
-        preloadNutMesh3d.position.y = 116.5 - (state.springPreloadMm / 85) * 4.5;
+        preloadNutMesh3d.position.y = nutLocalY;
+      }
+      if (auxSpringMesh3d) {
+        const nutWorldY = carriageY + nutLocalY - 0.8;
+        const auxSpringLenCm = Math.max(2.0, nutWorldY - 106.5);
+        auxSpringMesh3d.position.set(0, nutWorldY, 13.0);
+        auxSpringMesh3d.scale.set(1, auxSpringLenCm / 8.0, 1);
       }
 
-      // 5. Washer stack (Part 25: 1 to 5 rings)
-      const washerCount = Math.round(state.washerMm / 2.0);
-      if (washerCount !== lastWasherCount3d && washerGroup3d) {
-        lastWasherCount3d = washerCount;
-        while (washerGroup3d.children.length > 0) washerGroup3d.remove(washerGroup3d.children[0]);
-        const ringGeo = new THREE.CylinderGeometry(3.0, 3.0, 0.55, 20);
-        const ringMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
-        for (let i = 0; i < washerCount; i++) {
-          const r = regPart(new THREE.Mesh(ringGeo, ringMat), 25);
-          r.position.y = 0.3 + i * 0.62;
-          washerGroup3d.add(r);
-        }
-      }
+      // 7. True Class-2 Lever Foot Pedal (Part 19) & Rigid Connecting Link (Part 18 + Part 23 pins)
+      // Pivot Part 20 is at (0, 12.5, -15.0). Pedal extends forward (+Z).
+      // When carriage moves DOWN, pedal rotates DOWNWARD (rx goes from negative upward slope toward 0)
+      const l1Cm = Math.max(8.0, state.leverL1Mm / 10);
+      const l2Cm = Math.max(20.0, state.leverL2Mm / 10);
+      const pedalRotX = -0.34 + strokeFrac * 0.28; // -0.34 rad (angled UP at rest) -> -0.06 rad (pressed DOWN)
+      pedalPivotGroup3d.rotation.x = pedalRotX;
 
-      // 6. Foot Pedal rotation & length (Part 19)
-      const pRatio = state.pedalPercent / 100;
-      pedalPivotGroup3d.rotation.x = 0.18 - pRatio * 0.36;
-      const l2Scale = state.leverL2Mm / 379;
+      const l2Scale = l2Cm / 37.88;
       pedalPlateMesh3d.scale.z = l2Scale;
       pedalPlateMesh3d.position.z = 18.94 * l2Scale;
 
-      // 7. Bananas compression (1 to 3 bananas)
-      const squishedScaleY = Math.max(0.22, 1.0 - pRatio * (0.78 - state.washerMm * 0.03));
-      const squishedScaleXZ = 1.0 + (1.0 - squishedScaleY) * 0.85;
+      // Exact 3D joint coordinates on Pedal at distance L1 from rear pivot (0, 12.5, -15.0)
+      const pedalJointWorldY = 12.5 - l1Cm * Math.sin(pedalRotX);
+      const pedalJointWorldZ = -15.0 + l1Cm * Math.cos(pedalRotX);
+
+      // Exact 3D coordinates of bottom crossbar of Part 17 U-frame
+      const uBotWorldY = carriageY - 45.5;
+      const uBotWorldZ = zMount;
+
+      // Connect Part 18 (gussetLinkMesh3d) seamlessly between (0, uBotWorldY, uBotWorldZ) and (0, pedalJointWorldY, pedalJointWorldZ)
+      const dyLink = uBotWorldY - pedalJointWorldY;
+      const dzLink = uBotWorldZ - pedalJointWorldZ;
+      const linkLenCm = Math.sqrt(dyLink * dyLink + dzLink * dzLink);
+      gussetLinkMesh3d.position.set(0, (uBotWorldY + pedalJointWorldY) / 2, (uBotWorldZ + pedalJointWorldZ) / 2);
+      gussetLinkMesh3d.scale.set(1, linkLenCm, 1);
+      gussetLinkMesh3d.rotation.x = Math.atan2(dzLink, dyLink);
+
+      if (pinTop23Mesh3d) pinTop23Mesh3d.position.set(0, uBotWorldY, uBotWorldZ);
+      if (pinBot23Mesh3d) pinBot23Mesh3d.position.set(0, pedalJointWorldY, pedalJointWorldZ);
+
+      // 8. Realistic Contact-Based & Inelastic Banana Compression on Part 3 (Y = 74.0 cm)
+      // Unpressed banana height = 3.2 cm. Upper plate (Part 7 bottom) is at Y = 74.0 + currentGapCm.
+      // Banana only compresses once currentGapCm <= 3.2 cm, and stays flattened during Step 3 (Release) while upper plate lifts!
+      const initialBanHCm = 3.2;
+      let effectiveGapForBananaCm = currentGapCm;
+      if (state.currentStep === 3) {
+        const maxPressedFrac = Math.min(1.0, Math.max(strokeFrac, state.maxPressedRatio || 0));
+        effectiveGapForBananaCm = openGapCm - maxPressedFrac * (openGapCm - minGapCm);
+      }
+      const baseBanHCm = Math.min(initialBanHCm, Math.max(0.32, effectiveGapForBananaCm));
+      const spreadXZ = 1.0 + ((initialBanHCm - baseBanHCm) / initialBanHCm) * 1.15;
+
+      // Include elastic plate deflection on center banana if plate bends
+      const centerDeflCm = baseBanHCm < initialBanHCm ? Math.min(0.8, phys.maxPlateDeflectionMm * 0.25) : 0;
+
       bananaMeshes3d.forEach((b, idx) => {
         if (state.bananaCount === 1) {
           b.visible = idx === 1;
@@ -3052,8 +3141,10 @@
         } else {
           b.visible = true;
         }
-        b.scale.set(squishedScaleY, squishedScaleXZ, squishedScaleXZ);
-        b.position.y = 76.2 + 2.0 * squishedScaleY;
+        const hCm = idx === 1 ? Math.min(initialBanHCm, baseBanHCm + centerDeflCm) : baseBanHCm;
+        // Because b is rotated 90° around Z, local X is vertical (world Y) and local Y is horizontal length (world X)
+        b.scale.set(hCm / 2.0, 1.0 + (spreadXZ - 1.0) * 0.25, spreadXZ);
+        b.position.y = 74.0 + hCm / 2.0;
       });
 
       if (renderer3d && scene3d && camera3d) {
