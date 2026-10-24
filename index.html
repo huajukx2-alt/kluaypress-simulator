@@ -1431,23 +1431,23 @@
 
   <!-- ==================== JAVASCRIPT LOGIC (REAL MECHANICS & ELASTICITY ENGINE - BPM-DWG-001) ==================== -->
   <script>
-    // --- 0. OFFICIAL 28-PART BOM DATASET FROM "Banana_Press_Machine BOM LIST.PDF" (BPM-DWG-001) ---
+    // --- 0. OFFICIAL 28-PART BOM DATASET FROM "BPM-DWG-001_Banana_Press_Machine_Standard" (Pages 1-16) ---
     const bom28Data = [
-      { no: 1, part: "Main Table", desc: "แผ่นเหล็กโต๊ะหลักรองรับโครงสร้างส่วนบน", dimCm: "50.00 × 40.00 × 2.00", mat: "Steel Plate", qty: 1, page: 3 },
+      { no: 1, part: "Main_Table", desc: "แผ่นเหล็กโต๊ะหลักรองรับโครงสร้างส่วนบน", dimCm: "50.00 × 40.00 × 2.00", mat: "Steel Plate", qty: 1, page: 3 },
       { no: 2, part: "Main_Leg", desc: "เสาขาตั้งโครงเครื่องหลักทั้ง 4 มุม (สูง 73 cm)", dimCm: "73.00 × 5.00 × 5.00", mat: "Steel Square Tube", qty: 4, page: 3 },
       { no: 3, part: "Top_Worktable_Plate", desc: "แผ่นอะคริลิกวางกล้วย (Food Grade) ยึดบนโต๊ะหลัก", dimCm: "50.00 × 34.00 × 1.00", mat: "PMMA (Acrylic)", qty: 1, page: 4 },
       { no: 4, part: "Slide_guide_pipe", desc: "ท่อเสาหลักประคองแนวสไลด์ (ถอดสวมแหวนรอง Part 25 ได้)", dimCm: "Ø5.00 × 40.00", mat: "Steel Round Tube", qty: 1, page: 4 },
       { no: 5, part: "Base_Foundation_Plate", desc: "ฐานเหล็กรองรับเสาหลักและรับแรงชนจากแหวนรอง", dimCm: "8.00 × 6.00 × 3.00 (รู Ø5.00)", mat: "Steel Plate", qty: 1, page: 5 },
-      { no: 6, part: "Linear_Slider_Block", desc: "บล็อกบูชสไลด์เชื่อมติดชุดแผ่นกด (ระยะเยื้อง 21.00 cm)", dimCm: "6.00 × 6.00 × 2.00 (รู Ø5.00)", mat: "Steel Plate", qty: 1, page: 5 },
+      { no: 6, part: "Linear_Slider_Block", desc: "บล็อกบูชสไลด์เชื่อมติดชุดแผ่นกด (ระยะกึ่งกลาง 21.00 cm)", dimCm: "6.00 × 6.00 × 2.00 (รู Ø5.00)", mat: "Steel Plate", qty: 1, page: 5 },
       { no: 7, part: "Work pressure plate", desc: "แผ่นอะคริลิกใสกดทับกล้วยด้านบน (สัมผัสอาหาร)", dimCm: "52.00 × 35.00 × 1.00", mat: "PMMA (Acrylic)", qty: 1, page: 6 },
       { no: 8, part: "Frame lock plate", desc: "แผ่นเหล็กยึดสปริงด้านบน (เจาะรู Ø2.50 cm ที่พิกัด 27.03, 25.00 cm)", dimCm: "50.00 × 31.50 × 3.00", mat: "Fabricated Steel Structure", qty: 1, page: 6 },
       { no: 9, part: "Spring lock shaft", desc: "ปลอกรัดเสาหลักปรับระดับความตึงชุดยึดสปริงด้านบน (หูบีบ 4.05, รู Ø1.00)", dimCm: "Ø6.00 (รู Ø5.00) × สูง 7.00 × ยาว 13.00", mat: "Fabricated Steel Structure", qty: 1, page: 7 },
       { no: 10, part: "Structural_Pipe", desc: "ท่อแขนยื่นยึดแผ่น Frame lock plate (Part 8)", dimCm: "Ø5.00 × 20.00", mat: "Steel Round Tube", qty: 1, page: 7 },
       { no: 11, part: "Column_End_Cap", desc: "ฝาปิดหัวเสาหลัก (ถอดออกเมื่อต้องการสวมแหวนรองเพิ่ม)", dimCm: "Ø6.00 / Ø5.00 × 3.00", mat: "Steel Round", qty: 1, page: 8 },
-      { no: 12, part: "Acrylic_Protective_Cover", desc: "โครงแผ่นเหล็กกดทับหลัก (Press Carriage Slide Frame)", dimCm: "52.00 × 35.00 × 3.00 (หรือแผ่น 4.5 mm)", mat: "Steel Plate", qty: 1, page: 8 },
+      { no: 12, part: "Acrylic_Protective_Cover", desc: "โครงแผ่นเหล็กกดทับหลัก (Press Carriage Slide Frame)", dimCm: "52.00 × 35.00 × 3.00 (หรือพับกล่อง 4.5 mm)", mat: "Steel Plate", qty: 1, page: 8 },
       { no: 13, part: "Spring_Anchor", desc: "หูยึดเกี่ยวปลายสปริงดึงกลับและก้านต่อ (Detail V, R, P, T, U)", dimCm: "2.00 × 1.20 × 2.50 (หนา 0.50)", mat: "Formed Steel Bracket", qty: 4, page: 9 },
       { no: 14, part: "Thumb Screw", desc: "สกรูขันล็อกปลอกปรับระดับชุดสปริง (Part 9)", dimCm: "ยาว 4.93 × Ø0.95", mat: "Steel Round", qty: 1, page: 9 },
-      { no: 15, part: "Locking tube with spring", desc: "แกนเพลาประคองกันหมุนพร้อมเกลียวปรับระดับด้านบน 6.50 cm", dimCm: "Ø2.50 × 30.00", mat: "Steel Round Tube", qty: 1, page: 10 },
+      { no: 15, part: "Locking tube with spring", desc: "แกนเพลาประคองกันหมุนพร้อมเกลียวปรับระดับด้านบน", dimCm: "Ø2.50 × 30.00", mat: "Steel Round Tube", qty: 1, page: 10 },
       { no: 16, part: "Tension_Spring_Standard", desc: "สปริงดึงกลับหลักติดตั้งระหว่างแผ่น Part 8 และแผ่นกด Part 12 (Detail B, Y)", dimCm: "ยาว 6.50 cm (ปรับขนาดได้)", mat: "Spring Steel", qty: 1, page: 10 },
       { no: 17, part: "Linkage_Arm", desc: "โครงขาเหล็กรูปตัว U เชื่อมต่อแผ่นกดลงมายังชุดแป้นเหยียบ (Section AA-AA)", dimCm: "50.00 × 57.00 (ร่องใน 52.00) × 5.00 (หนา 2.50)", mat: "Steel Plate", qty: 1, page: 11 },
       { no: 18, part: "Structural_Gusset", desc: "ก้านดึงข้อต่อระหว่างคานขาเชื่อมต่อ Part 17 กับแป้นเหยียบ Part 19 (รูสลัก Ø0.50)", dimCm: "ยาว 20.00 (กลาง 15.00, หู 2.50) × 2.00 × 1.00", mat: "Steel Plate", qty: 1, page: 11 },
@@ -1463,31 +1463,16 @@
       { no: 28, part: "Equipment stand handle", desc: "เหล็กกล่องค้ำยันถาดวางอุปกรณ์ด้านหน้า ตัดเฉียง 45° (ติดตั้งมุม 135°)", dimCm: "15.00 (11.00) × 2.00 × 2.00", mat: "Steel Square Tube", qty: 2, page: 16 }
     ];
 
-    // Safe DOM helper
-    function el(id) {
-      return document.getElementById(id);
-    }
-
-    function setText(id, text) {
-      const node = el(id);
-      if (node) node.textContent = text;
-    }
-
-    function setHtml(id, html) {
-      const node = el(id);
-      if (node) node.innerHTML = html;
-    }
-
-    function setAttr(id, attr, val) {
-      const node = el(id);
-      if (node) node.setAttribute(attr, val);
-    }
+    function el(id) { return document.getElementById(id); }
+    function setText(id, text) { const n = el(id); if (n) n.textContent = text; }
+    function setHtml(id, html) { const n = el(id); if (n) n.innerHTML = html; }
+    function setAttr(id, attr, val) { const n = el(id); if (n) n.setAttribute(attr, val); }
 
     // --- 1. STATE & REAL ENGINEERING PARAMETERS (INITIALIZED TO BPM-DWG-001 PROTOTYPE) ---
     const state = {
-      pedalPercent: 0,         // 0 to 100%
-      targetPedalPercent: 0,   // Target for smooth animation
-      currentStep: 1,          // 1: วาง, 2: เหยียบ, 3: คลาย
+      pedalPercent: 0,
+      targetPedalPercent: 0,
+      currentStep: 1,
       isHoldingPedal: false,
       autoCycle: false,
       autoPhase: 0,
@@ -1496,28 +1481,28 @@
       lightCanvas: false,
 
       // 1. Material & Plate Dimensions from BPM-DWG-001 (stored in mm, displayed in cm & mm)
-      steelThickMm: 4.5,       // Effective steel thickness of Part 12 (4.5 mm hollow/sheet recommended vs 30.0 mm solid in BOM)
+      steelThickMm: 4.5,       // Part 12 (4.5 mm hollow/sheet recommended vs 30.0 mm solid in BOM)
       plateWidthMm: 520,       // Part 12 & Part 7 Width = 52.00 cm (520 mm)
       plateLengthMm: 350,      // Part 12 & Part 7 Depth = 35.00 cm (350 mm)
       acrylicThickMm: 10.0,    // Part 7 Work Pressure Plate = 1.00 cm (10.0 mm) PMMA
       washerMm: 4.0,           // Part 25 Spacer Washer = 0.20 cm (2.0 mm) per ring -> 2 rings = 4.0 mm
 
-      // 2. Dual Spring System (Part 16 Tension Spring Standard + Part 27 Tension Spring Heavy Ø2.0mm, L=10cm)
-      springWireDMm: 3.5,      // Main return spring wire diameter d_wire (mm)
-      springCoilDMm: 24.0,     // Mean coil diameter D_coil (mm)
-      springActiveCoils: 14,   // Active coils N_a
-      springPreloadMm: 38.0,   // Preload adjusted via Part 9 collar & Part 26 hex nut (mm)
+      // 2. Dual Spring System (Part 16 Tension Spring Standard + Part 27 Tension Spring Heavy)
+      springWireDMm: 3.5,
+      springCoilDMm: 24.0,
+      springActiveCoils: 14,
+      springPreloadMm: 38.0,
 
       // 3. Mounting Coordinates & Lever Geometry from BPM-DWG-001 (mm)
       leverL1Mm: 150,          // Pivot (Part 20) to Gusset Clevis Pin (Part 18/23) = 15.00 cm (150 mm)
       leverL2Mm: 379,          // Part 19 Support Beam (Foot Pedal) length = 37.88 cm (378.8 mm)
-      springMountXMm: 210,     // Part 6 Linear Slider Block center offset = 21.00 cm (210 mm) from Part 4 guide pipe
+      springMountXMm: 210,     // Part 6 Linear Slider Block center offset = 21.00 cm (210 mm)
 
       // 4. Operation & Load Parameters
-      footForceN: 160,         // Applied foot pedal force: 60 to 300 N
-      bananaCount: 2,          // 1 to 3 bananas per press
-      ripeness: 'optimal',     // 'firm', 'optimal', 'soft'
-      initialBananaMm: 28.0    // Unpressed banana thickness (mm)
+      footForceN: 160,
+      bananaCount: 2,
+      ripeness: 'optimal',
+      initialBananaMm: 28.0
     };
 
     // --- 2. REAL MECHANICS & ELASTICITY ENGINE (SHIGLEY & HIBBELER) ---
@@ -1525,17 +1510,13 @@
       const g = 9.81;
 
       // A. Real Material Masses
-      // 1. Steel Plate Mass (Part 12): density = 7,850 kg/m^3
       const volSteelM3 = (state.plateWidthMm / 1000) * (state.plateLengthMm / 1000) * (state.steelThickMm / 1000);
       const massSteelKg = volSteelM3 * 7850;
 
-      // 2. Acrylic Plate Mass (Part 7): density = 1,190 kg/m^3
       const volAcrylicM3 = (state.plateWidthMm / 1000) * (state.plateLengthMm / 1000) * (state.acrylicThickMm / 1000);
       const massAcrylicKg = volAcrylicM3 * 1190;
 
-      // 3. Moving Linkage Arms (Part 17 + Part 6 + Part 18 + Part 15 guide tube)
       const massLinkageKg = 4.05 + (state.plateWidthMm - 500) * 0.004;
-
       const totalMovingMassKg = massSteelKg + massAcrylicKg + massLinkageKg;
       const deadWeightN = totalMovingMassKg * g;
 
@@ -1549,8 +1530,9 @@
       const D = state.springCoilDMm;
       const Na = state.springActiveCoils;
 
-      const k_part16_Nmm = (Math.pow(d, 4) * G_shear) / (8 * Math.pow(D, 3) * Na);
-      const k_part27_aux_Nmm = 1.45;
+      // Effective extension spring pair stiffness calibrated to BPM-DWG-001 (Part 16 L=6.5cm + Part 27 L=10cm Ø2mm)
+      const k_part16_Nmm = ((Math.pow(d, 4) * G_shear) / (8 * Math.pow(D, 3) * Na)) * 0.45;
+      const k_part27_aux_Nmm = 0.85;
       const springK_Nmm = k_part16_Nmm + k_part27_aux_Nmm;
       const springK_Nm = springK_Nmm * 1000;
 
@@ -1560,7 +1542,6 @@
       const leverRatio = state.leverL2Mm / Math.max(1, state.leverL1Mm);
       const pedalPullForceMaxN = state.footForceN * leverRatio;
 
-      // Static friction at rest (from dead weight eccentricity)
       const restTiltMomentNmm = deadWeightN * eccentricityMm;
       const restNormalReactionN = (2 * restTiltMomentNmm) / bushingLengthMm;
       const staticFrictionN = 6.0 + muBushing * restNormalReactionN;
@@ -1571,21 +1552,18 @@
       const returnMarginN = springPreloadForceN - requiredReturnForceN;
       const canReturnFully = returnMarginN >= 0;
 
-      // If spring preload is insufficient, plate sags down by sagMm
-      const maxNominalStrokeMm = 42.0 - state.washerMm;
+      const maxNominalStrokeMm = Math.max(4, state.initialBananaMm - state.washerMm);
       const sagMm = canReturnFully
         ? 0
-        : Math.min(maxNominalStrokeMm * 0.85, Math.abs(returnMarginN) / Math.max(0.5, springK_Nmm));
+        : Math.min(maxNominalStrokeMm * 0.9, Math.abs(returnMarginN) / Math.max(0.5, springK_Nmm));
 
-      // Effective stroke based on pedal percentage
       const pRatio = state.pedalPercent / 100;
       const effectiveStrokeMm = sagMm + pRatio * (maxNominalStrokeMm - sagMm);
 
-      // Instantaneous Spring Tension
       const currentSpringForceN = springPreloadForceN + springK_Nmm * effectiveStrokeMm;
       const maxSpringForceN = springPreloadForceN + springK_Nmm * maxNominalStrokeMm;
 
-      // Shigley Wahl Factor & Spring Shear Stress at max extension
+      // Shigley Wahl Factor & Spring Shear Stress
       const C_index = D / d;
       const K_wahl = (4 * C_index - 1) / (4 * C_index - 4) + 0.615 / C_index;
       const part16MaxForceN = Math.max(10, maxSpringForceN - k_part27_aux_Nmm * (state.springPreloadMm + maxNominalStrokeMm));
@@ -1595,12 +1573,10 @@
 
       // E. Active Pressing Force & Bushing Friction under Load
       const activePullForceN = pRatio * pedalPullForceMaxN;
-      const activeTiltMomentNmm = (activePullForceN + deadWeightN) * eccentricityMm;
+      const activeTiltMomentNmm = ( (pRatio > 0.1 ? activePullForceN : pedalPullForceMaxN) + deadWeightN ) * eccentricityMm;
       const activeNormalReactionN = (2 * activeTiltMomentNmm) / bushingLengthMm;
       const activeFrictionN = staticFrictionN + muBushing * activeNormalReactionN;
 
-      // Net Compressive Force delivered onto the banana(s)
-      // Gravity (deadWeightN) helps push down, while spring tension and friction oppose downward motion
       const rawDownwardForceN = activePullForceN + deadWeightN - currentSpringForceN - activeFrictionN;
       const netPressForceN = Math.max(0, rawDownwardForceN);
 
@@ -1608,7 +1584,6 @@
       const peakNetPressForceN = Math.max(0, peakDownwardForceN);
 
       // F. Plate Flexural Rigidity (EI) & Elastic Deflection (Hibbeler)
-      // E_steel = 200,000 MPa, E_acrylic = 3,200 MPa
       const E_steel = 200000;
       const E_acrylic = 3200;
       const b_depth = state.plateLengthMm;
@@ -1618,28 +1593,37 @@
       const I_acrylic = (b_depth * Math.pow(state.acrylicThickMm, 3)) / 12;
       const EI_total_Nmm2 = E_steel * I_steel + E_acrylic * I_acrylic;
 
-      const forceForDeflectionN = state.pedalPercent > 15 ? netPressForceN : peakNetPressForceN;
-      const maxPlateDeflectionMm = (forceForDeflectionN * Math.pow(L_span, 3)) / (48 * Math.max(1, EI_total_Nmm2));
-      const currentPlateDeflectionMm = (netPressForceN * Math.pow(L_span, 3)) / (48 * Math.max(1, EI_total_Nmm2));
+      const maxPlateDeflectionMm = (peakNetPressForceN * Math.pow(L_span, 3)) / (48 * Math.max(1, EI_total_Nmm2));
+      const activePressRatio = Math.max(0, (state.pedalPercent - 15) / 85);
+      const currentPlateDeflectionMm = maxPlateDeflectionMm * activePressRatio;
 
-      // Bending Stress in Steel Plate (MPa)
+      // Bending Stress in Steel Plate (MPa) & FOS
       const bendingMomentMaxNmm = (peakNetPressForceN * L_span) / 4;
-      const sectionModulusSteelMm3 = (b_depth * Math.pow(state.steelThickMm, 2)) / 6;
-      const plateBendingStressMPa = bendingMomentMaxNmm / Math.max(1, sectionModulusSteelMm3);
+      const steelMomentShare = bendingMomentMaxNmm * ((E_steel * I_steel) / Math.max(1, EI_total_Nmm2));
+      const plateBendingStressMPa = (steelMomentShare * (state.steelThickMm / 2)) / Math.max(1, I_steel);
+      const plateFOS = 250 / Math.max(0.5, plateBendingStressMPa);
 
-      // G. Banana Compression & Thickness Uniformity
-      const ripenessFactor = state.ripeness === 'firm' ? 1.35 : state.ripeness === 'soft' ? 0.72 : 1.0;
-      const bananaResistanceN = 95 * state.bananaCount * ripenessFactor;
-      const compressionEfficiency = Math.min(1, peakNetPressForceN / Math.max(1, bananaResistanceN));
+      // G. Banana Compression, Thickness Uniformity & Ergonomics
+      const ripenessFactor = state.ripeness === 'firm' ? 145 : state.ripeness === 'soft' ? 60 : 95;
+      const requiredBananaForceN = ripenessFactor * state.bananaCount;
+      const compressionEfficiency = Math.min(1, peakNetPressForceN / Math.max(1, requiredBananaForceN));
 
-      // Edge thickness reaches washer stop when pedal = 100%, but center thickness is thicker by maxPlateDeflectionMm
       const targetEdgeThickMm = state.washerMm + (1 - compressionEfficiency) * 3.5;
-      const currentEdgeBananaMm =
-        state.initialBananaMm - pRatio * (state.initialBananaMm - targetEdgeThickMm);
-      const currentCenterBananaMm = currentEdgeBananaMm + (pRatio > 0.5 ? currentPlateDeflectionMm : 0);
+      const currentEdgeBananaMm = state.initialBananaMm - pRatio * (state.initialBananaMm - targetEdgeThickMm);
+      const currentCenterBananaMm = currentEdgeBananaMm + (pRatio > 0.3 ? currentPlateDeflectionMm : 0);
+      const thicknessErrorPercent = (maxPlateDeflectionMm / Math.max(1, state.washerMm)) * 100;
 
       const pressedAreaCm2 = state.bananaCount * 78;
       const pressureKpa = (peakNetPressForceN / (pressedAreaCm2 * 1e-4)) / 1000;
+
+      const pedalStrokeMm = maxNominalStrokeMm * leverRatio;
+      const pedalAngleDeg = (Math.asin(Math.min(0.95, maxNominalStrokeMm / Math.max(20, state.leverL1Mm))) * 180) / Math.PI;
+
+      const avgNetLiftForceN = Math.max(1, (springPreloadForceN + maxSpringForceN) / 2 - deadWeightN - staticFrictionN);
+      const accelReturn = avgNetLiftForceN / Math.max(0.5, totalMovingMassKg);
+      const returnTimeSec = canReturnFully
+        ? Math.min(1.5, Math.max(0.15, Math.sqrt((2 * (maxNominalStrokeMm / 1000)) / accelReturn) * 2.2)).toFixed(2)
+        : '∞ (ค้าง)';
 
       return {
         massSteelKg,
@@ -1668,150 +1652,95 @@
         activeFrictionN,
         netPressForceN,
         peakNetPressForceN,
+        requiredBananaForceN,
         maxPlateDeflectionMm,
         currentPlateDeflectionMm,
         plateBendingStressMPa,
+        plateFOS,
         currentEdgeBananaMm,
         currentCenterBananaMm,
-        pressureKpa
+        thicknessErrorPercent,
+        pressureKpa,
+        pedalStrokeMm,
+        pedalAngleDeg,
+        returnTimeSec,
+        isStopContact: state.pedalPercent >= 98
       };
     }
+
+    const calculatePhysics = computePhysics;
 
     // --- 3. RENDER CAD & KINEMATICS SIMULATION ---
     function renderSimulation() {
       const phys = computePhysics();
       const pRatio = state.pedalPercent / 100;
 
-      // 1. Update Top Status & Spring Sag Warning Banner
-      const warnBanner = el('springWarningBanner');
-      if (warnBanner) {
-        if (!phys.canReturnFully) {
-          warnBanner.classList.remove('hidden');
-          setText(
-            'springWarningText',
-            `แจ้งเตือนกลศาสตร์: มวลชุดเคลื่อนที่หนัก ${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(0)} N) เกินแรงดึงกลับสปริงเริ่มต้น (${phys.springPreloadForceN.toFixed(0)} N) ทำให้แผ่นกดห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm!`
-          );
-        } else {
-          warnBanner.classList.add('hidden');
-        }
-      }
-
-      const statusDot = el('mechStatusDot');
-      const statusBadge = el('mechStatusBadge');
-      if (!phys.canReturnFully) {
-        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-rose-500 animate-ping';
-        if (statusBadge) statusBadge.className = 'px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1.5';
-        setText('mechStatusText', `สปริงยกไม่ขึ้น! แผ่นตกค้าง ${phys.sagMm.toFixed(1)} mm`);
-      } else if (phys.maxPlateDeflectionMm > 0.8) {
-        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        if (statusBadge) statusBadge.className = 'px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1.5';
-        setText('mechStatusText', `เหล็กแผ่นบาง แอ่นตัว ${phys.maxPlateDeflectionMm.toFixed(2)} mm`);
-      } else {
-        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-        if (statusBadge) statusBadge.className = 'px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5';
-        setText('mechStatusText', 'สมดุลกลศาสตร์สมบูรณ์ (BPM-DWG-001)');
-      }
-
-      // 2. Compute Visual Vertical Travel (px)
+      // 1. Visual Vertical Travel (px)
       const maxVisualTravelPx = 36 - (state.washerMm / 12) * 14;
       const sagPx = (phys.sagMm / Math.max(1, phys.maxNominalStrokeMm)) * maxVisualTravelPx;
-      const currentTravelPx = sagPx + pRatio * (maxVisualTravelPx - sagPx);
+      const travelPx = sagPx + pRatio * (maxVisualTravelPx - sagPx);
 
-      // Update Isometric Moving Group
-      setAttr('isoMovingGroup', 'transform', `translate(0, ${currentTravelPx.toFixed(1)})`);
+      // Move Isometric & Side View Moving Groups
+      setAttr('isoMovingGroup', 'transform', `translate(0, ${(travelPx * 0.9).toFixed(1)})`);
+      setAttr('sideMovingGroup', 'transform', `translate(0, ${travelPx.toFixed(1)})`);
+      setAttr('antiRotationRod', 'y', (20 + travelPx).toFixed(1));
 
       // Isometric Plate Thickness Visual
       const isoThickPx = Math.max(4, Math.min(18, state.steelThickMm * 1.1));
-      setAttr('isoSteelTopFace', 'points', `74,${106 - isoThickPx} 202,${156 - isoThickPx} 280,${108 - isoThickPx} 152,${58 - isoThickPx}`);
-      setAttr('isoSteelLeftEdge', 'points', `74,${106 - isoThickPx} 202,${156 - isoThickPx} 202,156 74,106`);
-      setAttr('isoSteelRightEdge', 'points', `202,${156 - isoThickPx} 280,${108 - isoThickPx} 280,108 202,156`);
+      setAttr('isoSteelTopFace', 'points', `74,${(106 - isoThickPx).toFixed(1)} 202,${(156 - isoThickPx).toFixed(1)} 280,${(108 - isoThickPx).toFixed(1)} 152,${(58 - isoThickPx).toFixed(1)}`);
+      setAttr('isoSteelLeftEdge', 'points', `74,${(106 - isoThickPx).toFixed(1)} 202,${(156 - isoThickPx).toFixed(1)} 202,156 74,106`);
+      setAttr('isoSteelRightEdge', 'points', `202,${(156 - isoThickPx).toFixed(1)} 280,${(108 - isoThickPx).toFixed(1)} 280,108 202,156`);
 
-      // Isometric Bananas Flatten
-      const isoBanRx = 22 + pRatio * 14;
-      const isoBanRy = 12 - pRatio * 5;
-      setAttr('isoBanana1', 'rx', isoBanRx.toFixed(1));
-      setAttr('isoBanana1', 'ry', Math.max(4, isoBanRy).toFixed(1));
-      setAttr('isoBanana2', 'rx', isoBanRx.toFixed(1));
-      setAttr('isoBanana2', 'ry', Math.max(4, isoBanRy).toFixed(1));
+      // Side View Elastic Bending Arch (with 25x Visual Scale toggle)
+      const exaggerate = el('chkExaggerateFlex')?.checked ?? true;
+      const deflForVisual = pRatio > 0.2 ? phys.currentPlateDeflectionMm : phys.maxPlateDeflectionMm * 0.35;
+      const archPx = Math.min(18, deflForVisual * (exaggerate ? 22 : 2.5));
+      const steelPxH = Math.max(4, Math.min(18, state.steelThickMm * 1.15));
+      const acrylicPxH = Math.max(4, Math.min(12, state.acrylicThickMm * 0.75));
 
-      // Isometric Pedal Tilt
-      const isoPedalDrop = pRatio * 18;
-      setAttr('isoPedalPoly', 'points', `95,${348 + isoPedalDrop} 165,${378 + isoPedalDrop} 228,348 158,320`);
+      const steelBottomY = 120;
+      const steelTopY = steelBottomY - steelPxH;
+      const acrylicBottomY = steelBottomY + acrylicPxH;
 
-      // 3. Side View Kinematics & Elastic Bending Curve
-      setAttr('sideMovingGroup', 'transform', `translate(0, ${currentTravelPx.toFixed(1)})`);
+      setAttr(
+        'sideSteelPlatePath',
+        'd',
+        `M136,${steelTopY.toFixed(1)} Q213,${(steelTopY - archPx).toFixed(1)} 290,${steelTopY.toFixed(1)} L290,${steelBottomY.toFixed(1)} Q213,${(steelBottomY - archPx).toFixed(1)} 136,${steelBottomY.toFixed(1)} Z`
+      );
+      setAttr(
+        'sideAcrylicPlatePath',
+        'd',
+        `M136,${steelBottomY.toFixed(1)} Q213,${(steelBottomY - archPx).toFixed(1)} 290,${steelBottomY.toFixed(1)} L290,${acrylicBottomY.toFixed(1)} Q213,${(acrylicBottomY - archPx).toFixed(1)} 136,${acrylicBottomY.toFixed(1)} Z`
+      );
 
-      // Visual plate deflection arch in Side View
-      const archPx = Math.min(14, (pRatio > 0.3 ? phys.currentPlateDeflectionMm : phys.maxPlateDeflectionMm * 0.35) * 4.5);
-      const steelH = Math.max(5, Math.min(18, state.steelThickMm * 1.15));
-      const acrylicH = Math.max(4, Math.min(10, state.acrylicThickMm * 0.7));
+      // 2. Mounting X Position of Spring & Linkage Bar (Part 6 offset 210mm -> x=214)
+      const springSvgX = 301 - ((state.springMountXMm - 35) / 350) * 174;
+      setAttr('springPreloadScrewGroup', 'transform', `translate(${springSvgX.toFixed(1)}, 42)`);
+      const preloadNutY = 24 - (state.springPreloadMm / 85) * 18;
+      setAttr('preloadNutRect', 'y', preloadNutY.toFixed(1));
 
-      const topY = 122 - steelH;
-      const midY = 122;
-      const botY = 122 + acrylicH;
+      setAttr('sideLinkageBarRect', 'x', (springSvgX - 9).toFixed(1));
+      setAttr('sideLinkageRodRect', 'x', (springSvgX - 3).toFixed(1));
+      setAttr('sideLinkageTopPin', 'cx', springSvgX.toFixed(1));
 
-      const steelPathD = `M 122,${topY} Q 214,${(topY - archPx).toFixed(1)} 306,${topY} L 306,${midY} Q 214,${(midY - archPx).toFixed(1)} 122,${midY} Z`;
-      const acrylicPathD = `M 122,${midY} Q 214,${(midY - archPx).toFixed(1)} 306,${midY} L 306,${botY} Q 214,${(botY - archPx).toFixed(1)} 122,${botY} Z`;
-      setAttr('sideSteelPlatePath', 'd', steelPathD);
-      setAttr('sideAcrylicPlatePath', 'd', acrylicPathD);
-
-      // Side View Bananas Squish
-      const banHeightPx = Math.max(4, 18 - pRatio * (18 - Math.max(4, state.washerMm * 1.4)));
-      const banY = 180 - banHeightPx;
-      const banWidthPx = 38 + pRatio * 26;
-      ['sideBanana1', 'sideBanana2', 'sideBanana3'].forEach((id, idx) => {
-        const node = el(id);
-        if (!node) return;
-        if (idx + 1 > state.bananaCount) {
-          node.style.display = 'none';
-        } else {
-          node.style.display = 'block';
-          const baseCx = idx === 0 ? 168 : idx === 1 ? 222 : 268;
-          node.setAttribute('x', (baseCx - banWidthPx / 2).toFixed(1));
-          node.setAttribute('y', banY.toFixed(1));
-          node.setAttribute('width', banWidthPx.toFixed(1));
-          node.setAttribute('height', banHeightPx.toFixed(1));
-        }
-      });
-
-      // Side View Spring Stretch & Mounting X Position
-      const springSvgX = 301 - ((state.springMountXMm - 35) / 350) * 170;
-      setAttr('sideSpringAnchorTop', 'x', (springSvgX - 4).toFixed(1));
-      setAttr('sideSpringAnchorBot', 'x', (springSvgX - 4).toFixed(1));
-      setAttr('sideSpringAnchorBot', 'y', (110 + currentTravelPx).toFixed(1));
-      setAttr('sideLinkageArm', 'x', (springSvgX - 6).toFixed(1));
-      setAttr('sideGussetLink', 'x1', springSvgX.toFixed(1));
-      setAttr('sideGussetLink', 'x2', springSvgX.toFixed(1));
-      setAttr('sideGussetLink', 'y1', (295 + currentTravelPx).toFixed(1));
-      setAttr('sideGussetLink', 'y2', (338 + currentTravelPx).toFixed(1));
-
-      // Dynamic Helical Spring Coils Path
-      const spTopY = 74;
-      const spBotY = 112 + currentTravelPx;
-      const coils = 7;
-      const stepY = (spBotY - spTopY) / coils;
-      let spD = `M ${springSvgX.toFixed(1)},${spTopY}`;
+      // 3. Dynamic Helical Return Spring Coils (returnSpringPath)
+      const springTopY = 77;
+      const springBotY = 115 + travelPx;
+      const coils = Math.max(5, Math.min(12, Math.round(state.springActiveCoils / 2.2)));
+      const stepY = (springBotY - springTopY) / coils;
+      const coilRadiusPx = Math.max(4, Math.min(9, state.springCoilDMm * 0.25));
+      let dPath = `M${springSvgX.toFixed(1)},${springTopY} `;
       for (let i = 0; i < coils; i++) {
-        const y1 = spTopY + stepY * (i + 0.25);
-        const y2 = spTopY + stepY * (i + 0.75);
-        const y3 = spTopY + stepY * (i + 1);
-        spD += ` L ${(springSvgX - 7).toFixed(1)},${y1.toFixed(1)} L ${(springSvgX + 7).toFixed(1)},${y2.toFixed(1)} L ${springSvgX.toFixed(1)},${y3.toFixed(1)}`;
+        const y1 = springTopY + stepY * (i + 0.25);
+        const y2 = springTopY + stepY * (i + 0.75);
+        const y3 = springTopY + stepY * (i + 1.0);
+        dPath += `L${(springSvgX - coilRadiusPx).toFixed(1)},${y1.toFixed(1)} L${(springSvgX + coilRadiusPx).toFixed(1)},${y2.toFixed(1)} L${springSvgX.toFixed(1)},${y3.toFixed(1)} `;
       }
-      setAttr('sideSpringPath', 'd', spD);
+      setAttr('returnSpringPath', 'd', dPath);
+      setAttr('returnSpringPath', 'stroke-width', Math.max(1.8, Math.min(4.5, state.springWireDMm * 0.9)).toFixed(1));
+      setAttr('returnSpringPath', 'stroke', phys.canReturnFully ? '#E2E8F0' : '#F43F5E');
 
-      // Side View Foot Pedal Rotation
-      const pedalTipX = 286 - (state.leverL2Mm / 379) * 160;
-      const pedalTipY = 315 + pRatio * 42;
-      setAttr('sidePedalBeam', 'x1', pedalTipX.toFixed(1));
-      setAttr('sidePedalBeam', 'y1', pedalTipY.toFixed(1));
-
-      // Red Directional Arrows (Step 1 Place vs Step 3 Release)
-      const placeGroup = el('redArrowsPlaceGroup');
-      const releaseGroup = el('redArrowsReleaseGroup');
-      if (placeGroup) placeGroup.style.display = state.currentStep === 1 ? 'block' : 'none';
-      if (releaseGroup) releaseGroup.style.display = state.currentStep === 3 ? 'block' : 'none';
-
-      // 4. Update Washer Stack Height Visually (Part 25: 2.0 mm per washer)
+      // 4. Washer Stack Height Visually (Part 25: 2.0 mm per washer)
       const washerCount = Math.round(state.washerMm / 2.0);
       const washerPxHeight = Math.max(4, (state.washerMm / 12) * 20);
       const washerY = 168 - washerPxHeight;
@@ -1819,7 +1748,7 @@
       setAttr('sideWasherStack', 'height', washerPxHeight.toFixed(1));
       setAttr('isoWasherRect', 'height', Math.max(5, washerPxHeight * 0.6).toFixed(1));
 
-      // Zoomed Inset Washers & Sleeve
+      // Zoomed Inset Washers & Sleeve (Detail C / AE)
       const zoomWasherH = Math.max(6, (state.washerMm / 12) * 28);
       const zoomWasherY = 68 - zoomWasherH;
       setAttr('zoomWasherStack', 'y', zoomWasherY.toFixed(1));
@@ -1831,224 +1760,350 @@
       setText('zoomWasherText', `Part 25: ${washerCount} แผ่น (${state.washerMm.toFixed(1)} mm)`);
       setText('zoomDeflectText', `แอ่นตัวกลางแผ่น: ${phys.maxPlateDeflectionMm.toFixed(2)} mm`);
 
-      // 5. Update Free Body Diagram (FBD) Vectors & Dimensions Overlay
-      setText('fbdWeightText', `W_dead = ${phys.deadWeightN.toFixed(0)} N (${phys.totalMovingMassKg.toFixed(1)} kg)`);
-      setText('fbdSpringText', `F_sp = ${phys.currentSpringForceN.toFixed(0)} N`);
-      setText('fbdFootText', `F_foot = ${state.footForceN.toFixed(0)} N`);
+      // 5. Compress Bananas in Side View & Isometric View
+      const plateGapPx = Math.max(5, 174 - (128 + travelPx));
+      const bananaH = Math.min(28, plateGapPx);
+      const bananaY = 174 - bananaH;
+      const compressionRatio = Math.max(0, (28 - bananaH) / 22);
+      const bananaW = 44 + compressionRatio * 20;
 
-      const momentGroup = el('fbdReactionGroup');
-      if (momentGroup) {
-        momentGroup.style.display = phys.eccentricityMm > 5 ? 'block' : 'none';
-        setText('fbdMomentText', `M_tilt = ${(phys.activeTiltMomentNmm / 1000).toFixed(1)} N·m`);
+      setAttr('sideBananaLeft', 'y', bananaY.toFixed(1));
+      setAttr('sideBananaLeft', 'height', bananaH.toFixed(1));
+      setAttr('sideBananaLeft', 'width', bananaW.toFixed(1));
+      setAttr('sideBananaLeft', 'x', (178 - bananaW / 2).toFixed(1));
+      setAttr('sideBananaLeft', 'rx', Math.max(3, bananaH / 2).toFixed(1));
+
+      const rightBan = el('sideBananaRight');
+      if (rightBan) {
+        rightBan.style.display = state.bananaCount >= 2 ? 'block' : 'none';
+        setAttr('sideBananaRight', 'y', bananaY.toFixed(1));
+        setAttr('sideBananaRight', 'height', bananaH.toFixed(1));
+        setAttr('sideBananaRight', 'width', bananaW.toFixed(1));
+        setAttr('sideBananaRight', 'x', (256 - bananaW / 2).toFixed(1));
+        setAttr('sideBananaRight', 'rx', Math.max(3, bananaH / 2).toFixed(1));
       }
 
-      // Dimension lines for L1 and L2 (displayed in cm to match BPM-DWG-001)
+      const isoRx = 22 + compressionRatio * 12;
+      const isoRy = Math.max(5, 12 - compressionRatio * 5);
+      setAttr('isoBanana1', 'rx', isoRx.toFixed(1));
+      setAttr('isoBanana1', 'ry', isoRy.toFixed(1));
+      const isoBan2 = el('isoBanana2');
+      if (isoBan2) {
+        isoBan2.style.display = state.bananaCount >= 2 ? 'block' : 'none';
+        setAttr('isoBanana2', 'rx', isoRx.toFixed(1));
+        setAttr('isoBanana2', 'ry', isoRy.toFixed(1));
+      }
+
+      // 6. Foot Pedal Lever Rotation (Part 19: L2 = 37.88 cm, Pivot Part 20 at (286, 396))
+      const pedalTipX = 286 - (state.leverL2Mm / 379) * 160;
+      const pedalTipY = 342 + travelPx * 1.55;
+      const jointRatio = (286 - springSvgX) / Math.max(1, 286 - pedalTipX);
+      const pedalJointY = 396 - (396 - pedalTipY) * jointRatio;
+
+      setAttr('sidePedalBar', 'x2', pedalTipX.toFixed(1));
+      setAttr('sidePedalBar', 'y2', pedalTipY.toFixed(1));
+      setAttr('sidePedalBarOutline', 'x2', pedalTipX.toFixed(1));
+      setAttr('sidePedalBarOutline', 'y2', pedalTipY.toFixed(1));
+      setAttr('sidePedalTip', 'cx', pedalTipX.toFixed(1));
+      setAttr('sidePedalTip', 'cy', pedalTipY.toFixed(1));
+      setAttr('sidePedalJoint', 'cx', springSvgX.toFixed(1));
+      setAttr('sidePedalJoint', 'cy', pedalJointY.toFixed(1));
+      setAttr('sideLinkageRodRect', 'height', Math.max(20, pedalJointY - (296 + travelPx)).toFixed(1));
+
+      // Isometric Pedal Tilt
+      const isoPedalDrop = travelPx * 0.65;
+      setAttr('isoPedalPoly', 'points', `95,${(348 + isoPedalDrop).toFixed(1)} 165,${(378 + isoPedalDrop).toFixed(1)} 228,348 158,320`);
+
+      // 7. Free Body Diagram (FBD) Vectors & Dimension Overlays
+      const cgSvgX = 301 - ((phys.plateCGXMm - 35) / 350) * 174;
+      setAttr('fbdDeadWeightGroup', 'transform', `translate(${cgSvgX.toFixed(1)}, ${(120 + travelPx).toFixed(1)})`);
+      setText('fbdWeightLabel', `W_dead = ${phys.deadWeightN.toFixed(1)} N`);
+
+      setAttr('fbdSpringVectorGroup', 'transform', `translate(${springSvgX.toFixed(1)}, ${(75 + travelPx * 0.5).toFixed(1)})`);
+      setText('fbdSpringLabel', `F_sp = ${phys.currentSpringForceN.toFixed(1)} N`);
+
+      setAttr('fbdFootForceGroup', 'transform', `translate(${pedalTipX.toFixed(1)}, ${(pedalTipY - 32).toFixed(1)})`);
+      setText('fbdFootLabel', `F_foot = ${state.footForceN} N`);
+
       setAttr('dimLineL1', 'x1', springSvgX.toFixed(1));
       setAttr('dimTickL1Left', 'x1', springSvgX.toFixed(1));
       setAttr('dimTickL1Left', 'x2', springSvgX.toFixed(1));
       setAttr('dimTextL1', 'x', ((springSvgX + 286) / 2).toFixed(1));
-      setText('dimTextL1', `L1 = ${(state.leverL1Mm / 10).toFixed(1)} cm`);
+      setText('dimTextL1', `L1 = ${(state.leverL1Mm / 10).toFixed(1)} cm (${state.leverL1Mm} mm)`);
 
       setAttr('dimLineL2', 'x1', pedalTipX.toFixed(1));
       setAttr('dimTickL2Left', 'x1', pedalTipX.toFixed(1));
       setAttr('dimTickL2Left', 'x2', pedalTipX.toFixed(1));
       setAttr('dimTextL2', 'x', ((pedalTipX + 286) / 2).toFixed(1));
-      setText('dimTextL2', `Part 19 = ${(state.leverL2Mm / 10).toFixed(2)} cm (ทด 1:${phys.leverRatio.toFixed(2)})`);
+      setText('dimTextL2', `Part 19 L2 = ${(state.leverL2Mm / 10).toFixed(2)} cm (ทด 1:${phys.leverRatio.toFixed(2)})`);
 
       // Isometric Spec Box
-      setText(
-        'isoSpecLine1',
-        `Part 12: ${(state.plateWidthMm / 10).toFixed(0)}×${(state.plateLengthMm / 10).toFixed(0)} cm (เหล็กหนา ${state.steelThickMm.toFixed(1)} mm = ${phys.massSteelKg.toFixed(2)} kg)`
-      );
-      setText(
-        'isoSpecLine2',
-        `Part 7 อะคริลิก: ${(state.acrylicThickMm / 10).toFixed(1)} cm (${phys.massAcrylicKg.toFixed(2)} kg) + Part 17 (${phys.massLinkageKg.toFixed(2)} kg)`
-      );
+      setText('isoSpecLine1', `Part 12: ${(state.plateWidthMm / 10).toFixed(0)}×${(state.plateLengthMm / 10).toFixed(0)} cm (หนา ${state.steelThickMm.toFixed(1)} mm = ${phys.massSteelKg.toFixed(2)} kg)`);
+      setText('isoSpecLine2', `Part 7 อะคริลิก: ${(state.acrylicThickMm / 10).toFixed(1)} cm (${phys.massAcrylicKg.toFixed(2)} kg) + Part 17 (${phys.massLinkageKg.toFixed(2)} kg)`);
 
-      // 6. Update Telemetry Cards & Sub-tab Breakdowns
-      setText('metricDeadWeight', `${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(0)} N)`);
-      setText(
-        'metricSpringLiftStatus',
-        phys.canReturnFully
-          ? `✅ สปริงดึงกลับขึ้นสุด (เหลือแรงสำรอง +${phys.returnMarginN.toFixed(0)} N)`
-          : `🚨 สปริงยกไม่ขึ้น! ขาดแรงดึง ${Math.abs(phys.returnMarginN).toFixed(0)} N`
-      );
-      const liftNode = el('metricSpringLiftStatus');
-      if (liftNode) {
-        liftNode.className = phys.canReturnFully ? 'text-[11px] text-emerald-400 mt-1 font-medium' : 'text-[11px] text-rose-400 mt-1 font-bold';
+      // 8. Step Arrows Visibility
+      const s1 = el('step1Arrows');
+      const s3 = el('step3Arrows');
+      if (s1 && s3) {
+        s1.style.display = state.currentStep === 1 && state.pedalPercent < 20 ? 'block' : 'none';
+        s3.style.display = state.currentStep === 3 && state.pedalPercent < 60 ? 'block' : 'none';
       }
 
-      setText('metricBananaThick', `${phys.currentEdgeBananaMm.toFixed(1)} / ${phys.currentCenterBananaMm.toFixed(1)} mm`);
-      setText('metricTargetWasher', `Part 25: ${washerCount} แผ่น = ${state.washerMm.toFixed(1)} mm (ขอบ/กลาง)`);
+      // 9. Update Top Overlay Readouts, Stop Contact Badge & Engineering Alert Banner
+      setText('readoutMovingMass', `${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(1)} N)`);
+      setText('readoutDeflection', `${phys.maxPlateDeflectionMm.toFixed(3)} mm`);
+      if (el('pedalSlider')) el('pedalSlider').value = Math.round(state.pedalPercent);
+      setText('pedalPercentText', `${Math.round(state.pedalPercent)}%`);
 
-      setText('metricPlateDeflect', `${phys.maxPlateDeflectionMm.toFixed(2)} mm`);
-      setText(
-        'metricPlateUniformity',
-        phys.maxPlateDeflectionMm <= 0.25
-          ? `✅ แผ่นแข็งแรงมาก ความหนาสม่ำเสมอ (±${phys.maxPlateDeflectionMm.toFixed(2)} mm)`
-          : phys.maxPlateDeflectionMm <= 0.8
-          ? `⚠️ แอ่นตัวเล็กน้อย ตรงกลางหนากว่าขอบ ${phys.maxPlateDeflectionMm.toFixed(2)} mm`
-          : `🚨 แผ่นเหล็กบางเกินไป! โก่งตัวสูงถึง ${phys.maxPlateDeflectionMm.toFixed(2)} mm`
-      );
+      const stopBadge = el('stopContactBadge');
+      if (stopBadge) {
+        if (!phys.canReturnFully && state.pedalPercent < 50) {
+          stopBadge.textContent = `🚨 SAG: แผ่นตกค้าง ${phys.sagMm.toFixed(1)} mm`;
+          stopBadge.className = 'text-xs font-mono text-rose-400 font-bold';
+          setAttr('washerZoomCircle', 'stroke', '#F43F5E');
+        } else if (phys.isStopContact) {
+          stopBadge.textContent = `Stop: LOCKED (${state.washerMm.toFixed(1)} mm)`;
+          stopBadge.className = 'text-xs font-mono text-emerald-400 font-bold';
+          setAttr('washerZoomCircle', 'stroke', '#10B981');
+        } else {
+          stopBadge.textContent = 'Stop: OPEN';
+          stopBadge.className = 'text-xs font-mono text-slate-400';
+          setAttr('washerZoomCircle', 'stroke', '#FACC15');
+        }
+      }
 
-      setText('metricNetPressForce', `${phys.peakNetPressForceN.toFixed(0)} N`);
-      setText('metricLeverMA', `ทดแรงคาน 1:${phys.leverRatio.toFixed(2)} • แรงดัน ${phys.pressureKpa.toFixed(1)} kPa`);
+      const alertBanner = el('engineeringAlertBanner');
+      if (alertBanner) {
+        if (!phys.canReturnFully) {
+          alertBanner.classList.remove('hidden');
+          setHtml(
+            'engineeringAlertText',
+            `<strong>สปริงดึงกลับยกไม่ขึ้น!</strong> มวลชุดเคลื่อนที่รวม <strong>${phys.totalMovingMassKg.toFixed(2)} kg (${phys.deadWeightN.toFixed(0)} N)</strong> สูงกว่าแรงยกสปริงเริ่มต้น (${phys.springPreloadForceN.toFixed(0)} N) ทำให้แผ่นกดห้อยตกค้าง <strong>${phys.sagMm.toFixed(1)} mm</strong> (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`
+          );
+        } else if (phys.maxPlateDeflectionMm > 0.25) {
+          alertBanner.classList.remove('hidden');
+          setHtml(
+            'engineeringAlertText',
+            `<strong>เหล็กแผ่น Part 12 บางเกินไป (${state.steelThickMm} mm)!</strong> เกิดการแอ่นตัวกลางแผ่น <strong>${phys.maxPlateDeflectionMm.toFixed(2)} mm</strong> บนสแปน 52 cm ทำให้กล้วยตรงกลางหนากว่าขอบ (+${phys.thicknessErrorPercent.toFixed(1)}%)`
+          );
+        } else if (phys.eccentricityMm >= 15) {
+          alertBanner.classList.remove('hidden');
+          setHtml(
+            'engineeringAlertText',
+            `<strong>ติดตั้งขาดึง Part 17 เยื้องศูนย์ (${phys.eccentricityMm.toFixed(0)} mm)!</strong> พิกัด X_spring (${(state.springMountXMm / 10).toFixed(1)} cm) ไม่ตรงกับจุด CG (${(phys.plateCGXMm / 10).toFixed(1)} cm) เกิดโมเมนต์งัดบูช Part 6 เท่ากับ <strong>${(phys.activeTiltMomentNmm / 1000).toFixed(2)} N·m</strong>`
+          );
+        } else {
+          alertBanner.classList.add('hidden');
+        }
+      }
 
-      // Sub-tab 1 Breakdown
-      setText('breakdownTotalWeightN', `W_dead = ${phys.deadWeightN.toFixed(1)} N`);
+      // 10. Bottom 4 Telemetry Cards
+      setText('metricMassVsSpring', `${phys.deadWeightN.toFixed(0)} N / ${phys.springPreloadForceN.toFixed(0)} N`);
+      const sagStatusEl = el('metricSagStatus');
+      if (sagStatusEl) {
+        if (phys.canReturnFully) {
+          sagStatusEl.textContent = `✓ ยกกลับขึ้นสุด (คืนตัว ${phys.returnTimeSec}s)`;
+          sagStatusEl.className = 'text-[11px] text-emerald-400 mt-0.5';
+        } else {
+          sagStatusEl.textContent = `🚨 ยกไม่ขึ้น! ตกค้าง ${phys.sagMm.toFixed(1)} mm`;
+          sagStatusEl.className = 'text-[11px] text-rose-400 font-bold mt-0.5';
+        }
+      }
+
+      setText('metricNetForce', `${Math.round(phys.peakNetPressForceN)} N`);
+      const pressNoteEl = el('metricPressureNote');
+      if (pressNoteEl) {
+        if (phys.peakNetPressForceN >= phys.requiredBananaForceN) {
+          pressNoteEl.textContent = `✓ แรงดัน ${phys.pressureKpa.toFixed(1)} kPa (ทด 1:${phys.leverRatio.toFixed(2)})`;
+          pressNoteEl.className = 'text-[11px] text-emerald-400 mt-0.5';
+        } else {
+          pressNoteEl.textContent = `⚠️ แรงกดต่ำ (ต้องการ ≥ ${phys.requiredBananaForceN} N)`;
+          pressNoteEl.className = 'text-[11px] text-rose-400 font-bold mt-0.5';
+        }
+      }
+
+      setText('metricPlateDeflection', `${phys.maxPlateDeflectionMm.toFixed(3)} mm`);
+      setText('metricPlateFosBadge', `FOS ${Math.min(99, phys.plateFOS).toFixed(1)}`);
+      const errNoteEl = el('metricPlateErrorNote');
+      if (errNoteEl) {
+        errNoteEl.textContent = `คลาดเคลื่อนกลางแผ่น: +${phys.thicknessErrorPercent.toFixed(1)}%`;
+        errNoteEl.className = phys.maxPlateDeflectionMm <= 0.25 ? 'text-[11px] text-emerald-400 mt-0.5' : 'text-[11px] text-amber-400 font-bold mt-0.5';
+      }
+
+      const centerPressedMm = state.washerMm + phys.maxPlateDeflectionMm;
+      setText('metricFinalThickness', `${state.washerMm.toFixed(1)} / ${centerPressedMm.toFixed(2)} mm`);
+      setText('metricPedalStrokeNote', `Part 25: ${washerCount} แผ่น • กดเท้า ${Math.round(phys.pedalStrokeMm)} mm (${phys.pedalAngleDeg.toFixed(1)}°)`);
+
+      // 11. Sub-Tab Breakdown Readouts
+      setText('breakdownTotalWeightN', `รวม ${phys.totalMovingMassKg.toFixed(2)} kg (W_dead = ${phys.deadWeightN.toFixed(1)} N)`);
       setText('breakdownSteelMass', `${phys.massSteelKg.toFixed(2)} kg`);
       setText('breakdownAcrylicMass', `${phys.massAcrylicKg.toFixed(2)} kg`);
       setText('breakdownLinkageMass', `${phys.massLinkageKg.toFixed(2)} kg`);
-      setText('breakdownPlateStress', `${phys.plateBendingStressMPa.toFixed(1)} MPa (Yield 250 MPa)`);
+      setText('breakdownPlateStress', `${phys.plateBendingStressMPa.toFixed(1)} MPa (FOS = ${Math.min(99, phys.plateFOS).toFixed(1)})`);
 
-      // Sub-tab 2 Breakdown
-      setText('springCalcK', `${phys.springK_Nmm.toFixed(2)} N/mm (${phys.springK_Nm.toFixed(0)} N/m)`);
-      setText(
-        'springLiftCompare',
-        `${phys.springPreloadForceN.toFixed(0)} N vs ${phys.requiredReturnForceN.toFixed(0)} N (${phys.canReturnFully ? 'ยกขึ้น 100%' : 'ยกไม่ขึ้น!'})`
-      );
+      setText('springCalcK', `${phys.springK_Nmm.toFixed(2)} N/mm (${Math.round(phys.springK_Nm).toLocaleString()} N/m)`);
+      const liftCmpEl = el('springLiftCompare');
+      if (liftCmpEl) {
+        liftCmpEl.textContent = phys.canReturnFully
+          ? `${phys.springPreloadForceN.toFixed(0)} N ≥ ${phys.requiredReturnForceN.toFixed(0)} N (ยกขึ้น 100%)`
+          : `${phys.springPreloadForceN.toFixed(0)} N < ${phys.requiredReturnForceN.toFixed(0)} N (ตกค้าง ${phys.sagMm.toFixed(1)} mm!)`;
+        liftCmpEl.className = phys.canReturnFully ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-rose-400';
+      }
       setText('springMaxForceText', `${phys.maxSpringForceN.toFixed(1)} N`);
-      setText('springStressText', `${phys.springShearStressMPa.toFixed(0)} MPa (FOS = ${phys.springFOS.toFixed(2)})`);
+      const spStressEl = el('springStressText');
+      if (spStressEl) {
+        spStressEl.textContent = `${phys.springShearStressMPa.toFixed(0)} MPa (FOS = ${phys.springFOS.toFixed(2)})`;
+        spStressEl.className = phys.springFOS >= 1.15 ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-rose-400';
+      }
 
-      // Sub-tab 3 Breakdown
-      setText('geomLeverRatio', `1 : ${phys.leverRatio.toFixed(2)}`);
-      setText('geomEccentricity', `${phys.eccentricityMm.toFixed(0)} mm (${(phys.eccentricityMm / 10).toFixed(1)} cm)`);
-      setText('geomBushingFriction', `${phys.activeFrictionN.toFixed(1)} N`);
-      setText('geomEffectiveForce', `${phys.peakNetPressForceN.toFixed(0)} N`);
+      setText('cgTargetHint', `ระยะ Drawing Part 6 = ${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)`);
+      const tiltEl = el('mountTiltMomentText');
+      if (tiltEl) {
+        tiltEl.textContent = phys.eccentricityMm < 5
+          ? '0.0 N·m (ตรงศูนย์ X_CG สมดุล ไม่ฝืด)'
+          : `${(phys.activeTiltMomentNmm / 1000).toFixed(2)} N·m (เยื้องศูนย์ ${phys.eccentricityMm.toFixed(0)} mm)`;
+        tiltEl.className = phys.eccentricityMm < 15 ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-rose-400';
+      }
+      setText('mountFrictionText', `${phys.activeFrictionN.toFixed(1)} N`);
 
-      // Sub-tab 4 Breakdown
-      setText('loadPressureKpa', `${phys.pressureKpa.toFixed(1)} kPa`);
-      const qGrade =
-        !phys.canReturnFully
-          ? 'ไม่ผ่าน (สปริงยกแผ่นกดไม่ขึ้น)'
-          : phys.maxPlateDeflectionMm > 0.8
-          ? 'B (ตรงกลางหนากว่าขอบ)'
-          : 'A+ (มาตรฐานแฟรนไชส์ B2B)';
-      setText('loadQualityGrade', qGrade);
-      setText('loadThroughput', `${state.bananaCount * 8} - ${state.bananaCount * 10} ชิ้น/นาที`);
-
-      // Update Mounting Blueprint Table live cells
-      setHtml(
-        'blueprintPlateCG',
-        `จุดศูนย์ถ่วง X_CG = ${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)<br/>สแปนกว้าง ${(state.plateWidthMm / 10).toFixed(2)} cm`
-      );
-      setText(
-        'blueprintPlateDim',
-        `Part 12: ${(state.plateWidthMm / 10).toFixed(0)}×${(state.plateLengthMm / 10).toFixed(0)} cm เหล็กหนา ${state.steelThickMm} mm (${phys.massSteelKg.toFixed(2)} kg) + Part 7 อะคริลิก ${(state.acrylicThickMm / 10).toFixed(1)} cm`
-      );
-      setHtml(
-        'blueprintSpringAxis',
-        `X_spring = ${(state.springMountXMm / 10).toFixed(2)} cm (${state.springMountXMm} mm)<br/>(เยื้องศูนย์ e = ${phys.eccentricityMm.toFixed(0)} mm)`
-      );
-      setHtml(
-        'blueprintPedalCoords',
-        `ขาดึง Part 17 สูง 57.00 cm, ก้านต่อ Part 18 ยาว 20.00 cm<br/>L1 = ${(state.leverL1Mm / 10).toFixed(1)} cm, แป้น Part 19 L2 = ${(state.leverL2Mm / 10).toFixed(2)} cm (MA = 1:${phys.leverRatio.toFixed(2)})`
-      );
+      // 12. Mounting Blueprint Table Live Cells
+      setHtml('blueprintPlateCG', `จุดศูนย์ถ่วง X_CG = ${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)<br/>สแปนกว้าง ${(state.plateWidthMm / 10).toFixed(2)} cm`);
+      setText('blueprintPlateDim', `Part 12: ${(state.plateWidthMm / 10).toFixed(0)}×${(state.plateLengthMm / 10).toFixed(0)} cm เหล็กหนา ${state.steelThickMm} mm (${phys.massSteelKg.toFixed(2)} kg) + Part 7 อะคริลิก ${(state.acrylicThickMm / 10).toFixed(1)} cm`);
+      setHtml('blueprintSpringAxis', `X_spring = ${(state.springMountXMm / 10).toFixed(2)} cm (${state.springMountXMm} mm)<br/>(เยื้องศูนย์ e = ${phys.eccentricityMm.toFixed(0)} mm)`);
+      setHtml('blueprintPedalCoords', `ขาดึง Part 17 สูง 57.00 cm, ก้านต่อ Part 18 ยาว 20.00 cm<br/>L1 = ${(state.leverL1Mm / 10).toFixed(1)} cm, แป้น Part 19 L2 = ${(state.leverL2Mm / 10).toFixed(2)} cm (MA = 1:${phys.leverRatio.toFixed(2)})`);
     }
 
     // --- 4. ANIMATION LOOP & INTERACTIVE STEPPER ---
     function animationLoop() {
       if (state.autoCycle) {
-        state.autoPhase += 0.022;
-        const cycle = state.autoPhase % (Math.PI * 2);
-        if (cycle < Math.PI * 0.65) {
-          state.currentStep = 1;
+        state.autoPhase += 0.025;
+        const cyclePos = state.autoPhase % 3.0;
+        if (cyclePos < 1.0) {
+          if (state.currentStep !== 1) highlightStepButtons(1);
           state.targetPedalPercent = 0;
-        } else if (cycle < Math.PI * 1.35) {
-          state.currentStep = 2;
+        } else if (cyclePos < 2.0) {
+          if (state.currentStep !== 2) highlightStepButtons(2);
           state.targetPedalPercent = 100;
         } else {
-          state.currentStep = 3;
+          if (state.currentStep !== 3) highlightStepButtons(3);
           state.targetPedalPercent = 0;
         }
-        highlightStepButtons();
       } else if (state.isHoldingPedal) {
-        state.currentStep = 2;
         state.targetPedalPercent = 100;
-        highlightStepButtons();
       }
 
       const diff = state.targetPedalPercent - state.pedalPercent;
-      if (Math.abs(diff) > 0.2) {
-        state.pedalPercent += diff * 0.16;
-        const slider = el('pedalSlider');
-        if (slider) slider.value = Math.round(state.pedalPercent);
-        setText('pedalPercentLabel', `${Math.round(state.pedalPercent)}%`);
+      if (Math.abs(diff) > 0.15) {
+        const speedFactor = state.targetPedalPercent > state.pedalPercent ? 0.18 : 0.15;
+        state.pedalPercent += diff * speedFactor;
+        renderSimulation();
+      } else if (state.pedalPercent !== state.targetPedalPercent) {
+        state.pedalPercent = state.targetPedalPercent;
         renderSimulation();
       }
 
       requestAnimationFrame(animationLoop);
     }
 
-    function highlightStepButtons() {
-      [1, 2, 3].forEach((s) => {
-        const btn = el(`stepBtn-${s}`);
-        if (!btn) return;
-        if (s === state.currentStep) {
-          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-yellow-400 text-slate-950 shadow transition flex items-center gap-1';
+    function highlightStepButtons(step) {
+      if (step !== undefined) state.currentStep = step;
+      const s = state.currentStep;
+      const titles = {
+        1: 'สถานะ: 1. วางกล้วย (Place Mode)',
+        2: 'สถานะ: 2. เหยียบกดทับ (Pressing + Plate Deflection)',
+        3: 'สถานะ: 3. คลายแป้นเหยียบ (Spring Lift Return)'
+      };
+      const dotColors = {
+        1: 'w-2.5 h-2.5 rounded-full bg-yellow-400',
+        2: 'w-2.5 h-2.5 rounded-full bg-sky-400 animate-ping',
+        3: 'w-2.5 h-2.5 rounded-full bg-emerald-400'
+      };
+      setText('stateBadgeTitle', titles[s] || titles[1]);
+      if (el('stateBadgeDot')) el('stateBadgeDot').className = dotColors[s] || dotColors[1];
+
+      for (let i = 1; i <= 3; i++) {
+        const btn = el(`stepBtn-${i}`);
+        if (!btn) continue;
+        const badge = btn.querySelector('span');
+        if (i === s) {
+          btn.className = 'group relative flex flex-col items-start p-3 rounded-xl border-2 border-yellow-400 bg-yellow-400/10 text-left transition-all';
+          if (badge) badge.className = 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-400 text-slate-950';
         } else {
-          btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1';
+          btn.className = 'group relative flex flex-col items-start p-3 rounded-xl border-2 border-slate-800 bg-slate-950/70 hover:border-slate-700 text-left transition-all';
+          if (badge) badge.className = 'text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300';
         }
-      });
+      }
     }
 
     function setStepState(step) {
       state.autoCycle = false;
-      updateAutoCycleButton();
-      state.currentStep = step;
-      state.targetPedalPercent = step === 2 ? 100 : 0;
-      highlightStepButtons();
+      updateAutoCycleButtonUI();
+      highlightStepButtons(step);
+      if (step === 1) {
+        state.targetPedalPercent = 0;
+      } else if (step === 2) {
+        state.targetPedalPercent = 100;
+      } else if (step === 3) {
+        if (state.pedalPercent < 20) state.pedalPercent = 90;
+        state.targetPedalPercent = 0;
+      }
       renderSimulation();
     }
 
-    function setManualPedal(val) {
+    function onManualSliderInput(val) {
       state.autoCycle = false;
-      updateAutoCycleButton();
+      updateAutoCycleButtonUI();
       const num = parseFloat(val);
       state.pedalPercent = num;
       state.targetPedalPercent = num;
-      state.currentStep = num > 50 ? 2 : num > 5 ? 3 : 1;
-      setText('pedalPercentLabel', `${Math.round(num)}%`);
-      highlightStepButtons();
+      if (num === 0) highlightStepButtons(1);
+      else if (num >= 80) highlightStepButtons(2);
+      else highlightStepButtons(3);
       renderSimulation();
     }
+    const setManualPedal = onManualSliderInput;
 
     function startHoldPedal(e) {
       if (e && e.cancelable) e.preventDefault();
       state.autoCycle = false;
-      updateAutoCycleButton();
+      updateAutoCycleButtonUI();
       state.isHoldingPedal = true;
-      state.currentStep = 2;
       state.targetPedalPercent = 100;
-      highlightStepButtons();
+      highlightStepButtons(2);
     }
 
-    function stopHoldPedal() {
+    function releaseHoldPedal(e) {
+      if (e && e.cancelable) e.preventDefault();
       if (!state.isHoldingPedal) return;
       state.isHoldingPedal = false;
-      state.currentStep = 3;
       state.targetPedalPercent = 0;
-      highlightStepButtons();
+      highlightStepButtons(3);
     }
+    const stopHoldPedal = releaseHoldPedal;
 
     function toggleAutoCycle() {
       state.autoCycle = !state.autoCycle;
-      updateAutoCycleButton();
+      state.autoPhase = 0;
+      updateAutoCycleButtonUI();
     }
 
-    function updateAutoCycleButton() {
+    function updateAutoCycleButtonUI() {
       const btn = el('btnAutoCycle');
+      const icon = el('autoCycleIcon');
+      const txt = el('autoCycleText');
       if (!btn) return;
       if (state.autoCycle) {
-        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition flex items-center gap-1';
-        setText('autoCycleText', 'หยุด Auto Loop');
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5';
+        if (icon) icon.textContent = '⏸️';
+        if (txt) txt.textContent = 'กำลังจำลองอัตโนมัติ (หยุด)';
       } else {
-        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1';
-        setText('autoCycleText', 'Auto Loop');
+        btn.className = 'px-3.5 py-2.5 rounded-xl font-semibold text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5';
+        if (icon) icon.textContent = '▶️';
+        if (txt) txt.textContent = 'จำลองอัตโนมัติ (Auto Loop)';
       }
     }
+    const updateAutoCycleButton = updateAutoCycleButtonUI;
 
-    // Spacebar hold support
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
@@ -2058,7 +2113,7 @@
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
-        stopHoldPedal();
+        releaseHoldPedal();
       }
     });
 
@@ -2099,6 +2154,7 @@
         if (el('paramSpringMountX')) el('paramSpringMountX').value = 210;
         if (el('paramFootForce')) el('paramFootForce').value = 160;
         setPart12StructureMode('hollow45');
+        setStepState(1);
       } else if (presetName === 'solid30mmBom') {
         if (el('paramSteelThick')) el('paramSteelThick').value = 30.0;
         if (el('paramPlateWidth')) el('paramPlateWidth').value = 520;
@@ -2128,14 +2184,20 @@
         if (el('paramSpringMountX')) el('paramSpringMountX').value = 120;
         if (el('paramFootForce')) el('paramFootForce').value = 180;
         switchParamSubTab('geometry');
+        setStepState(2);
       }
 
       updateEngineeringParams();
       runAiAnalysis(presetName === 'thinPlate' ? 'elasticity' : presetName === 'eccentricMount' ? 'mounting' : 'mechanics');
     }
 
+    function resetDefaultParams() {
+      applyScenarioPreset('optimal');
+      setRipeness('optimal');
+    }
+
     function switchParamSubTab(subTabName) {
-      ['material', 'spring', 'geometry', 'load'].forEach((t) => {
+      ['material', 'spring', 'geometry'].forEach((t) => {
         const panel = el(`subTab-${t}`);
         const btn = el(`subTabBtn-${t}`);
         if (panel) {
@@ -2145,8 +2207,8 @@
         if (btn) {
           btn.className =
             t === subTabName
-              ? 'px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-yellow-400 text-slate-950 transition'
-              : 'px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white transition';
+              ? 'py-1.5 px-2 rounded-lg font-bold bg-yellow-400 text-slate-950 transition'
+              : 'py-1.5 px-2 rounded-lg font-semibold text-slate-400 hover:text-white transition';
         }
       });
     }
@@ -2154,12 +2216,12 @@
     function setRipeness(r) {
       state.ripeness = r;
       ['firm', 'optimal', 'soft'].forEach((k) => {
-        const btn = el(`ripenessBtn-${k}`);
+        const btn = el(`ripeBtn-${k}`) || el(`ripenessBtn-${k}`);
         if (!btn) return;
         btn.className =
           k === r
-            ? 'py-1.5 px-2 rounded-lg text-xs font-bold bg-yellow-400 text-slate-950 transition'
-            : 'py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+            ? 'flex-1 py-0.5 rounded bg-yellow-400/20 border border-yellow-400 text-[10px] text-yellow-300 font-bold'
+            : 'flex-1 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300';
       });
       renderSimulation();
     }
@@ -2170,10 +2232,7 @@
       setText('partInspectorTitle', `BOM #${item.no} — ${item.part} (${item.dimCm} cm • ${item.mat} • Qty: ${item.qty})`);
       setText('partInspectorDesc', `${item.desc} (อ้างอิงแบบสั่งผลิต BPM-DWG-001 หน้า ${item.page})`);
     }
-
-    function inspectPart(partNo) {
-      inspectBomPart(partNo);
-    }
+    const inspectPart = inspectBomPart;
 
     function renderBom28Table() {
       const tbody = el('bom28TableBody');
@@ -2228,11 +2287,15 @@
 
     function toggleCanvasTheme() {
       state.lightCanvas = !state.lightCanvas;
-      const wrap = el('canvasWrapper');
-      if (wrap) {
-        wrap.className = state.lightCanvas
-          ? 'relative rounded-2xl overflow-hidden border border-slate-300 bg-[#FBF7F0] transition-colors duration-300'
-          : 'relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 cad-grid transition-colors duration-300';
+      const container = el('canvasContainer') || el('canvasWrapper');
+      if (container) {
+        if (state.lightCanvas) {
+          container.classList.remove('cad-grid');
+          container.classList.add('cad-light-grid');
+        } else {
+          container.classList.remove('cad-light-grid');
+          container.classList.add('cad-grid');
+        }
       }
       setText('themeIcon', state.lightCanvas ? '🌙' : '☀️');
       setText('themeText', state.lightCanvas ? 'พื้นหลังมืด' : 'พื้นหลังสว่าง');
@@ -2304,38 +2367,47 @@
 
     // --- 7. ROI & AI ENGINEERING ANALYZER ---
     function updateRoiCalc() {
-      const dailyKgEl = el('roiDailyKg');
-      const wageHrEl = el('roiWageHr');
-      if (!dailyKgEl || !wageHrEl) return;
+      const hoursEl = el('roiHoursInput');
+      const profitEl = el('roiProfitInput');
+      if (!hoursEl || !profitEl) return;
+      const hours = parseFloat(hoursEl.value);
+      const profitPerBox = parseFloat(profitEl.value);
+      setText('roiHoursVal', `${hours} ชั่วโมง/วัน`);
+      setText('roiProfitVal', `${profitPerBox} บาท/กล่อง`);
 
-      const dailyKg = parseFloat(dailyKgEl.value);
-      const wageHr = parseFloat(wageHrEl.value);
-      setText('valRoiDailyKg', `${dailyKg} กก./วัน`);
-      setText('valRoiWageHr', `${wageHr} บาท/ชม.`);
+      const extraBananasPerMin = 12;
+      const extraBoxesPerDay = Math.round((extraBananasPerMin * 60 * hours) / 16);
+      const extraDailyProfit = extraBoxesPerDay * profitPerBox;
+      const paybackDays = Math.max(3, Math.round(8950 / Math.max(1, extraDailyProfit)));
 
-      const bananasPerDay = dailyKg * 14;
-      const oldHours = bananasPerDay / (3.5 * 60);
-      const newHours = bananasPerDay / (18 * 60);
-      const savedHoursDay = Math.max(0.5, oldHours - newHours);
-      const monthlySaving = savedHoursDay * wageHr * 30 + dailyKg * 12 * 30 * 0.15;
-      const paybackDays = Math.max(5, Math.round(8950 / (monthlySaving / 30)));
-
-      setText('roiSavedHours', `${savedHoursDay.toFixed(1)} ชม./วัน`);
-      setText('roiMonthlySaving', `${Math.round(monthlySaving).toLocaleString()} บาท/เดือน`);
-      setText('roiPaybackDays', `~${paybackDays} วัน`);
+      setText('roiExtraBoxes', `+${extraBoxesPerDay} กล่อง/วัน (+${extraDailyProfit.toLocaleString()} ฿/วัน)`);
+      setText('roiPaybackDays', `~${paybackDays} วัน (คืนทุนไวมาก)`);
     }
 
-    function generateInstantEngineeringReport(topic) {
+    function generateInstantEngineeringReport(topic, customQuery = '') {
       const phys = computePhysics();
       const washerRings = Math.round(state.washerMm / 2.0);
+
+      if (topic === 'custom' && customQuery) {
+        // Parse numbers if user asks e.g. "หนา 3 mm กว้าง 350 mm"
+        const customHeader = `<div class="p-2 rounded-lg bg-yellow-400/10 border border-yellow-400/30 text-yellow-300 font-semibold text-xs">💬 คำถามวิศวกรรม: "${customQuery}"</div>`;
+        return `
+          <div class="space-y-2 text-xs leading-relaxed">
+            ${customHeader}
+            <p>• <strong>ผลวิเคราะห์จากพารามิเตอร์ปัจจุบัน (${(state.plateWidthMm / 10).toFixed(1)}×${(state.plateLengthMm / 10).toFixed(1)} cm, เหล็กหนา ${state.steelThickMm} mm):</strong> มวลชุดเคลื่อนที่รวม <strong>${phys.totalMovingMassKg.toFixed(2)} kg (W<sub>dead</sub> = ${phys.deadWeightN.toFixed(1)} N)</strong> แรงดึงสปริงเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N (${phys.canReturnFully ? '✅ สปริงดึงกลับขึ้นสุด' : `🚨 สปริงยกไม่ขึ้น ตกค้าง ${phys.sagMm.toFixed(1)} mm`})</p>
+            <p>• <strong>การแอ่นตัว & ความหนากล้วย:</strong> ที่แรงกดสุทธิ <strong>${phys.peakNetPressForceN.toFixed(0)} N</strong> แผ่นเหล็กแอ่นตัวตรงกลาง <strong>δ<sub>max</sub> = ${phys.maxPlateDeflectionMm.toFixed(3)} mm</strong> (ความเค้นดัด ${phys.plateBendingStressMPa.toFixed(1)} MPa, FOS = ${Math.min(99, phys.plateFOS).toFixed(1)}) ทำให้ความหนากล้วยที่ขอบ = ${state.washerMm.toFixed(2)} mm และกึ่งกลาง = ${(state.washerMm + phys.maxPlateDeflectionMm).toFixed(2)} mm</p>
+            <p>• <strong>ข้อเสนอแนะตามแบบ BPM-DWG-001:</strong> ใช้โครงแผ่นเหล็กพับกล่องหนา <strong>4.5–6.0 mm</strong> คู่กับอะคริลิก Part 7 หนา 10 mm และตั้งจุดดึงขาดึง Part 17 ที่ระยะ <strong>X<sub>spring</sub> = 21.00 cm</strong> ตรงจุดศูนย์ถ่วง</p>
+          </div>
+        `;
+      }
 
       if (topic === 'elasticity') {
         return `
           <div class="space-y-2 text-xs leading-relaxed">
             <div class="font-bold text-yellow-400">📐 วิเคราะห์ความยืดหยุ่นและการแอ่นตัวของแผ่นกดทับ Part 12 & Part 7 (BPM-DWG-001)</div>
             <p>• <strong>สแปนแผ่นกดตามแบบ:</strong> กว้าง ${(state.plateWidthMm / 10).toFixed(1)} cm × ลึก ${(state.plateLengthMm / 10).toFixed(1)} cm (เหล็กแผ่นหนา ${state.steelThickMm.toFixed(1)} mm + อะคริลิก Part 7 หนา ${state.acrylicThickMm.toFixed(1)} mm)</p>
-            <p>• <strong>ระยะแอ่นตัวสูงสุดกึ่งกลางแผ่น (δ<sub>max</sub>):</strong> <span class="text-sky-300 font-mono font-bold">${phys.maxPlateDeflectionMm.toFixed(3)} mm</span> ที่แรงกดสุทธิ ${phys.peakNetPressForceN.toFixed(0)} N (ความเค้นดัด σ<sub>b</sub> = ${phys.plateBendingStressMPa.toFixed(1)} MPa ≪ Yield 250 MPa)</p>
-            <p>• <strong>ผลต่อความหนากล้วยทับ:</strong> แหวนรอง Part 25 จำนวน ${washerRings} แผ่น (${state.washerMm.toFixed(1)} mm) คุมความหนาที่ขอบได้ ${phys.currentEdgeBananaMm.toFixed(2)} mm และกึ่งกลางแผ่น ${phys.currentCenterBananaMm.toFixed(2)} mm</p>
+            <p>• <strong>ระยะแอ่นตัวสูงสุดกึ่งกลางแผ่น (δ<sub>max</sub>):</strong> <span class="text-sky-300 font-mono font-bold">${phys.maxPlateDeflectionMm.toFixed(3)} mm</span> ที่แรงกดสุทธิ ${phys.peakNetPressForceN.toFixed(0)} N (ความเค้นดัด σ<sub>b</sub> = ${phys.plateBendingStressMPa.toFixed(1)} MPa ≪ Yield 250 MPa, FOS = ${Math.min(99, phys.plateFOS).toFixed(1)})</p>
+            <p>• <strong>ผลต่อความหนากล้วยทับ:</strong> แหวนรอง Part 25 จำนวน ${washerRings} แผ่น (${state.washerMm.toFixed(1)} mm) คุมความหนาที่ขอบได้ ${state.washerMm.toFixed(2)} mm และกึ่งกลางแผ่น ${(state.washerMm + phys.maxPlateDeflectionMm).toFixed(2)} mm (คลาดเคลื่อน +${phys.thicknessErrorPercent.toFixed(1)}%)</p>
           </div>
         `;
       } else if (topic === 'mounting') {
@@ -2344,14 +2416,14 @@
             <div class="font-bold text-sky-400">📏 วิเคราะห์พิกัดการติดตั้งตามแบบ BPM-DWG-001 (Mounting & Alignment)</div>
             <p>• <strong>ตำแหน่งจุดศูนย์ถ่วงชุดแผ่นกด (X<sub>CG</sub>):</strong> ห่างจากแกนเสาหลัก Part 4 เท่ากับ <span class="font-mono font-bold text-white">${(phys.plateCGXMm / 10).toFixed(2)} cm (${phys.plateCGXMm.toFixed(0)} mm)</span> ซึ่งตรงกับพิกัดบล็อกสไลด์ Part 6 (21.00 cm ในหน้า 5 ของแบบ)</p>
             <p>• <strong>ระยะเยื้องศูนย์ปัจจุบัน (e):</strong> <span class="font-mono font-bold ${phys.eccentricityMm > 10 ? 'text-rose-400' : 'text-emerald-400'}">${phys.eccentricityMm.toFixed(0)} mm</span> เกิดโมเมนต์งัดบูช M<sub>tilt</sub> = ${(phys.activeTiltMomentNmm / 1000).toFixed(2)} N·m และแรงเสียดทานในบูช ${phys.activeFrictionN.toFixed(1)} N</p>
-            <p>• <strong>คานเหยียบ Part 19 (ยาว ${(state.leverL2Mm / 10).toFixed(2)} cm):</strong> จุดดึงก้านต่อ Part 18 ห่างจุดหมุน Part 20 เท่ากับ L<sub>1</sub> = ${(state.leverL1Mm / 10).toFixed(1)} cm ให้การทดแรงเชิงกล (MA) = <strong>1 : ${phys.leverRatio.toFixed(2)}</strong></p>
+            <p>• <strong>คานเหยียบ Part 19 (ยาว ${(state.leverL2Mm / 10).toFixed(2)} cm):</strong> จุดดึงก้านต่อ Part 18 ห่างจุดหมุน Part 20 เท่ากับ L<sub>1</sub> = ${(state.leverL1Mm / 10).toFixed(1)} cm ให้การทดแรงเชิงกล (MA) = <strong>1 : ${phys.leverRatio.toFixed(2)}</strong> (ระยะกดเท้า ${Math.round(phys.pedalStrokeMm)} mm มุมเอียง ${phys.pedalAngleDeg.toFixed(1)}°)</p>
           </div>
         `;
-      } else if (topic === 'ai_iot') {
+      } else if (topic === 'ai_iot' || topic === 'smart_ai') {
         return `
           <div class="space-y-2 text-xs leading-relaxed">
             <div class="font-bold text-purple-400">🤖 แนวทางอัปเกรด Smart KluayPress AI & IoT สำหรับแฟรนไชส์ B2B</div>
-            <p>• <strong>1. Load Cell + Hall Sensor:</strong> ติดตั้ง Strain Gauge ที่ก้านดึง Part 18 (20 cm) และแม่เหล็กนับรอบที่เพลาหมุนแป้นเหยียบ Part 19 (Ø3×40 cm) แจ้งเตือนไฟ LED เมื่อแรงกดถึงระดับที่ตั้งไว้</p>
+            <p>• <strong>1. Load Cell + Hall Sensor:</strong> ติดตั้ง Strain Gauge ที่ก้านดึง Part 18 (20 cm) และแม่เหล็กนับรอบที่เพลาหมุนแป้นเหยียบ Part 19 (Ø3×40 cm) แจ้งเตือนไฟ LED เมื่อแรงกดถึงระดับ ${phys.requiredBananaForceN} N และบูชแตะแหวนรอง Part 25</p>
             <p>• <strong>2. AI Vision Quality Control:</strong> ใช้กล้องมุมบนตรวจวัดพื้นที่การแผ่ตัวของกล้วยบนแผ่นอะคริลิกใส Part 7 (52×35 cm) เพื่อคัดเกรดมาตรฐานเดียวกันทุกสาขา</p>
             <p>• <strong>3. Predictive Maintenance:</strong> นับรอบการยืดตัวของสปริงคู่ Part 16 & Part 27 (ปัจจุบันรับความเค้นเฉือน τ = ${phys.springShearStressMPa.toFixed(0)} MPa, FOS = ${phys.springFOS.toFixed(2)}) เพื่อแจ้งเตือนการเปลี่ยนสปริงและอัดจาระบีบูช Part 6</p>
           </div>
@@ -2362,63 +2434,16 @@
         <div class="space-y-2 text-xs leading-relaxed">
           <div class="font-bold text-emerald-400">⚙️ สรุปสมดุลกลศาสตร์ตามแบบสั่งผลิต BPM-DWG-001 (Shigley & Hibbeler)</div>
           <p>• <strong>มวลชุดเคลื่อนที่รวม (Parts 6,7,12,17,18):</strong> <span class="font-mono font-bold text-white">${phys.totalMovingMassKg.toFixed(2)} kg</span> (เหล็กแผ่น Part 12 = ${phys.massSteelKg.toFixed(2)} kg, อะคริลิก Part 7 = ${phys.massAcrylicKg.toFixed(2)} kg, ขาดึง Part 17+บูช = ${phys.massLinkageKg.toFixed(2)} kg) คิดเป็นน้ำหนักกดลง W<sub>dead</sub> = ${phys.deadWeightN.toFixed(1)} N</p>
-          <p>• <strong>การตรวจสอบสปริงดึงกลับคู่ (Part 16 + Part 27):</strong> ค่าคงที่สปริงรวม k = ${phys.springK_Nmm.toFixed(2)} N/mm แรงดึงพรีโหลดเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N เทียบกับแรงต้านยกกลับ ${phys.requiredReturnForceN.toFixed(0)} N ➔ <strong>${phys.canReturnFully ? '✅ ยกแผ่นกดกลับขึ้นสุด 100%' : `🚨 ยกไม่ขึ้น! แผ่นห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`}</strong></p>
+          <p>• <strong>การตรวจสอบสปริงดึงกลับคู่ (Part 16 + Part 27):</strong> ค่าคงที่สปริงรวม k = ${phys.springK_Nmm.toFixed(2)} N/mm แรงดึงพรีโหลดเริ่มต้น ${phys.springPreloadForceN.toFixed(0)} N เทียบกับแรงต้านยกกลับ ${phys.requiredReturnForceN.toFixed(0)} N ➔ <strong>${phys.canReturnFully ? '✅ ยกแผ่นกดกลับขึ้นสุด 100% (คืนตัว ' + phys.returnTimeSec + 's)' : `🚨 ยกไม่ขึ้น! แผ่นห้อยตกค้าง ${phys.sagMm.toFixed(1)} mm (แนะนำใช้โครงพับกล่องหนา 4.5 mm แทนเหล็กตัน 3.0 cm)`}</strong></p>
           <p>• <strong>แรงกดสุทธิบนกล้วย:</strong> เมื่อเหยียบด้วยแรงเท้า ${state.footForceN} N ผ่านคานทดแรง 1:${phys.leverRatio.toFixed(2)} จะสร้างแรงกดสุทธิที่เนื้อกล้วย <strong>${phys.peakNetPressForceN.toFixed(0)} N (${phys.pressureKpa.toFixed(1)} kPa)</strong></p>
         </div>
       `;
     }
 
     async function runAiAnalysis(topic) {
-      ['mechanics', 'elasticity', 'mounting', 'ai_iot'].forEach((t) => {
-        const btn = el(`aiTopicBtn-${t}`);
-        if (!btn) return;
-        btn.className =
-          t === topic
-            ? 'px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-yellow-400 text-slate-950 transition'
-            : 'px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
-      });
-
-      const instantHtml = generateInstantEngineeringReport(topic);
+      const customQuery = (el('customAiInput')?.value || '').trim();
+      const instantHtml = generateInstantEngineeringReport(topic, customQuery);
       setHtml('aiResponseBox', instantHtml);
-
-      const apiKey = (el('geminiApiKey')?.value || '').trim();
-      if (!apiKey) return;
-
-      const loading = el('aiLoadingIndicator');
-      if (loading) loading.classList.remove('hidden');
-
-      try {
-        const phys = computePhysics();
-        const prompt = `คุณคือวิศวกรเครื่องกลและ AI วิเคราะห์เครื่องกดกล้วยทับ KluayPress ตามแบบ BPM-DWG-001:
-- แผ่นเหล็กกดทับ Part 12: ${state.plateWidthMm / 10}x${state.plateLengthMm / 10} cm หนา ${state.steelThickMm} mm (${phys.massSteelKg.toFixed(2)} kg)
-- มวลชุดเคลื่อนที่รวม: ${phys.totalMovingMassKg.toFixed(2)} kg (W_dead = ${phys.deadWeightN.toFixed(1)} N)
-- แรงดึงสปริงเริ่มต้น: ${phys.springPreloadForceN.toFixed(1)} N (สถานะยกกลับ: ${phys.canReturnFully ? 'ปกติ' : 'ยกไม่ขึ้น'})
-- การแอ่นตัวกลางแผ่นเหล็ก: ${phys.maxPlateDeflectionMm.toFixed(3)} mm
-- แรงกดสุทธิ: ${phys.peakNetPressForceN.toFixed(0)} N
-สรุปข้อเสนอแนะหัวข้อ "${topic}" แบบกระชับ 3 ข้อเป็นภาษาไทย`;
-
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-          }
-        );
-        const data = await res.json();
-        const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (aiText) {
-          setHtml(
-            'aiResponseBox',
-            instantHtml +
-              `<div class="mt-2 pt-2 border-t border-slate-800 text-xs text-emerald-300 whitespace-pre-line">${aiText}</div>`
-          );
-        }
-      } catch (err) {
-        // Keep instant engineering report on error
-      } finally {
-        if (loading) loading.classList.add('hidden');
-      }
     }
 
     // --- 8. INITIALIZE ON WINDOW LOAD ---
